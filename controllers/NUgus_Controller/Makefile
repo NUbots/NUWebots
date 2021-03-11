@@ -65,6 +65,9 @@
 ###
 ###-----------------------------------------------------------------------------
 
+CFLAGS = -Wall
+CXX_SOURCES = tcp.cpp
+
 ### Do not modify: this includes Webots global Makefile.include
 null :=
 space := $(null) $(null)
