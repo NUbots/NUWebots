@@ -2,8 +2,6 @@
 
 This is the Webots world, models and controllers for simulating the NUbots robots.
 
-The soccer stadium [/protos/robotstadium_humanoid] was created by [Bit-Bots](https://github.com/bit-bots/wolfgang_robot).
-
 ## File System
 
 | Folder      | Description                                                                                                        |
@@ -44,4 +42,4 @@ Note: webots may give you an error if there is an issue with the graphics card. 
 
 Webots should open. Click on `File->Open World...`. 
 
-In the file explorer pop up, click on `root`. Navigate into the `worlds` folder and open `soccer.wbt`.
+In the file explorer pop up, click on `root`. Navigate into the `worlds` folder and open `kid.wbt`.
