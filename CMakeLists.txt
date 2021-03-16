@@ -1,0 +1,27 @@
+# Description: Webots Controller build using CMake.
+# Example: Copy CMakeLists.txt in $WEBOTS_HOME/projects/robots/gctronic/e-puck/controllers/e-puck/ and execute the following command:
+#     rm -fr build e-puck; mkdir build; cd build; cmake ..; make; cd ..
+
+cmake_minimum_required(VERSION 3.0)
+
+project(nugus_controller)
+
+# If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable.
+# If the environment variable is not defined, then choose some sort of sane default
+if (NOT WEBOTS_HOME)
+  if(DEFINED ENV{WEBOTS_HOME})
+    set(WEBOTS_HOME $ENV{WEBOTS_HOME} CACHE PATH "The path to the webots folder.")
+  else()
+    if (NOT WIN32)
+      set(WEBOTS_HOME "/usr/local/webots" CACHE PATH "The path to the webots folder.")
+    endif (NOT WIN32)
+  endif(DEFINED ENV{WEBOTS_HOME})
+endif (NOT WEBOTS_HOME)
+
+# We use additional modules that cmake needs to know about
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+
+find_package(webots REQUIRED)
+
+add_subdirectory(controllers)
+
