@@ -1,2 +1,3 @@
 protos/**/*.cache
 worlds/.*.wbproj
+build
