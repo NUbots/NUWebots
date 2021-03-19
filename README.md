@@ -2,6 +2,8 @@
 
 This is the Webots world, models and controllers for simulating the NUbots robots.
 
+The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid League). 
+
 ## File System
 
 | Folder      | Description                                                                                                        |
