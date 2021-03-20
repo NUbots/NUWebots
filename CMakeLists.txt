@@ -27,18 +27,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     CACHE STRING "Enable/Disable output of compile commands during generation." FORCE
 )
 
-# If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable.
-# If the environment variable is not defined, then choose some sort of sane default
-if(NOT DEFINED WEBOTS_HOME)
-  if(DEFINED ENV{WEBOTS_HOME})
-    set(WEBOTS_HOME $ENV{WEBOTS_HOME} CACHE PATH "The path to the webots folder.")
-  else()
-    if(NOT WIN32)
-      set(WEBOTS_HOME "/usr/local/webots" CACHE PATH "The path to the webots folder.")
-    endif(NOT WIN32)
-  endif(DEFINED ENV{WEBOTS_HOME})
-endif(NOT DEFINED WEBOTS_HOME)
-
 find_package(webots REQUIRED)
 
 add_subdirectory(controllers)

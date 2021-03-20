@@ -1,3 +1,21 @@
+# If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable. If the environment
+# variable is not defined, then choose some sort of sane default
+if(NOT DEFINED WEBOTS_HOME)
+  if(DEFINED ENV{WEBOTS_HOME})
+    set(WEBOTS_HOME
+        $ENV{WEBOTS_HOME}
+        CACHE PATH "The path to the webots folder."
+    )
+  else()
+    if(NOT WIN32)
+      set(WEBOTS_HOME
+          "/usr/local/webots"
+          CACHE PATH "The path to the webots folder."
+      )
+    endif(NOT WIN32)
+  endif(DEFINED ENV{WEBOTS_HOME})
+endif(NOT DEFINED WEBOTS_HOME)
+
 # Clear our required_vars variable
 unset(required_vars)
 
@@ -51,6 +69,5 @@ find_package_handle_standard_args(
   webots
   FOUND_VAR webots_FOUND
   REQUIRED_VARS ${required_vars}
-  VERSION_VAR webots_VERSION 
+  VERSION_VAR webots_VERSION
 )
-
