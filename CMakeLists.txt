@@ -10,6 +10,9 @@ endif()
 
 project(nugus_controller LANGUAGES CXX)
 
+# We use additional modules that cmake needs to know about
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+
 # GNU Compiler
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
   # Enable colours on g++ 4.9 or greater
@@ -36,10 +39,6 @@ if(NOT DEFINED WEBOTS_HOME)
   endif(DEFINED ENV{WEBOTS_HOME})
 endif(NOT DEFINED WEBOTS_HOME)
 
-# We use additional modules that cmake needs to know about
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
-
 find_package(webots REQUIRED)
 
 add_subdirectory(controllers)
-
