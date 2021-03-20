@@ -10,6 +10,14 @@ endif()
 
 project(nugus_controller LANGUAGES CXX)
 
+# GNU Compiler
+if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+  # Enable colours on g++ 4.9 or greater
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.9 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.9)
+    add_compile_options(-fdiagnostics-color=always)
+  endif()
+endif()
+
 # If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable.
 # If the environment variable is not defined, then choose some sort of sane default
 if(NOT DEFINED WEBOTS_HOME)
