@@ -18,6 +18,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
   endif()
 endif()
 
+# Output the compilation database
+set(CMAKE_EXPORT_COMPILE_COMMANDS
+    ON
+    CACHE STRING "Enable/Disable output of compile commands during generation." FORCE
+)
+
 # If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable.
 # If the environment variable is not defined, then choose some sort of sane default
 if(NOT DEFINED WEBOTS_HOME)
