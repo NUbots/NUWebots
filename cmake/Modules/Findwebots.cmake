@@ -45,6 +45,7 @@ set(webots_INCLUDE_DIRS ${webots_INCLUDE_DIR})
 
 mark_as_advanced(webots_LIBRARIES webots_INCLUDE_DIR webots_INCLUDE_DIRS)
 
+# Make sure all of thje package variables/components were found
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(
   webots
