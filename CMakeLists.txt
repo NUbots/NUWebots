@@ -1,6 +1,4 @@
-# Description: Webots Controller build using CMake.
-# Example: Copy CMakeLists.txt in $WEBOTS_HOME/projects/robots/gctronic/e-puck/controllers/e-puck/ and execute the following command:
-#     rm -fr build e-puck; mkdir build; cd build; cmake ..; make; cd ..
+cmake_minimum_required(VERSION 3.0)
 
 cmake_minimum_required(VERSION 3.0)
 
