@@ -1,3 +1,6 @@
+# Find the webots package
+find_package(webots REQUIRED)
+
 # Find/list all of the source files
 set(controller_sources NUgus_Controller.cpp)
 

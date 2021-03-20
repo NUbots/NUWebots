@@ -27,6 +27,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
     CACHE STRING "Enable/Disable output of compile commands during generation." FORCE
 )
 
-find_package(webots REQUIRED)
-
 add_subdirectory(controllers)
