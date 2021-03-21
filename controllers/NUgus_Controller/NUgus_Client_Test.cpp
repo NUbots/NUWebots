@@ -77,6 +77,9 @@ int connect(const std::string& server_address, const int& port) {
 #endif
         return -1;
     }
+    else {
+        std::cerr << "Successfully connected to server" << std::endl;
+    }
 
     return fd;
 }
@@ -109,7 +112,6 @@ int main(int argc, char** argv) {
         int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
         if (num_ready < 0) {
             std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
-            continue;
         }
         else if (num_ready > 0) {
             // Wire format
@@ -145,6 +147,9 @@ int main(int argc, char** argv) {
             N                       = output_data.size();
             send(tcp_fd, &N, sizeof(N), 0);
             send(tcp_fd, data.data(), output_data.size(), 0);
+        }
+        else {
+            std::cerr << "No data available" << std::endl;
         }
     }
 

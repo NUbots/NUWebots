@@ -86,6 +86,8 @@ public:
                 current_num = msg.num();
             }
 
+            std::cerr << "Sending message to client" << std::endl;
+
             // Send a message to the client
             controller::nugus::RobotControl msg;
             msg.set_num(current_num);
