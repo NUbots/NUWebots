@@ -84,17 +84,14 @@ public:
 
                 // Read out the current message counter from the message
                 current_num = msg.num();
-            }
 
-            std::cerr << "Sending message to client" << std::endl;
+                // Send a message to the client
+                msg.set_num(current_num);
 
-            // Send a message to the client
-            controller::nugus::RobotControl msg;
-            msg.set_num(current_num);
-            std::string data = msg.SerializeAsString();
-            uint64_t N       = data.size();
-            send(tcp_fd, &N, sizeof(N), 0);
-            send(tcp_fd, data.data(), data.size(), 0);
+                N = msg.ByteSizeLong();
+                data.resize(N);
+                msg.SerializeToArray(data.data(), N);
+
                 if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
                     std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
                 }
@@ -102,6 +99,8 @@ public:
                     std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
                 }
             }
+        }
+    }
 
 private:
     /// Controller time step

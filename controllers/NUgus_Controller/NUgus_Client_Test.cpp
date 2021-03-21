@@ -100,6 +100,21 @@ int main(int argc, char** argv) {
     // Current message counter
     uint32_t current_num = 1;
 
+    // Send initial message
+    controller::nugus::RobotControl msg;
+    msg.set_num(current_num);
+
+    uint64_t N = msg.ByteSizeLong();
+    std::vector<uint8_t> data(N, 0);
+    msg.SerializeToArray(data.data(), N);
+
+    if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
+        std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+    }
+    if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
+        std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+    }
+
     while (current_num <= 10) {
         // Setup arguments for select call
         fd_set rfds;
@@ -117,19 +132,16 @@ int main(int argc, char** argv) {
             // Wire format
             // unit64_t N   message size in bytes
             // uint8_t * N  the message
-            uint64_t N;
             if (recv(tcp_fd, &N, sizeof(N), 0) != sizeof(N)) {
                 std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
                 continue;
             }
 
-            std::vector<uint8_t> data(N, 0);
             if (recv(tcp_fd, data.data(), N, 0) != N) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 continue;
             }
 
-            controller::nugus::RobotControl msg;
             if (!msg.ParseFromArray(data.data(), N)) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
                 continue;
@@ -143,19 +155,17 @@ int main(int argc, char** argv) {
             // Increment the counter and send the message back
             current_num += 1;
             msg.set_num(current_num);
-            std::string output_data = msg.SerializeAsString();
-            N                       = output_data.size();
+
+            N = msg.ByteSizeLong();
             data.resize(N);
             msg.SerializeToArray(data.data(), N);
-        }
+
             if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
                 std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
             }
             if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
                 std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
             }
-        else {
-            std::cerr << "No data available" << std::endl;
         }
     }
 
