@@ -27,22 +27,22 @@ set_source_files_properties(
 )
 
 # Create an executable using all of the sources
-add_executable(nugus_controller ${controller_sources})
+add_executable(NUgus_Controller ${controller_sources})
 
 # Make sure we can find the generated protobuf header files
-target_include_directories(nugus_controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
+target_include_directories(NUgus_Controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
 # Link against the webots target (this will also add any necessary include directories to our target)
-target_link_libraries(nugus_controller PRIVATE webots::webots)
+target_link_libraries(NUgus_Controller PRIVATE webots::webots)
 
 # Link against the webots target (this will also add any necessary include directories to our target)
-target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
+target_link_libraries(NUgus_Controller PRIVATE protobuf::libprotobuf-lite)
 
 # Copy the built executable to the project root directory
 add_custom_command(
-  TARGET nugus_controller
+  TARGET NUgus_Controller
   POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller ${CMAKE_SOURCE_DIR}
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/NUgus_Controller ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # ######################################################################################################################
