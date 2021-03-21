@@ -97,16 +97,16 @@ int main(int argc, char** argv) {
         tcp_fd = connect(argv[1], std::stoi(argv[2]));
     }
 
-    // Setup arguments for select call
-    fd_set rfds;
-    FD_ZERO(&rfds);
-    FD_SET(tcp_fd, &rfds);
-    timeval timeout = {0, 0};
-
     // Current message counter
-    uint32_t current_num = 0;
+    uint32_t current_num = 1;
 
-    while (current_num < 10) {
+    while (current_num <= 10) {
+        // Setup arguments for select call
+        fd_set rfds;
+        FD_ZERO(&rfds);
+        FD_SET(tcp_fd, &rfds);
+        timeval timeout = {0, 0};
+
         // Watch TCP file descriptor to see when it has input.
         // No wait - polling as fast as possible
         int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);

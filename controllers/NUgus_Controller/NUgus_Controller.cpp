@@ -41,16 +41,16 @@ public:
     }
 
     void run() {
-        // Setup arguments for select call
-        fd_set rfds;
-        FD_ZERO(&rfds);
-        FD_SET(tcp_fd, &rfds);
-        timeval timeout = {0, 0};
-
         // Message counter
-        uint32_t current_num = 0;
+        uint32_t current_num = 1;
 
         while (step(time_step) != -1) {
+            // Setup arguments for select call
+            fd_set rfds;
+            FD_ZERO(&rfds);
+            FD_SET(tcp_fd, &rfds);
+            timeval timeout = {0, 0};
+
             // Watch TCP file descriptor to see when it has input.
             // No wait - polling as fast as possible
             int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
