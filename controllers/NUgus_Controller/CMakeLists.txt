@@ -45,6 +45,27 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller ${CMAKE_SOURCE_DIR}
 )
 
+# ######################################################################################################################
 
+set(controller_test_sources NUgus_Client_Test.cpp "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
+                            "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
 )
 
+# Create an executable using all of the sources
+add_executable(nugus_controller_test ${controller_test_sources})
+
+# Make sure we can find the generated protobuf header files
+target_include_directories(nugus_controller_test PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
+
+# Link against the webots target (this will also add any necessary include directories to our target)
+target_link_libraries(nugus_controller_test PRIVATE webots::webots)
+
+# Link against the webots target (this will also add any necessary include directories to our target)
+target_link_libraries(nugus_controller_test PRIVATE protobuf::libprotobuf-lite)
+
+# Copy the built executable to the project root directory
+add_custom_command(
+  TARGET nugus_controller_test
+  POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller_test ${CMAKE_SOURCE_DIR}
+)
