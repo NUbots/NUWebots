@@ -95,8 +95,13 @@ public:
             uint64_t N       = data.size();
             send(tcp_fd, &N, sizeof(N), 0);
             send(tcp_fd, data.data(), data.size(), 0);
-        }
-    }
+                if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
+                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                }
+                else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
+                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                }
+            }
 
 private:
     /// Controller time step

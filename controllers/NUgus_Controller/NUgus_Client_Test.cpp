@@ -145,9 +145,15 @@ int main(int argc, char** argv) {
             msg.set_num(current_num);
             std::string output_data = msg.SerializeAsString();
             N                       = output_data.size();
-            send(tcp_fd, &N, sizeof(N), 0);
-            send(tcp_fd, data.data(), output_data.size(), 0);
+            data.resize(N);
+            msg.SerializeToArray(data.data(), N);
         }
+            if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
+                std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+            }
+            if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
+                std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+            }
         else {
             std::cerr << "No data available" << std::endl;
         }
