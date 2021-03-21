@@ -89,7 +89,10 @@ int main(int argc, char** argv) {
     }
 
     // Connect to the server
-    int tcp_fd = connect(argv[1], std::stoi(argv[2]));
+    int tcp_fd = -1;
+    while (tcp_fd == -1) {
+        tcp_fd = connect(argv[1], std::stoi(argv[2]));
+    }
 
     // Setup arguments for select call
     fd_set rfds;
