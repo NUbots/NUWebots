@@ -15,6 +15,10 @@ NUgus {
   rotation 0.7 -0.6 -0.6 -2.0
   name "NUgus"
   controller "NUgus_Controller"
+  controllerArgs [
+    "10020"
+    "32"
+  ]
 }
 RobotstadiumSoccerFieldHumanoid {
   translation 0 0 0
