@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
             }
 
             controller::nugus::RobotControl msg;
-            if (msg.ParseFromArray(data.data(), N)) {
+            if (!msg.ParseFromArray(data.data(), N)) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
                 continue;
             }

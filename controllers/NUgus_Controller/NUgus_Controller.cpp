@@ -77,7 +77,7 @@ public:
 
                 // Parse message data
                 controller::nugus::RobotControl msg;
-                if (msg.ParseFromArray(data.data(), N)) {
+                if (!msg.ParseFromArray(data.data(), N)) {
                     std::cerr << "Error: Failed to parse serialised message" << std::endl;
                     continue;
                 }
