@@ -7,6 +7,9 @@ find_package(Protobuf REQUIRED)
 # Find/list all of the source files
 set(controller_sources NUgus_Controller.cpp)
 
+# Make sure protobuf output directory exists
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
+
 add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
          "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
