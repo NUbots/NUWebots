@@ -10,6 +10,7 @@ set(controller_sources NUgus_Controller.cpp)
 # Make sure protobuf output directory exists
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
+# Generate C++ code from protobuf message
 add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
          "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
@@ -19,6 +20,7 @@ add_custom_command(
   COMMENT "Compiling protocol buffer RobotControl.proto"
 )
 
+# Add generated protobuf sources to controller sources
 list(APPEND controller_sources "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
      "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
 )
