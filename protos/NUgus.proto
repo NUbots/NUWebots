@@ -1164,6 +1164,9 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
+                  Transform {
+                    translation 0 0 0
+                        width 640
                 ]
                 name "head"
                 boundingObject USE head
