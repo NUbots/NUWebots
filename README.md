@@ -14,9 +14,16 @@ The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid Le
 
     in the terminal. On Windows you can do this in [Git Bash](https://gitforwindows.org/).
 
-2. Download Webots from the [Cyberbotics website](https://cyberbotics.com/). 
+2. Compile the controllers with cmake
 
-3. Open Webots and click on `File->Open World...`. 
+    ```sh
+    cmake .
+    make
+    ```
+
+3. Download Webots from the [Cyberbotics website](https://cyberbotics.com/). 
+
+4. Open Webots and click on `File->Open World...`. 
 
     In the pop-up, navigate to the [NUbots/Webots](https://github.com/NUbots/Webots/) repository on your computer and open the `worlds/kid.wbt` world file.
 
