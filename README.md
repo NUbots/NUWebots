@@ -17,7 +17,9 @@ The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid Le
 2. Compile the controllers with cmake
 
     ```sh
-    cmake .
+    mkdir build
+    cd build
+    cmake ..
     make
     ```
 
