@@ -2,7 +2,7 @@
 
 This is the Webots world, models and controllers for simulating the NUbots robots.
 
-The soccer stadium [/protos/robotstadium_humanoid] was created by [Bit-Bots](https://github.com/bit-bots/wolfgang_robot).
+The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid League). 
 
 ## Set Up
 
