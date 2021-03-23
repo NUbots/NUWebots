@@ -11,7 +11,7 @@ add_executable(nugus_controller ${controller_sources})
 target_link_libraries(nugus_controller PRIVATE webots::webots)
 
 # Copy the built executable to the project root directory
-# add_custom_command(TARGET nugus_controller POST_BUILD COMMAND ${CMAKE_COMMAND} -E
-#   copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller ${CMAKE_SOURCE_DIR}
-# )
+add_custom_command(TARGET nugus_controller POST_BUILD COMMAND ${CMAKE_COMMAND} -E
+  copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller ${CMAKE_SOURCE_DIR}
+)
 
