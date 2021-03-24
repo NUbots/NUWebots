@@ -1175,8 +1175,11 @@ PROTO NUgus [
                         fieldOfView 1.047
                         width 640
                         height 480
-                        antiAliasing TRUE
-                        noise 0.04
+                        recognition Recognition {
+                          frameColor 0 0 1
+                          frameThickness 3
+                          segmentation TRUE
+                        }
                       }
                       Camera {
                         name "left_camera"
@@ -1185,8 +1188,11 @@ PROTO NUgus [
                         fieldOfView 1.047
                         width 640
                         height 480
-                        antiAliasing TRUE
-                        noise 0.04
+                        recognition Recognition {
+                          frameColor 0 0 1
+                          frameThickness 3
+                          segmentation TRUE
+                        }
                       }
                     ]
                   }
