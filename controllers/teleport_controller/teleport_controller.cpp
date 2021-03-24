@@ -1,17 +1,26 @@
-// File:          teleport_controller.cpp
-// Date:          23/03/2021
-// Description:   Method to teleport robot around the playing field for the purposes of
-//                    gathering training data
-// Author:        Lachlan Court
-// Modifications:
+/*
+ * This file is part of the NUbots Codebase.
+ *
+ * The NUbots Codebase is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The NUbots Codebase is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with the NUbots Codebase.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2021 NUbots <nubots@nubots.net>
+ */
 
-
-#include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2MotionManager.hpp>
 #include <webots/Supervisor.hpp>
 #include <iostream>
-#include <math.h>
-#include <time.h> 
+#include <time.h>  
 
 // All the webots classes are defined in the "webots" namespace
 using namespace webots;
@@ -37,20 +46,21 @@ static const double rotations[rotationsSize][4] = {{1, 0, 0, 1.57081},
                                                   {-0.577352, 0.577347, 0.577352, -2.09441},
                                                   {0.867739, -0.343277, -0.359429, 1.75753}};                               
 
+constexpr int LOOK_AROUND = 54;
+constexpr int CROUCH = 15;
+constexpr int STAND_STILL = 1;
 
-/* This is the main program of the supervisor. It creates an instance of the Supervisor
- *     instance, launches its function(s) and destroys it at the end of the execution.
- */
+
+// This is the main program of the supervisor. It creates an instance of the Supervisor
+// instance, launches its function(s) and destroys it at the end of the execution.
+
 int main() {
-    std::cout << "a" << std::endl;
     // create the Supervisor instance and assign it to a robot
     Supervisor* supervisor = new Supervisor();
     Node* target           = supervisor->getFromDef("RED_1");
-    std::cout << "b" << std::endl;
+    
     // Get the time step of the current world.
     int timeStep = (int) supervisor->getBasicTimeStep();
-
-    std::cout << "c" << std::endl;
 
     // Add the motion manager to make the robot stand up and look around
     managers::RobotisOp2MotionManager* mMotionManager = new managers::RobotisOp2MotionManager(supervisor);
@@ -59,7 +69,6 @@ int main() {
     // Generate random seed
     srand(time(NULL));
 
-    // Main loop:
     while (supervisor->step(timeStep) != -1) {
 
         // Grab the current translation field of the robot to modify
@@ -75,19 +84,19 @@ int main() {
 
         // Prepare new location
 
-        /* 0, 0, 0 is centre of the playing field.
-         *     X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
-         *     from red
-         *     Y ranges from -8 - 8, the positive value on the red goal side
-         *     Z should be set to 3.2 to be on the ground
-         *     If the robot teleports into an existing object it may run into issues for that
-         *     image only, after resetPhysics is should return to a regular state
-         */
+        // 0, 0, 0 is centre of the playing field.
+        // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
+        // from red
+        // Y ranges from -8 - 8, the positive value on the red goal side
+        // Z should be set to 3.2 to be on the ground
+        // If the robot teleports into an existing object it may run into issues for that
+        // image only, after resetPhysics is should return to a regular state
+         
 
         double newPos[3];
-        newPos[0] = 5.4 - (rand() % 1080) / 100;  // target_translation_vec[0] + 1;
-        newPos[1] = 8 - (rand() % 1600) / 100;    // target_translation_vec[1] + 0;
-        newPos[2] = 0.32;                         // target_translation_vec[2] + 0;
+        newPos[0] = 5.4 - (rand() % 1080) / 100;
+        newPos[1] = 8 - (rand() % 1600) / 100;
+        newPos[2] = 0.32;
 
         // Set new location
         target_translation_field->setSFVec3f(newPos);
@@ -106,8 +115,8 @@ int main() {
             std::cout << " Z: " << target_rotation_vec[2];
             std::cout << " α: " << target_rotation_vec[3] << std::endl;
 
-            /* Prepare new rotation. These are saved in rotations matrix as the axis-angle
-               calculation is rough to calculate on the fly*/
+            // Prepare new rotation. These are saved in rotations matrix as the axis-angle
+            // calculation is rough to calculate on the fly
 
             double newRot[4];
             newRot[0] = rotations[i][0];
@@ -122,14 +131,13 @@ int main() {
             // Teleporting is strenuous work apparently
             target->resetPhysics();
 
-            /* Make robot stand up and look around. This preset is slow and I'm not super
-             *     happy with it but it does the job for now. Below is a work in progress to
-             *     manually move the robot motors to where we want them
-             */
-            mMotionManager->playPage(54);
-            // Other presets, comment out as desired
-            mMotionManager->playPage(15);
-            mMotionManager->playPage(1);
+            // The following performs a number of preset movements/routines that the robot can
+            // carry out. Any of them can be commented out but leave at least one otherwise
+            // there will be no delay between each step of this loop
+            
+            mMotionManager->playPage(LOOK_AROUND);
+            mMotionManager->playPage(CROUCH);
+            mMotionManager->playPage(STAND_STILL);
         }
     };
 
