@@ -22,9 +22,6 @@
 #include <iostream>
 #include <time.h>  
 
-// All the webots classes are defined in the "webots" namespace
-using namespace webots;
-
 /*
 // Rotations matrix for 90 degree rotations
 static const int rotationsSize = 4;
@@ -56,8 +53,8 @@ constexpr int STAND_STILL = 1;
 
 int main() {
     // create the Supervisor instance and assign it to a robot
-    Supervisor* supervisor = new Supervisor();
-    Node* target           = supervisor->getFromDef("RED_1");
+    webots::Supervisor* supervisor = new webots::Supervisor();
+    webots::Node* target           = supervisor->getFromDef("RED_1");
     
     // Get the time step of the current world.
     int timeStep = (int) supervisor->getBasicTimeStep();
@@ -72,7 +69,7 @@ int main() {
     while (supervisor->step(timeStep) != -1) {
 
         // Grab the current translation field of the robot to modify
-        Field* target_translation_field = target->getField("translation");
+        webots::Field* target_translation_field = target->getField("translation");
         // Convert the field to a vector to output to console
         const double* target_translation_vec = target_translation_field->getSFVec3f();
 
@@ -82,7 +79,7 @@ int main() {
         std::cout << " Y: " << target_translation_vec[1];
         std::cout << " Z: " << target_translation_vec[2] << std::endl;
 
-        // Prepare new location
+        // Prepare new location 
 
         // 0, 0, 0 is centre of the playing field.
         // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
@@ -102,7 +99,7 @@ int main() {
         target_translation_field->setSFVec3f(newPos);
 
         // Grab the current rotation field of the robot to modify
-        Field* target_rotation_field = target->getField("rotation");
+        webots::Field* target_rotation_field = target->getField("rotation");
         // Convert the field to a vector to output to console
         const double* target_rotation_vec = target_rotation_field->getSFRotation();
 
