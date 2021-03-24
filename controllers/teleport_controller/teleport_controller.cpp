@@ -45,11 +45,26 @@ static double clamp(double value, double min, double max) {
   return value < min ? min : value > max ? max : value;
 }*/
 
+/*
 // Rotations matrix for 90 degree rotations
-static const double rotations[4][4] = {{1, 0, 0, 1.57081},
-                                       {0.577353, 0.577345, 0.577353, 2.0944},
-                                       {1.69526e-09, 0.707103, 0.707111, 3.14159},
-                                       {-0.577352, 0.577347, 0.577352, -2.09441}};
+static const int rotationsSize = 4;
+static const double rotations[rotationsSize][4] = {{1, 0, 0, 1.57081},
+                                                  {0.577353, 0.577345, 0.577353, 2.0944},
+                                                  {1.69526e-09, 0.707103, 0.707111, 3.14159},
+                                                  {-0.577352, 0.577347, 0.577352, -2.09441}};
+
+*/
+
+// Rotations matrix for 45 degree rotations
+static const int rotationsSize = 8;                                     
+static const double rotations[rotationsSize][4] = {{1, 0, 0, 1.57081},
+                                                  {0.867737, 0.343283, 0.359429, 1.75753},
+                                                  {0.577353, 0.577345, 0.577353, 2.0944},
+                                                  {0.286947, 0.661632, 0.692752, 2.60662},
+                                                  {1.69526e-09, 0.707103, 0.707111, 3.14159},
+                                                  {-0.286948, 0.661631, 0.692752, -2.60661},
+                                                  {-0.577352, 0.577347, 0.577352, -2.09441},
+                                                  {0.867739, -0.343277, -0.359429, 1.75753}};                               
 
 
 /* This is the main program of the supervisor. It creates an instance of the Supervisor
@@ -131,7 +146,7 @@ int main() {
         const double* target_rotation_vec = target_rotation_field->getSFRotation();
 
         // Loop 4 times, one for each direction to face
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < rotationsSize; i++) {
             // Output current rotation
             std::cout << "Rotation: " << std::endl;
             std::cout << "X: " << target_rotation_vec[0];
@@ -160,6 +175,10 @@ int main() {
              *     manually move the robot motors to where we want them
              */
             mMotionManager->playPage(54);
+            // Other presets, comment out as desired
+            mMotionManager->playPage(15);
+            mMotionManager->playPage(1);
+            
 
             /* Following is a block to attempt to move the head up so that the robot was looking
              * straight ahead (By default it looks straight down to the ground), might work on this
