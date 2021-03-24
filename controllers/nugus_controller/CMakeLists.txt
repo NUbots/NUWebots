@@ -2,7 +2,7 @@
 find_package(webots REQUIRED)
 
 # Find/list all of the source files
-set(controller_sources NUgus_Controller.cpp)
+set(controller_sources nugus_controller.cpp)
 
 # Create an executable using all of the sources
 add_executable(nugus_controller ${controller_sources})
@@ -11,4 +11,4 @@ add_executable(nugus_controller ${controller_sources})
 target_link_libraries(nugus_controller PRIVATE webots::webots)
 
 set_target_properties(nugus_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                                       OUTPUT_NAME NUgus_Controller)
+                                       OUTPUT_NAME nugus_controller)
