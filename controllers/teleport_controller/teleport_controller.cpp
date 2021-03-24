@@ -9,41 +9,12 @@
 #include <RobotisOp2GaitManager.hpp>
 #include <RobotisOp2MotionManager.hpp>
 #include <webots/Supervisor.hpp>
-//#include <webots/PositionSensor.hpp>
-//#include <webots/Motor.hpp>
-//#include <cassert>
 #include <iostream>
 #include <math.h>
 #include <time.h> 
 
-/*
-#ifdef _WIN32
-  #include <Windows.h>
-#else
-  #include <unistd.h>
-#endif*/
-
 // All the webots classes are defined in the "webots" namespace
 using namespace webots;
-
-// Used for config for motion sensors - Robot doesn't need to walk but necessary to stand up and lift head
-
-// static const char *motorNames[20] = {
-//  "ShoulderR" /*ID1 */, "ShoulderL" /*ID2 */, "ArmUpperR" /*ID3 */, "ArmUpperL" /*ID4 */, "ArmLowerR" /*ID5 */,
-//  "ArmLowerL" /*ID6 */, "PelvYR" /*ID7 */,    "PelvYL" /*ID8 */,    "PelvR" /*ID9 */,     "PelvL" /*ID10*/,
-//  "LegUpperR" /*ID11*/, "LegUpperL" /*ID12*/, "LegLowerR" /*ID13*/, "LegLowerL" /*ID14*/, "AnkleR" /*ID15*/,
-//  "AnkleL" /*ID16*/,    "FootR" /*ID17*/,     "FootL" /*ID18*/,     "Neck" /*ID19*/,      "Head" /*ID20*/
-//};
-
-// Blatanly plagiarised from Soccer.cpp, restricts value between min and max
-/*
-static double clamp(double value, double min, double max) {
-  if (min > max) {
-    assert(0);
-    return value;
-  }
-  return value < min ? min : value > max ? max : value;
-}*/
 
 /*
 // Rotations matrix for 90 degree rotations
@@ -88,17 +59,6 @@ int main() {
      *     works for now but might try to fix it later to get rid of the warning :)
      */
 
-    /*
-    // Enable the Position Sensors to allow the robot to stand up and lift head
-    for (int i = 0; i < 20; i++) {
-      std::cout << timeStep << std::endl;
-      std::string sensorName = motorNames[i];
-      sensorName.push_back('S');
-      supervisor->getPositionSensor(sensorName)->enable(timeStep);
-      std::cout << motorNames[i] << std::endl;
-    }
-    */
-
     // Add the motion manager to make the robot stand up and look around
     managers::RobotisOp2MotionManager* mMotionManager = new managers::RobotisOp2MotionManager(supervisor);
     mMotionManager->playPage(54);
@@ -139,7 +99,6 @@ int main() {
         // Set new location
         target_translation_field->setSFVec3f(newPos);
 
-
         // Grab the current rotation field of the robot to modify
         Field* target_rotation_field = target->getField("rotation");
         // Convert the field to a vector to output to console
@@ -178,22 +137,6 @@ int main() {
             // Other presets, comment out as desired
             mMotionManager->playPage(15);
             mMotionManager->playPage(1);
-            
-
-            /* Following is a block to attempt to move the head up so that the robot was looking
-             * straight ahead (By default it looks straight down to the ground), might work on this
-             * more later but I couldn't get it to work so for now it's just using a prebuilt playPage
-             * called Applaud louder in which the robot looks around
-             */
-
-            /*
-            Motor* head = supervisor->getMotor("Head");
-            std::cout << head->getMaxPosition() << std::endl;
-            std::cout << head->getMinPosition() << std::endl;
-            double headPosition = clamp(0.94, head->getMinPosition(), head->getMaxPosition());
-            head->setPosition(headPosition);
-            sleep(1);
-            */
         }
     };
 
