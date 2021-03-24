@@ -1164,9 +1164,64 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  Transform {
-                    translation 0 0 0
-                        width 640
+                  Camera {
+                  name "right_camera"
+                  translation 0.08893612063588988 -0.03529909622045881 0.0713674563254241
+                  rotation -0.903935 -0.285058 0.318815 0.0533311
+                  fieldOfView 1.047
+                  width 640
+                  height 480
+                  antiAliasing TRUE
+                  noise 0.04
+                  children [
+                    Transform {
+                      translation -0.03 0 0
+                      rotation 0 0 1 -1.57
+                      children [
+                        Shape {
+                          appearance PBRAppearance {
+                            baseColor 0 0 0
+                            roughness 1
+                            metalness 0
+                          }
+                          geometry Cylinder {
+                            height 0.02
+                            radius 0.01
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+                Camera {
+                  name "left_camera"
+                  translation 0.08893612063588988 0.03529909622045881 0.0713674563254241
+                  rotation -0.903935 -0.285058 0.318815 0.0533311
+                  fieldOfView 1.047
+                  width 640
+                  height 480
+                  antiAliasing TRUE
+                  noise 0.04
+                  children [
+                    Transform {
+                      translation -0.03 0 0
+                      rotation 0 0 1 -1.57
+                      children [
+                        Shape {
+                          appearance PBRAppearance {
+                            baseColor 0 0 0
+                            roughness 1
+                            metalness 0
+                          }
+                          geometry Cylinder {
+                            height 0.02
+                            radius 0.01
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
                 ]
                 name "head"
                 boundingObject USE head
