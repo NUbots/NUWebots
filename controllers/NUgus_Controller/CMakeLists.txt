@@ -32,23 +32,20 @@ set_source_files_properties(
 )
 
 # Create an executable using all of the sources
-add_executable(NUgus_Controller ${controller_sources})
+add_executable(nugus_controller ${controller_sources})
 
 # Make sure we can find the generated protobuf header files
-target_include_directories(NUgus_Controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
+target_include_directories(nugus_controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
 # Link against the webots target (this will also add any necessary include directories to our target)
-target_link_libraries(NUgus_Controller PRIVATE webots::webots)
+target_link_libraries(nugus_controller PRIVATE webots::webots)
 
 # Link against the webots target (this will also add any necessary include directories to our target)
-target_link_libraries(NUgus_Controller PRIVATE protobuf::libprotobuf-lite)
+target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
 
-# Copy the built executable to the project root directory
-add_custom_command(
-  TARGET NUgus_Controller
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/NUgus_Controller ${CMAKE_CURRENT_SOURCE_DIR}
-)
+# Generate binary in controller source directory
+set_target_properties(nugus_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+                                       OUTPUT_NAME NUgus_Controller)
 
 # ######################################################################################################################
 
@@ -68,9 +65,7 @@ target_link_libraries(nugus_controller_test PRIVATE webots::webots)
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller_test PRIVATE protobuf::libprotobuf-lite)
 
-# Copy the built executable to the project root directory
-add_custom_command(
-  TARGET nugus_controller_test
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/nugus_controller_test ${CMAKE_SOURCE_DIR}
-)
+# Generate binary in project root directory
+set_target_properties(nugus_controller_test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}"
+                                       OUTPUT_NAME nugus_controller_test)
+
