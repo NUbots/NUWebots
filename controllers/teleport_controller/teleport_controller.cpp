@@ -52,13 +52,6 @@ int main() {
 
     std::cout << "c" << std::endl;
 
-
-    /* The following block is intended to enable the Position Sensors. I must be doing something
-     *     wrong here because it still comes up with an error, but if this is commented out it
-     *     enables them automatically and just shows a warning on startup instead. I figure it
-     *     works for now but might try to fix it later to get rid of the warning :)
-     */
-
     // Add the motion manager to make the robot stand up and look around
     managers::RobotisOp2MotionManager* mMotionManager = new managers::RobotisOp2MotionManager(supervisor);
     mMotionManager->playPage(54);
