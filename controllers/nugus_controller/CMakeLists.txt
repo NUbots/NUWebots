@@ -5,7 +5,7 @@ find_package(webots REQUIRED)
 find_package(Protobuf REQUIRED)
 
 # Find/list all of the source files
-set(controller_sources NUgus_Controller.cpp)
+set(controller_sources nugus_controller.cpp)
 
 # Make sure protobuf output directory exists
 file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
@@ -45,7 +45,7 @@ target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
 
 # Generate binary in controller source directory
 set_target_properties(nugus_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                                       OUTPUT_NAME NUgus_Controller)
+                                       OUTPUT_NAME nugus_controller)
 
 # ######################################################################################################################
 
