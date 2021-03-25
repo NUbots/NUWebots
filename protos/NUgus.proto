@@ -1224,6 +1224,21 @@ PROTO NUgus [
           }
         }
       }
+      Transform {
+        translation 0.000000 0.000000 0.2
+        children [
+          Accelerometer {
+            xAxis TRUE
+            yAxis TRUE
+            zAxis TRUE
+          }
+          Gyro {
+            xAxis TRUE
+            yAxis TRUE
+            zAxis TRUE
+          }
+        ]
+      }
     ]
     name IS name 
     boundingObject Transform {
