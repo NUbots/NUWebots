@@ -50,7 +50,7 @@ set_target_properties(nugus_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CM
 # ######################################################################################################################
 # Controller test 
 
-set(controller_test_sources NUgus_Client_Test.cpp "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
+set(controller_test_sources nugus_controller_test.cpp "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
                             "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
 )
 
