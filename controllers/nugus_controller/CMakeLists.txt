@@ -40,7 +40,7 @@ target_include_directories(nugus_controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE webots::webots)
 
-# Link against the webots target (this will also add any necessary include directories to our target)
+# Link against the protobuf-lite target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
 
 # Generate binary in controller source directory
@@ -48,6 +48,7 @@ set_target_properties(nugus_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CM
                                        OUTPUT_NAME nugus_controller)
 
 # ######################################################################################################################
+# Controller test 
 
 set(controller_test_sources NUgus_Client_Test.cpp "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
                             "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
@@ -62,7 +63,7 @@ target_include_directories(nugus_controller_test PRIVATE "${CMAKE_CURRENT_BINARY
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller_test PRIVATE webots::webots)
 
-# Link against the webots target (this will also add any necessary include directories to our target)
+# Link against the protobuf-lite target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller_test PRIVATE protobuf::libprotobuf-lite)
 
 # Generate binary in project root directory
