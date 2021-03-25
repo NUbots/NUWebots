@@ -28,7 +28,7 @@ list(APPEND controller_sources "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotContro
 # Prevent Effective C++ and unused parameter error checks being performed on generated files.
 set_source_files_properties(
   "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc" "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
-  PROPERTIES COMPILE_FLAGS "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error"
+  PROPERTIES GENERATED TRUE COMPILE_FLAGS "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error"
 )
 
 # Create an executable using all of the sources
