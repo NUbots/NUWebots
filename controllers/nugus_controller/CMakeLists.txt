@@ -34,6 +34,9 @@ set_source_files_properties(
 # Create an executable using all of the sources
 add_executable(nugus_controller ${controller_sources})
 
+# Make sure we can find the utility folder
+target_include_directories(nugus_controller PRIVATE "${PROJECT_SOURCE_DIR}/shared")
+
 # Make sure we can find the generated protobuf header files
 target_include_directories(nugus_controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
