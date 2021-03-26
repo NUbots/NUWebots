@@ -9,7 +9,11 @@ if __name__ == "__main__":
     controller_path = os.path.join("controllers", controller_name)
 
     # Make controller source directory
-    os.makedirs(controller_path, exist_ok=False)
+    try:
+        os.makedirs(controller_path, exist_ok=False)
+    except:
+        print("Unable to create new controller directory as it already exists.")
+        sys.exit(0)
 
     cmake_template = textwrap.dedent(
         """\
