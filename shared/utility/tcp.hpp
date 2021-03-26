@@ -59,7 +59,7 @@ inline int create_socket_server(const int& port) {
     }
 #endif
     // create the socket
-    int sfd = socket(AF_INET, SOCK_STREAM, 0);
+    const int sfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sfd == -1) {
         std::cerr << "Cannot create socket" << std::endl;
         return -1;
@@ -94,14 +94,14 @@ inline int create_socket_server(const int& port) {
 #endif
 
     sockaddr_in client;
-    int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
+    const int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
 
     if (cfd == -1) {
         std::cerr << "Cannot accept client" << std::endl;
         close_socket(sfd);
     }
     else {
-        hostent* client_info = gethostbyname(inet_ntoa(client.sin_addr));
+        const hostent* client_info = gethostbyname(inet_ntoa(client.sin_addr));
         std::cerr << "Accepted connection from: " << client_info->h_name << std::endl;
     }
 
