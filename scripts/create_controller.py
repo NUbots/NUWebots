@@ -123,12 +123,12 @@ if __name__ == "__main__":
         f.write(cmake_template.format(controller_name=controller_name))
 
     # Write controller source file
-    with open(os.path.join(controller_path, "{}.cpp".format(controller_name)), "w") as f:
+    with open(os.path.join(controller_path, f"{controller_name}.cpp"), "w") as f:
         f.write(controller_template)
 
     # Add controller directory to the controllers CMakeList.txt
     with open(os.path.join(controller_path, "..", "CMakeLists.txt"), "a") as f:
-        f.write("add_subdirectory({})\n".format(controller_name))
+        f.write(f"add_subdirectory({controller_name})\n")
 
     # Append new controller binary to .gitignore
     with open(".gitignore", "a") as f:
