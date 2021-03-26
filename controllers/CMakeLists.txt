@@ -1,2 +1,2 @@
-add_subdirectory(NUgus_Controller)
+add_subdirectory(nugus_controller)
 
