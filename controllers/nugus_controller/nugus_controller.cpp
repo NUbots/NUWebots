@@ -19,7 +19,7 @@
 
 // You may need to add webots include files such as
 // <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
-// and/or to add some other includes
+// and/or add some other includes
 #include <iostream>
 #include <memory>
 #include <string>
@@ -45,7 +45,7 @@ public:
         uint32_t current_num = 1;
 
         while (step(time_step) != -1) {
-            // Don't bother with doing anything unless we have an active TCP connection
+            // Don't bother doing anything unless we have an active TCP connection
             if (tcp_fd == -1) {
                 tcp_fd = create_socket_server(server_port);
                 continue;
