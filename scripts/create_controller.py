@@ -125,3 +125,7 @@ if __name__ == "__main__":
     # Add controller directory to the controllers CMakeList.txt
     with open(os.path.join(controller_path, "..", "CMakeLists.txt"), "a") as f:
         f.write("add_subdirectory({})\n".format(controller_name))
+
+    # Append new controller binary to .gitignore
+    with open(".gitignore", "a") as f:
+        f.write("{}\n".format(os.path.join(os.sep, controller_path, controller_name)))
