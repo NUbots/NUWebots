@@ -6,26 +6,37 @@ The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid Le
 
 ## Set Up
 
-1. Clone the [NUbots/Webots](https://github.com/NUbots/Webots/) repository by running
+On Windows, use Ubuntu in WSl. You can follow the instructions for setting it up on the [Getting Started NUbook page](https://nubook.nubots.net/guides/main/getting-started)
+
+1. Open a terminal. Clone the [NUbots/Webots](https://github.com/NUbots/Webots/) repository by running
 
     ```sh
     git clone https://github.com/NUbots/Webots
     ```
 
-    in the terminal. On Windows you can do this in [Git Bash](https://gitforwindows.org/).
-
 2. Compile the controllers with cmake
+    
+    1. Make a build folder and move into it
+    
+    ```sh
+    mkdir build && cd build
+    ```
+    
+    2. Configure and generate the build files
 
     ```sh
-    mkdir build
-    cd build
     cmake ..
+    ```
+
+    3. Compile the code
+    
+    ```sh
     make
     ```
 
-3. Download Webots from the [Cyberbotics website](https://cyberbotics.com/). 
+3. Download Webots from source using the instructions on [GitHub](https://github.com/cyberbotics/webots/wiki#installation-of-the-webots-development-environment). 
 
-4. Open Webots and click on `File->Open World...`. 
+4. Launch Webots and click on `File->Open World...`. 
 
     In the pop-up, navigate to the [NUbots/Webots](https://github.com/NUbots/Webots/) repository on your computer and open the `worlds/kid.wbt` world file.
 
