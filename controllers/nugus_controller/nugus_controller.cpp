@@ -47,6 +47,7 @@ public:
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
             if (tcp_fd == -1) {
+                std::cerr << "Error: Failed to start TCP server, retrying ..." << std::endl;
                 tcp_fd = create_socket_server(server_port);
                 continue;
             }

@@ -105,10 +105,6 @@ if __name__ == "__main__":
 
             // Start the TCP server
             int tcp_fd = create_socket_server(server_port);
-            if (tcp_fd == -1) {
-                std::cerr << "Error: Failed to start TCP server" << std::endl;
-                return 0;
-            }
 
             // Create the Robot instance
             std::unique_ptr<webots::Robot> robot = std::make_unique<webots::Robot>();
@@ -117,6 +113,7 @@ if __name__ == "__main__":
             while (robot->step(time_step) != -1) {
                 // Don't bother doing anything unless we have an active TCP connection
                 if (tcp_fd == -1) {
+                    std::cerr << "Error: Failed to start TCP server, retrying ..." << std::endl;
                     tcp_fd = create_socket_server(server_port);
                     continue;
                 }
