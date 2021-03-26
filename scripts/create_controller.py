@@ -84,10 +84,24 @@ if __name__ == "__main__":
             }
 
             // Load in the TCP port number from the command line and convert to an int
-            const int server_port = std::stoi(argv[1]);
+            int server_port;
+            try {
+                server_port = std::stoi(argv[1]);
+            }
+            catch (...) {
+                std::cerr << "Failed to convert server port number to an integer" << std::endl;
+                return 0;
+            }
 
             // Load in the simulation timestep from the command line and convert to an int
-            const int time_step = std::stoi(argv[2]);
+            int time_step;
+            try {
+                time_step = std::stoi(argv[2]);
+            }
+            catch (...) {
+                std::cerr << "Failed to convert simulation time step to an integer" << std::endl;
+                return 0;
+            }
 
             // Start the TCP server
             int tcp_fd = create_socket_server(server_port);
