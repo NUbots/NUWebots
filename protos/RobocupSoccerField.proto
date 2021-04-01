@@ -9,6 +9,7 @@ PROTO RobocupSoccerField [
   field SFRotation                  rotation    0 1 0 0
   field SFString                    name        "soccer_field"
   field SFString{"adult", "kid"}    size        "adult"
+  field MFColor  recognitionColors  [0 1 0]    # the field is green
 ]
 {
 

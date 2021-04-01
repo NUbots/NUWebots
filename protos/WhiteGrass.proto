@@ -6,6 +6,7 @@
 PROTO WhiteGrass [
   field SFColor  colorOverride    1 1 1         # Defines the default color multiplied with the texture color.
   field SFNode   textureTransform NULL          # Defines an optional 2d texture transform.
+  field MFColor  recognitionColors   [1 1 1]    # specify field lines as white
 ]
 {
   PBRAppearance {

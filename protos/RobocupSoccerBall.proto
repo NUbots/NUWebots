@@ -5,10 +5,11 @@
 # This object is physics-enabled so it will roll or bounce when hit.
 
 PROTO RobocupSoccerBall [
-  field SFVec3f    translation  0 0 0
-  field SFRotation rotation     0 1 0 0
-  field SFString   name         "robocup soccer ball"
-  field SFInt32{1,2,3,4,5}      size 1 # Defines the ball size and mass according to FIFA standards.
+  field SFVec3f    translation      0 0 0
+  field SFRotation rotation         0 1 0 0
+  field SFString   name             "robocup soccer ball"
+  field SFInt32{1,2,3,4,5}          size 1                  # Defines the ball size and mass according to FIFA standards.
+  field MFColor  recognitionColors  [1 0 0]                 # The ball is red
 ]
 {
   %{

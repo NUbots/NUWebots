@@ -12,6 +12,7 @@ PROTO RobocupGoal [
   field SFColor    frameColor         1 1 1               # Defines the color of the goal frame.
   field SFColor    netColor           0.3 0.3 0.3         # Defines the color of the net.
   field SFString{"adult", "kid"} size "kid"               # Defines the size of the field.
+  field MFColor  recognitionColors   [1 1 0]              # Goals are yellow
 ]
 {
 %{
