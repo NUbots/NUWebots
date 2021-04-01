@@ -1172,7 +1172,7 @@ PROTO NUgus [
                         name "right_camera"
                         translation 0.069952 -0.033795 0.06488
                         rotation -0.440999 0.440999 0.781691 -1.81465
-                        fieldOfView 1.047
+                        fieldOfView 3.14159265359
                         width 640
                         height 480
                         recognition Recognition {
@@ -1185,7 +1185,7 @@ PROTO NUgus [
                         name "left_camera"
                         translation 0.069952 0.033795 0.06488
                         rotation -0.440999 0.440999 0.781691 -1.81465
-                        fieldOfView 1.047
+                        fieldOfView 3.14159265359
                         width 640
                         height 480
                         recognition Recognition {
