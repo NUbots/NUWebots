@@ -290,28 +290,33 @@ Solid {
         ]
       }
     }
-    DEF LINES Shape {
-      appearance WhiteGrass {
-        colorOverride 1 1 1
-        textureTransform TextureTransform {
-          scale %{= 2 * A }% %{= 2 * A }%
+    Solid {
+      recognitionColors [1 1 1]
+      children [
+        DEF LINES Shape {
+          appearance WhiteGrass {
+            colorOverride 1 1 1
+            textureTransform TextureTransform {
+              scale %{= 2 * A }% %{= 2 * A }%
+            }
+          }
+          geometry IndexedFaceSet {
+            coord Coordinate {
+              point [
+              %{ for k, v in pairs(pts) do }%
+                  %{= v.x }% %{= v.y }% %{= v.z }%
+              %{ end }%
+              ]
+            }
+            ccw TRUE
+            coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
+              %{ for k, v in pairs(tl) do }%
+                %{= v.a - 1 }%, %{= v.b - 1 }%, %{= v.c - 1 }%, -1,
+              %{ end }%
+            ]
+          }
         }
-      }
-      geometry IndexedFaceSet {
-        coord Coordinate {
-          point [
-           %{ for k, v in pairs(pts) do }%
-              %{= v.x }% %{= v.y }% %{= v.z }%
-           %{ end }%
-          ]
-        }
-        ccw TRUE
-        coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
-          %{ for k, v in pairs(tl) do }%
-             %{= v.a - 1 }%, %{= v.b - 1 }%, %{= v.c - 1 }%, -1,
-          %{ end }%
-        ]
-      }
+      ]
     }
     RobocupGoal {
       translation %{= I + (B / 2) - OFFSET_X }%, %{= I-OFFSET_Y }%, 0
