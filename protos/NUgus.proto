@@ -1164,6 +1164,38 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
+                  Transform {
+                    translation 0.000000 0.000000 0.000000
+                    rotation 0.000000 0.000000 1.000000 -1.570790
+                    children [
+                      Camera {
+                        name "right_camera"
+                        translation 0.069952 -0.033795 0.06488
+                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        fieldOfView 1.5707
+                        width 640
+                        height 480
+                        recognition Recognition {
+                          frameColor 0 0 1
+                          frameThickness 3
+                          segmentation TRUE
+                        }
+                      }
+                      Camera {
+                        name "left_camera"
+                        translation 0.069952 0.033795 0.06488
+                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        fieldOfView 1.5707
+                        width 640
+                        height 480
+                        recognition Recognition {
+                          frameColor 0 0 1
+                          frameThickness 3
+                          segmentation TRUE
+                        }
+                      }
+                    ]
+                  }
                 ]
                 name "head"
                 boundingObject USE head
