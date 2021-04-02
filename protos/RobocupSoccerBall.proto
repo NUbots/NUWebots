@@ -23,6 +23,7 @@ PROTO RobocupSoccerBall [
   Solid {
     translation IS translation
     rotation IS rotation
+    recognitionColors IS recognitionColors
     scale %{= scale }% %{= scale }% %{= scale }%
     children [
       Shape {
