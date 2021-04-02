@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
             data.resize(Nh);
             msg.SerializeToArray(data.data(), Nh);
 
-            // Covert to network endianness, which might be different to network endianness
+            // Covert to network endianness, which might be different to host endianness
             Nn = htonl(Nh);
 
             if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
