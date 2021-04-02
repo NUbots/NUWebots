@@ -43,50 +43,129 @@ Solid {
   translation IS translation
   rotation IS rotation
   children [
-    DEF HORIZONTAL_POST_TRANS Transform {
-      translation 0 0 %{= post_height }%
-      rotation 0 0 1 1.5708
+    Solid {
+      recognitionColors IS recognitionColors
       children [
-        Shape {
-          appearance DEF POST_APP PBRAppearance {
-            baseColor IS frameColor
-            metalness 0
-            roughness 0.2
-          }
-          geometry Capsule {
-            height %{= post_spacing }%
-            radius %{= post_radius }%
-          }
+        DEF RIGHT_POST_TRANS Transform {
+          translation %{= -post_spacing / 2 }% 0 %{= post_height / 2 }%
+          rotation 1 0 0 1.5708
+          children [
+            Shape {
+              appearance DEF POST_APP PBRAppearance {
+                baseColor IS frameColor
+                metalness 0
+                roughness 0.2
+              }
+              geometry Cylinder {
+                bottom FALSE
+                top FALSE
+                height %{= post_height }%
+                radius %{= post_radius }%
+              }
+            }
+          ]
         }
-      ]
-    }
-    DEF RIGHT_POST_TRANS Transform {
-      translation %{= -post_spacing / 2 }% 0 %{= post_height / 2 }%
-      rotation 1 0 0 1.5708
-      children [
-        Shape {
-          appearance USE POST_APP
-          geometry Cylinder {
-            bottom FALSE
-            top FALSE
-            height %{= post_height }%
-            radius %{= post_radius }%
-          }
+        DEF LEFT_POST_TRANS Transform {
+          translation %{= post_spacing / 2 }% 0 %{= post_height / 2 }%
+          rotation 1 0 0 1.5708
+          children [
+            Shape {
+              appearance USE POST_APP
+              geometry Cylinder {
+                bottom FALSE
+                top FALSE
+                height %{= post_height }%
+                radius %{= post_radius }%
+              }
+            }
+          ]
         }
-      ]
-    }
-    DEF LEFT_POST_TRANS Transform {
-      translation %{= post_spacing / 2 }% 0 %{= post_height / 2 }%
-      rotation 1 0 0 1.5708
-      children [
-        Shape {
-          appearance USE POST_APP
-          geometry Cylinder {
-            bottom FALSE
-            top FALSE
-            height %{= post_height }%
-            radius %{= post_radius }%
-          }
+        DEF HORIZONTAL_POST_TRANS Transform {
+          translation 0 0 %{= post_height }%
+          rotation 0 0 1 1.5708
+          children [
+            Shape {
+              appearance USE POST_APP
+              geometry Capsule {
+                height %{= post_spacing }%
+                radius %{= post_radius }%
+              }
+            }
+          ]
+        }
+        Transform {
+          translation 0 %{= -C }% %{= post_height }%
+          rotation 0 0 1 1.5708
+          children [
+            DEF SMALL_HORIZONTAL_POST_SHAPE Shape {
+              appearance USE POST_APP
+              geometry Capsule {
+                height %{= post_spacing }%
+                radius %{= backpost_radius }%
+              }
+            }
+          ]
+        }
+        Transform {
+          translation 0 %{= -C }% %{= backpost_radius / 2 }%
+          rotation 0 0 1 1.5708
+          children [
+            USE SMALL_HORIZONTAL_POST_SHAPE
+          ]
+        }
+        Transform {
+          translation %{= post_spacing / 2 }% %{= -C }% %{= post_height / 2 }%
+          rotation 1 0 0 1.5708
+          children [
+            DEF SMALL_POST_SHAPE Shape {
+              appearance USE POST_APP
+              geometry Cylinder {
+                bottom FALSE
+                top FALSE
+                height %{=post_height }%
+                radius %{=backpost_radius }%
+              }
+            }
+          ]
+        }
+        Transform {
+          translation %{= -post_spacing / 2 }% %{= -C }% %{= post_height / 2 }%
+          rotation 1 0 0 1.5708
+          children [
+            USE SMALL_POST_SHAPE
+          ]
+        }
+        Transform {
+          translation %{= post_spacing / 2 }% %{= -C / 2 }% %{= post_height }%
+          children [
+            DEF OTHER_SMALL_POST_SHAPE Shape {
+              appearance USE POST_APP
+              geometry Cylinder {
+                bottom FALSE
+                top FALSE
+                height %{= C }%
+                radius %{= backpost_radius }%
+              }
+            }
+          ]
+        }
+        Transform {
+          translation %{= -post_spacing / 2 }% %{= -C / 2 }% %{= post_height }%
+          children [
+            USE OTHER_SMALL_POST_SHAPE
+          ]
+        }
+        Transform {
+          translation %{= post_spacing / 2 }% %{= -C / 2 }% %{= backpost_radius / 2 }%
+          children [
+            USE OTHER_SMALL_POST_SHAPE
+          ]
+        }
+        Transform {
+          translation %{= -post_spacing / 2 }% %{= -C / 2 }% %{= backpost_radius / 2 }%
+          children [
+            USE OTHER_SMALL_POST_SHAPE
+          ]
         }
       ]
     }
@@ -148,80 +227,6 @@ Solid {
           0, 7, 8, 9, -1
         ]
       }
-    }
-    Transform {
-      translation 0 %{= -C }% %{= post_height }%
-      rotation 0 0 1 1.5708
-      children [
-        DEF SMALL_HORIZONTAL_POST_SHAPE Shape {
-          appearance USE POST_APP
-          geometry Capsule {
-            height %{= post_spacing }%
-            radius %{= backpost_radius }%
-          }
-        }
-      ]
-    }
-    Transform {
-      translation 0 %{= -C }% %{= backpost_radius / 2 }%
-      rotation 0 0 1 1.5708
-      children [
-        USE SMALL_HORIZONTAL_POST_SHAPE
-      ]
-    }
-    Transform {
-      translation %{= post_spacing / 2 }% %{= -C }% %{= post_height / 2 }%
-      rotation 1 0 0 1.5708
-      children [
-        DEF SMALL_POST_SHAPE Shape {
-          appearance USE POST_APP
-          geometry Cylinder {
-            bottom FALSE
-            top FALSE
-            height %{=post_height }%
-            radius %{=backpost_radius }%
-          }
-        }
-      ]
-    }
-    Transform {
-      translation %{= -post_spacing / 2 }% %{= -C }% %{= post_height / 2 }%
-      rotation 1 0 0 1.5708
-      children [
-        USE SMALL_POST_SHAPE
-      ]
-    }
-    Transform {
-      translation %{= post_spacing / 2 }% %{= -C / 2 }% %{= post_height }%
-      children [
-        DEF OTHER_SMALL_POST_SHAPE Shape {
-          appearance USE POST_APP
-          geometry Cylinder {
-            bottom FALSE
-            top FALSE
-            height %{= C }%
-            radius %{= backpost_radius }%
-          }
-        }
-      ]
-    }
-    Transform {
-      translation %{= -post_spacing / 2 }% %{= -C / 2 }% %{= post_height }%
-      children [
-        USE OTHER_SMALL_POST_SHAPE
-      ]
-    }
-    Transform {
-      translation %{= post_spacing / 2 }% %{= -C / 2 }% %{= backpost_radius / 2 }%
-      children [
-        USE OTHER_SMALL_POST_SHAPE
-      ]
-    }
-    Transform {
-      translation %{= -post_spacing / 2 }% %{= -C / 2 }% %{= backpost_radius / 2 }%
-      children [
-        USE OTHER_SMALL_POST_SHAPE
-      ]
     }
   ]
   name IS name
