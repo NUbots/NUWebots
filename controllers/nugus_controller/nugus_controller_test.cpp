@@ -145,14 +145,14 @@ int main(int argc, char** argv) {
         }
         else if (num_ready > 0) {
             // Wire format
-            // unit32_t N   message size in bytes, in network endian order
-            // uint8_t * N  the message
+                // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
+            // uint8_t * Nn  the message
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                 std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
                 continue;
             }
 
-			uint32_t Nh = ntohl(Nn);
+            uint32_t Nh = ntohl(Nn);
 
             if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
@@ -177,7 +177,8 @@ int main(int argc, char** argv) {
             data.resize(Nh);
             msg.SerializeToArray(data.data(), Nh);
 
-			Nn = htonl(Nh);
+            // Covert to network endianness, which might be different to network endianness
+            Nn = htonl(Nh);
 
             if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
                 std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -196,4 +197,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
