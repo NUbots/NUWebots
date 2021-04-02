@@ -266,36 +266,13 @@ PROTO RobocupSoccerField [
 
 Solid {
   children [
-    DEF GRASS Shape {
-      appearance Grass {
-        colorOverride 0.6 1 0.3
-        type "artificial"
-        textureTransform TextureTransform {
-          scale %{= 2 * A }% %{= 2 * A }%
-        }
-      }
-      geometry IndexedFaceSet {
-        coord Coordinate {
-          point [
-           %{ for k, v in pairs(pts) do }%
-              %{= v.x }% %{= v.y }% %{= v.z }%
-           %{ end }%
-          ]
-        }
-        ccw TRUE
-        coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
-          %{ for k, v in pairs(tg) do }%
-             %{= v.a - 1 }%, %{= v.b - 1 }%, %{= v.c - 1 }%, -1,
-          %{ end }%
-        ]
-      }
-    }
     Solid {
-      recognitionColors [1 1 1]
+      recognitionColors IS recognitionColors
       children [
-        DEF LINES Shape {
-          appearance WhiteGrass {
-            colorOverride 1 1 1
+        DEF GRASS Shape {
+          appearance Grass {
+            colorOverride 0.6 1 0.3
+            type "artificial"
             textureTransform TextureTransform {
               scale %{= 2 * A }% %{= 2 * A }%
             }
@@ -310,11 +287,39 @@ Solid {
             }
             ccw TRUE
             coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
-              %{ for k, v in pairs(tl) do }%
+              %{ for k, v in pairs(tg) do }%
                 %{= v.a - 1 }%, %{= v.b - 1 }%, %{= v.c - 1 }%, -1,
               %{ end }%
             ]
           }
+        }
+        Solid {
+          recognitionColors [1 1 1]
+          children [
+            DEF LINES Shape {
+              appearance WhiteGrass {
+                colorOverride 1 1 1
+                textureTransform TextureTransform {
+                  scale %{= 2 * A }% %{= 2 * A }%
+                }
+              }
+              geometry IndexedFaceSet {
+                coord Coordinate {
+                  point [
+                  %{ for k, v in pairs(pts) do }%
+                      %{= v.x }% %{= v.y }% %{= v.z }%
+                  %{ end }%
+                  ]
+                }
+                ccw TRUE
+                coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
+                  %{ for k, v in pairs(tl) do }%
+                    %{= v.a - 1 }%, %{= v.b - 1 }%, %{= v.c - 1 }%, -1,
+                  %{ end }%
+                ]
+              }
+            }
+          ]
         }
       ]
     }
