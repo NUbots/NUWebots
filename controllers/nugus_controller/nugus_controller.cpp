@@ -67,24 +67,26 @@ public:
             }
             else if (num_ready > 0) {
                 // Wire format
-                // unit64_t N   message size in bytes
+                // unit32_t N   message size in bytes in network byte order
                 // uint8_t * N  the message
-                uint64_t N;
-                if (recv(tcp_fd, &N, sizeof(N), 0) != sizeof(N)) {
+                uint32_t Nn;
+                if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                     std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
                               << std::endl;
                     continue;
                 }
 
-                std::vector<uint8_t> data(N, 0);
-                if (recv(tcp_fd, data.data(), N, 0) != N) {
+				uint32_t Nh = ntohl(Nn);
+
+                std::vector<uint8_t> data(Nh, 0);
+                if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
                     std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                     continue;
                 }
 
                 // Parse message data
                 controller::nugus::RobotControl msg;
-                if (!msg.ParseFromArray(data.data(), N)) {
+                if (!msg.ParseFromArray(data.data(), Nh)) {
                     std::cerr << "Error: Failed to parse serialised message" << std::endl;
                     continue;
                 }
@@ -95,11 +97,13 @@ public:
                 // Send a message to the client
                 msg.set_num(current_num);
 
-                N = msg.ByteSizeLong();
-                data.resize(N);
-                msg.SerializeToArray(data.data(), N);
+                Nh = msg.ByteSizeLong();
+                data.resize(Nh);
+                msg.SerializeToArray(data.data(), Nh);
 
-                if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
+				Nn = htonl(Nh);
+
+                if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
                     std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
                 }
                 else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
