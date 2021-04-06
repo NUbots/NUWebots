@@ -1231,11 +1231,43 @@ PROTO NUgus [
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
+			resolution -1 # PLACEHOLDER VALUE (-1 = infinit resolution)
+			lookupTable [ 
+				# PLACEHOLDER LUT VALUES: NOT ACCURATE
+				# Accel (m/s/s) Reteurn Value (RV: 0-1000) Noise(% of RV) 
+				0   0   0
+				0.1 100  0.01
+				0.2 200  0.01
+				0.3 300  0.01
+				0.4 400  0.02
+				0.5 500  0.03
+				0.6 600  0.02
+				0.7 700  0.01
+				0.8 800  0.01
+				0.9 900  0.01
+				1.0 1000 0
+				]
           }
           Gyro {
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
+			resolution -1 # PLACEHOLDER VALUE (-1 = infinit resolution)
+			lookupTable [ 
+				# PLACEHOLDER LUT VALUES: NOT ACCURATE
+				# Radial velocity (Rad/s) Reteurn Value (RV: 0-1000) Noise(% of RV) 
+				0   0   0
+				0.1 100  0.01
+				0.2 200  0.01
+				0.3 300  0.01
+				0.4 400  0.02
+				0.5 500  0.03
+				0.6 600  0.02
+				0.7 700  0.01
+				0.8 800  0.01
+				0.9 900  0.01
+				1.0 1000 0
+				]
           }
         ]
       }
