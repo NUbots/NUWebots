@@ -6,7 +6,7 @@ The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid Le
 
 ## Set Up
 
-On Windows, use Ubuntu in WSl. You can follow the instructions for setting it up on the [Getting Started NUbook page](https://nubook.nubots.net/guides/main/getting-started)
+On Windows, use Ubuntu in WSL. You can follow the instructions for setting it up on the [Getting Started NUbook page](https://nubook.nubots.net/guides/main/getting-started)
 
 1. Open a terminal. Clone the [NUbots/Webots](https://github.com/NUbots/Webots/) repository and move into it by running
 
@@ -32,10 +32,10 @@ On Windows, use Ubuntu in WSl. You can follow the instructions for setting it up
     3. Compile the code
     
     ```sh
-    make
+    make -j$(nproc)
     ```
 
-3. Download Webots from source using the instructions on [GitHub](https://github.com/cyberbotics/webots/wiki#installation-of-the-webots-development-environment). 
+3. Download and build Webots from source using the instructions on [GitHub](https://github.com/cyberbotics/webots/wiki#installation-of-the-webots-development-environment). 
 
 4. Launch Webots and click on `File->Open World...`. 
 
