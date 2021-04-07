@@ -20,6 +20,7 @@
 // You may need to add webots include files such as
 // <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
 // and/or add some other includes
+#include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -130,7 +131,7 @@ int main(int argc, char** argv) {
     // Make sure we have the command line arguments we need
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0] << " <TCP PORT> <CONTROLLER_TIME_STEP>" << std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     // Load in the TCP port number from the command line and convert to an int
@@ -140,7 +141,7 @@ int main(int argc, char** argv) {
     }
     catch (...) {
         std::cerr << "Failed to convert server port number to an integer" << std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     // Load in the simulation timestep from the command line and convert to an int
@@ -150,7 +151,7 @@ int main(int argc, char** argv) {
     }
     catch (...) {
         std::cerr << "Failed to convert simulation time step to an integer" << std::endl;
-        return 0;
+        return EXIT_FAILURE;
     }
 
     // Create the Robot instance and initialise the TCP connection
@@ -159,5 +160,5 @@ int main(int argc, char** argv) {
     // Run the robot controller
     nugus->run();
 
-    return 0;
+    return EXIT_SUCCESS;
 }
