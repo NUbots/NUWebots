@@ -62,6 +62,7 @@ if __name__ == "__main__":
         // You may need to add webots include files such as
         // <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
         // and/or add some other includes
+        #include <cstdlib>
         #include <memory>
         #include <webots/Robot.hpp>
 
@@ -80,7 +81,7 @@ if __name__ == "__main__":
             // Make sure we have the command line arguments we need
             if (argc != 3) {
                 std::cerr << "Usage: " << argv[0] << " <TCP PORT> <CONTROLLER_TIME_STEP>" << std::endl;
-                return 0;
+                return EXIT_FAILURE;
             }
 
             // Load in the TCP port number from the command line and convert to an int
@@ -90,7 +91,7 @@ if __name__ == "__main__":
             }
             catch (...) {
                 std::cerr << "Failed to convert server port number to an integer" << std::endl;
-                return 0;
+                return EXIT_FAILURE;
             }
 
             // Load in the simulation timestep from the command line and convert to an int
@@ -100,7 +101,7 @@ if __name__ == "__main__":
             }
             catch (...) {
                 std::cerr << "Failed to convert simulation time step to an integer" << std::endl;
-                return 0;
+                return EXIT_FAILURE;
             }
 
             // Start the TCP server
@@ -124,7 +125,7 @@ if __name__ == "__main__":
             // Stop the TCP server
             close_socket(tcp_fd);
 
-            return 0;
+            return EXIT_SUCCESS;
         }
         """
     )
