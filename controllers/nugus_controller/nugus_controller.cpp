@@ -34,7 +34,7 @@ using namespace utility::tcp;
 
 class NUgus : public webots::Robot {
 public:
-    NUgus(const int& time_step, const int& server_fd)
+    NUgus(const int& time_step, const int& server_port)
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {}
     ~NUgus() {
         close_socket(tcp_fd);
@@ -133,9 +133,25 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    // Load in the server port from the command line and conver to an int
-    const int server_port = std::stoi(argv[1]);
-    const int time_step   = std::stoi(argv[2]);
+    // Load in the TCP port number from the command line and convert to an int
+    int server_port;
+    try {
+        server_port = std::stoi(argv[1]);
+    }
+    catch (...) {
+        std::cerr << "Failed to convert server port number to an integer" << std::endl;
+        return 0;
+    }
+
+    // Load in the simulation timestep from the command line and convert to an int
+    int time_step;
+    try {
+        time_step = std::stoi(argv[2]);
+    }
+    catch (...) {
+        std::cerr << "Failed to convert simulation time step to an integer" << std::endl;
+        return 0;
+    }
 
     // Create the Robot instance and initialise the TCP connection
     std::unique_ptr<NUgus> nugus = std::make_unique<NUgus>(time_step, server_port);
