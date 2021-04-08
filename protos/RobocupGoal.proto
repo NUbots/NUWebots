@@ -44,6 +44,7 @@ Solid {
   rotation IS rotation
   children [
     Solid {
+      name "large_posts"
       recognitionColors IS recognitionColors
       children [
         DEF RIGHT_POST_TRANS Transform {
@@ -93,6 +94,12 @@ Solid {
             }
           ]
         }
+      ]
+    }
+    Solid {
+      name "small_posts"
+      recognitionColors [0.5 0.5 0]
+      children [
         Transform {
           translation 0 %{= -C }% %{= post_height }%
           rotation 0 0 1 1.5708
