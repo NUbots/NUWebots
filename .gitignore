@@ -3,5 +3,6 @@ worlds/.*.wbproj
 build/
 
 /controllers/nugus_controller/nugus_controller
+/controllers/vision_test/vision_test
 
 /nugus_controller_test
