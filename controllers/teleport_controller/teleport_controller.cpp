@@ -53,25 +53,25 @@ constexpr int STAND_STILL = 1;
 
 int main() {
     // create the Supervisor instance and assign it to a robot
-    webots::Supervisor* supervisor = new webots::Supervisor();
-    webots::Node* target           = supervisor->getFromDef("RED_1");
+    webots::Supervisor supervisor = webots::Supervisor();
+    webots::Node& target = *supervisor.getFromDef("RED_1");
     
     // Get the time step of the current world.
-    int timeStep = (int) supervisor->getBasicTimeStep();
+    int timeStep = (int) supervisor.getBasicTimeStep();
 
     // Add the motion manager to make the robot stand up and look around
-    managers::RobotisOp2MotionManager* mMotionManager = new managers::RobotisOp2MotionManager(supervisor);
-    mMotionManager->playPage(54);
+    managers::RobotisOp2MotionManager mMotionManager = managers::RobotisOp2MotionManager(&supervisor);
+    mMotionManager.playPage(LOOK_AROUND);
 
     // Generate random seed
     srand(time(NULL));
 
-    while (supervisor->step(timeStep) != -1) {
+    while (supervisor.step(timeStep) != -1) {
 
         // Grab the current translation field of the robot to modify
-        webots::Field* target_translation_field = target->getField("translation");
+        webots::Field& target_translation_field = *target.getField("translation");
         // Convert the field to a vector to output to console
-        const double* target_translation_vec = target_translation_field->getSFVec3f();
+        const double* target_translation_vec = target_translation_field.getSFVec3f();
 
         // Output current location
         std::cout << "Location: " << std::endl;
@@ -96,12 +96,12 @@ int main() {
         newPos[2] = 0.32;
 
         // Set new location
-        target_translation_field->setSFVec3f(newPos);
+        target_translation_field.setSFVec3f(newPos);
 
         // Grab the current rotation field of the robot to modify
-        webots::Field* target_rotation_field = target->getField("rotation");
+        webots::Field& target_rotation_field = *target.getField("rotation");
         // Convert the field to a vector to output to console
-        const double* target_rotation_vec = target_rotation_field->getSFRotation();
+        const double* target_rotation_vec = target_rotation_field.getSFRotation();
 
         // Loop 4 times, one for each direction to face
         for (int i = 0; i < rotationsSize; i++) {
@@ -122,22 +122,21 @@ int main() {
             newRot[3] = rotations[i][3];
 
             // Set new rotations
-            target_rotation_field->setSFRotation(newRot);
+            target_rotation_field.setSFRotation(newRot);
 
             // This line is very important. The robot blows itself up after a 1:05 minutes otherwise
             // Teleporting is strenuous work apparently
-            target->resetPhysics();
+            target.resetPhysics();
 
             // The following performs a number of preset movements/routines that the robot can
             // carry out. Any of them can be commented out but leave at least one otherwise
             // there will be no delay between each step of this loop
             
-            mMotionManager->playPage(LOOK_AROUND);
-            mMotionManager->playPage(CROUCH);
-            mMotionManager->playPage(STAND_STILL);
+            mMotionManager.playPage(LOOK_AROUND);
+            mMotionManager.playPage(CROUCH);
+            mMotionManager.playPage(STAND_STILL);
+            
         }
     };
-
-    delete supervisor;
     return 0;
 }
