@@ -14,9 +14,11 @@ PROTO NUgus [
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
+  field  MFColor     recognitionColors [0 0 1]
 ]
 {
   Robot {
+    recognitionColors IS recognitionColors
     translation IS translation
     rotation IS rotation
     controller IS controller
