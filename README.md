@@ -16,44 +16,4 @@ The field environment was developed by Cyberbotics for RoboCup 2021 (Humanoid Le
 
 ## Set Up
 
-For Ubuntu (tested on Linux Mint).
-
-To get the webots simulator, pull the docker image
-
-```sh
-docker pull cyberbotics/webots
-```
-
-Get the NUbots world files
-
-```sh
-git clone https://github.com/NUbots/Webots
-```
-
-Navigate to the NUbots Webots folder
-
-```sh
-cd Webots
-```
-
-Run the docker container with GUI and mount the NUbots Webots folder so it can be opened inside Docker.
-
-```sh
-docker run -it -e DISPLAY -v "$(pwd):/root/" -v /tmp/.X11-unix:/tmp/.X11-unix:rw cyberbotics/webots:latest webots
-```
-
-Note: webots may give you an error if there is an issue with the graphics card. Make sure you have the latest drivers. Intel graphics cards are not recommended.
-
-Webots should open. Click on `File->Open World...`.
-
-In the file explorer pop up, click on `root`. Navigate into the `worlds` folder and open `kid.wbt`.
-
-## Creating a new controller
-
-From the root of this repositry run
-
-```sh
-python3 ./scripts/create_controller.py <name of controller>
-```
-
-Where `<name of controller>` is the name you want to use for the new controller. A folder and files will be created with this name, so they must be valid file names (don't use spaces in your controller name)
+For set up information, visit the [Webots NUbook page](https://nubook.nubots.net/guides/tools/webots-setup)!
