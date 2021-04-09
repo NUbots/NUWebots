@@ -130,7 +130,7 @@ DEF RED_1 Darwin-op {
   translation -0.06626289061302917 4.104599435837936 0.32330576183309423
   rotation 0.2646880866075137 -0.759618358645967 -0.5940708425903936 2.6886816019809694
   name "player red 1"
-  controller "soccer"
+  controller "darwin_controller"
   cameraWidth 320
   cameraHeight 240
   jersey RobotisJersey {
@@ -242,7 +242,7 @@ DEF RED_2 Darwin-op {
   translation -0.053653277453237544 2.5997258816191597 0.3229649448041143
   rotation 0.28985716096062714 -0.7488616673160519 -0.5959773732822984 2.7001788832294635
   name "player red 2"
-  controller "soccer"
+  controller "darwin_controller"
   cameraWidth 320
   cameraHeight 240
   jersey RobotisJersey {
@@ -357,7 +357,7 @@ DEF RED_3 Darwin-op {
   translation -0.5716716525248489 0.8998958412167991 0.3233662289988397
   rotation 0.2832837823108488 -0.7513400078362595 -0.5960188682451832 2.6868383431069
   name "player red 3"
-  controller "soccer"
+  controller "darwin_controller"
   cameraWidth 320
   cameraHeight 240
   jersey RobotisJersey {
@@ -472,7 +472,7 @@ DEF RED_4 Darwin-op {
   translation 0.4562045162995155 0.9083669152888307 0.3228631273896857
   rotation 0.2740695038896525 -0.754162685727339 -0.5967617200308736 2.7112680188470613
   name "player red 4"
-  controller "soccer"
+  controller "darwin_controller"
   cameraWidth 320
   cameraHeight 240
   jersey RobotisJersey {
