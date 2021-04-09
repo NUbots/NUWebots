@@ -21,7 +21,7 @@
 #include <webots/Supervisor.hpp>
 #include <iostream>
 #include <time.h>
-#include <memory>
+#include <random>
 
 /*
 // Rotations matrix for 90 degree rotations
@@ -61,7 +61,10 @@ int main() {
     mMotionManager.playPage(LOOK_AROUND);
 
     // Generate random seed
-    srand(time(NULL));
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::uniform_int_distribution<> xDistrib(0, 1080);
+    std::uniform_int_distribution<> yDistrib(0, 1600);
 
     while (supervisor.step(timeStep) != -1) {
 
@@ -82,14 +85,14 @@ int main() {
         // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
         // from red
         // Y ranges from -8 - 8, the positive value on the red goal side
-        // Z should be set to 3.2 to be on the ground
+        // Z should be set to 0.32 to be on the ground
         // If the robot teleports into an existing object it may run into issues for that
         // image only, after resetPhysics is should return to a regular state
          
 
         double newPos[3];
-        newPos[0] = 5.4 - (rand() % 1080) / 100;
-        newPos[1] = 8 - (rand() % 1600) / 100;
+        newPos[0] = 5.4 - xDistrib(gen) / 100;
+        newPos[1] = 8 - yDistrib(gen) / 100;
         newPos[2] = 0.32;
 
         // Set new location
