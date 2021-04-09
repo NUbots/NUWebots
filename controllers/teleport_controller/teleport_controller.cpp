@@ -20,7 +20,8 @@
 #include <RobotisOp2MotionManager.hpp>
 #include <webots/Supervisor.hpp>
 #include <iostream>
-#include <time.h>  
+#include <time.h>
+#include <memory>
 
 /*
 // Rotations matrix for 90 degree rotations
@@ -47,17 +48,13 @@ constexpr int LOOK_AROUND = 54;
 constexpr int CROUCH = 15;
 constexpr int STAND_STILL = 1;
 
-
-// This is the main program of the supervisor. It creates an instance of the Supervisor
-// instance, launches its function(s) and destroys it at the end of the execution.
-
 int main() {
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
     webots::Node& target = *supervisor.getFromDef("RED_1");
     
     // Get the time step of the current world.
-    int timeStep = (int) supervisor.getBasicTimeStep();
+    int timeStep = int(supervisor.getBasicTimeStep());
 
     // Add the motion manager to make the robot stand up and look around
     managers::RobotisOp2MotionManager mMotionManager = managers::RobotisOp2MotionManager(&supervisor);
