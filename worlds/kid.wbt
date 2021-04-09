@@ -34,8 +34,8 @@ WorldInfo {
   ]
 }
 Viewpoint {
-  orientation 0.7740618353667722 -0.3393112407167443 -0.5345055256514077 1.3737629675929948
-  position -10.918806145468938 -9.442194213986694 6.060809393740457
+  orientation 0.666323907513393 -0.4492665154085371 -0.5951235572624849 1.7676856826387335
+  position -0.6698466842648849 -1.600537990149665 1.480921937217916
 }
 TexturedBackground {
   texture "stadium_dry"
@@ -47,65 +47,10 @@ RobocupSoccerField {
   size "kid"
 }
 RobocupSoccerBall {
-  translation 0 0 0.08
+  translation 0 -1.2605840975378444e-07 0.07852943586495187
+  rotation 0.9999999999999999 0 0 1.8715596617048374e-06
 }
-DEF RED_1 Darwin-opHinge2 {
-  translation 4 0 0.24
-  rotation 5.25424e-07 -1.21381e-06 1 3.14159
-  name "player red 1"
-  controller "soccer"
-  selfCollision TRUE
-  cameraWidth 320
-  cameraHeight 240
-  jersey RobotisJersey {
-  }
-  backlash TRUE
-}
-DEF RED_2 Darwin-opHinge2 {
-  translation 2.5 0 0.24
-  rotation 5.25424e-07 -1.21381e-06 1 3.14159
-  name "player red 2"
-  controller "soccer"
-  selfCollision TRUE
-  cameraWidth 320
-  cameraHeight 240
-  jersey RobotisJersey {
-    jerseyTexture [
-      "textures/robotis-op2_2_red.png"
-    ]
-  }
-  backlash TRUE
-}
-DEF RED_3 Darwin-opHinge2 {
-  translation 0.8 -0.5 0.24
-  rotation -6.897009999981874e-08 -2.291579999993978e-06 0.9999999999973721 3.14159
-  name "player red 3"
-  controller "soccer"
-  selfCollision TRUE
-  cameraWidth 320
-  cameraHeight 240
-  jersey RobotisJersey {
-    jerseyTexture [
-      "textures/robotis-op2_3_red.png"
-    ]
-  }
-  backlash TRUE
-}
-DEF RED_4 Darwin-opHinge2 {
-  translation 0.8 0.5 0.24
-  rotation 5.25424e-07 -1.21381e-06 1 3.14159
-  name "player red 4"
-  controller "soccer"
-  selfCollision TRUE
-  cameraWidth 320
-  cameraHeight 240
-  jersey RobotisJersey {
-    jerseyTexture [
-      "textures/robotis-op2_4_red.png"
-    ]
-  }
-  backlash TRUE
-}
+
 DEF BLUE_1 Darwin-opHinge2 {
   translation -4 0 0.24
   rotation -0.8804878560490522 0.40018993457295293 0.2541439584500076 -5.307179586466759e-06
@@ -167,68 +112,8 @@ DEF BLUE_4 Darwin-opHinge2 {
   backlash TRUE
 }
 NUgus {
-  hidden position_0_0 1.9612599466583656
-  hidden position_0_1 1.9612555416161728
-  hidden position_0_2 -0.029169542918602076
-  hidden position_0_3 0.029155576158080163
-  hidden position_0_4 5.868484495302235e-07
-  hidden translation_1 0.005 -0.115 0.18
-  hidden rotation_1 0.1904473868346478 0.1904462041659604 0.9630472658009218 1.6084335547454767
-  hidden position_1_0 -0.12378779053276556
-  hidden translation_2 -0.015 0 0.005
-  hidden rotation_2 0.9961813021054132 0.061736415873371295 -0.061736766117714344 1.574615998448578
-  hidden position_2_0 -2.4406445884274923
-  hidden translation_3 0.01 -0.19 0.04
-  hidden rotation_3 -1 0 0 2.4406445884274923
-  hidden translation_4 0.005 0.115 0.18
-  hidden rotation_4 0.19044534262270857 0.19044415996485 0.9630480742977484 1.6084327158213807
-  hidden position_4_0 0.12378377305442474
-  hidden translation_5 0.015 0 0.005
-  hidden rotation_5 0.996181549182322 -0.06173442243075764 0.061734772663791494 1.5746157504263811
-  hidden position_5_0 -2.44064458516966
-  hidden translation_6 -0.01 -0.19 0.03999
-  hidden rotation_6 -1 0 0 2.44064458516966
-  hidden translation_7 0 -0.055 0
-  hidden rotation_7 0 0 1 1.5416204570813974
-  hidden position_7_0 0.011775011900990583
-  hidden translation_8 0 0 -0.06
-  hidden rotation_8 0 -1 0 0.011775011900979297
-  hidden position_8_0 -0.20388514378269207
-  hidden translation_9 0 -0.01 0.01
-  hidden rotation_9 -1 0 0 0.2538851437826884
-  hidden position_9_0 0.25893467621270716
-  hidden translation_10 0 0.00999 -0.19975
-  hidden rotation_10 1 0 0 0.3089346762126945
-  hidden position_10_0 -0.23912320822413236
-  hidden translation_11 0 0.01 -0.2
-  hidden rotation_11 1.013520756516531e-06 -0.9928611410631446 0.11927595971428426 3.1415934746347953
-  hidden position_11_0 0.06901423518604076
-  hidden translation_12 0 0.04 0
-  hidden rotation_12 -1.0690416524801582e-06 0.9999999999989951 -9.309583714345593e-07 3.072578764814235
-  hidden translation_13 0 0.055 0
-  hidden rotation_13 0 0 1 1.59994557615808
-  hidden position_13_0 0.06233679366346845
-  hidden translation_14 0 0 -0.06
-  hidden rotation_14 0 -1 0 0.06233679366347173
-  hidden position_14_0 -0.20688954109427016
-  hidden translation_15 0 -0.01 0
-  hidden rotation_15 -1 0 0 0.2568895410942588
-  hidden position_15_0 0.2972707230948313
-  hidden translation_16 0 0.00949 -0.18976
-  hidden rotation_16 1 0 0 0.34727072309482787
-  hidden position_16_0 -0.26215898491902845
-  hidden translation_17 0 0.01 -0.2
-  hidden rotation_17 1.0140604468984382e-06 -0.9914215076305328 0.13070345904593797 3.141593519846079
-  hidden position_17_0 -0.06902111284333667
-  hidden translation_18 0 0.04 0
-  hidden rotation_18 -9.309514608368021e-07 0.9999999999989951 -1.0690485152420725e-06 3.2106141128430603
-  hidden translation_19 0 0 0.26
-  hidden rotation_19 0 0 1 1.5707905868484493
-  hidden position_19_0 1.9490100723823242e-07
-  hidden translation_20 0 0 0
-  hidden rotation_20 1 0 0 1.954268969387413e-07
-  translation 0.004720974936670941 -2.8255528175045344 0.5062739573058059
-  rotation -0.10413007685676906 0.08304223507450312 0.9910907699538091 1.5398153085663047
+  translation 2.688 -0.3985 0.5249
+  rotation -0.0367 -0.0048 0.999 -2.9116
   controller "nugus_controller"
   controllerArgs [
     "10020"
