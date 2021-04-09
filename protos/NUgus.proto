@@ -1178,8 +1178,7 @@ PROTO NUgus [
                         width 640
                         height 480
                         recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
+                          frameThickness 0
                           segmentation TRUE
                         }
                       }
@@ -1191,8 +1190,7 @@ PROTO NUgus [
                         width 640
                         height 480
                         recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
+                          frameThickness 0
                           segmentation TRUE
                         }
                       }
