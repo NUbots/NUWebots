@@ -18,51 +18,45 @@
  */
 
 #include <RobotisOp2MotionManager.hpp>
-#include <webots/Supervisor.hpp>
+#include <fstream>
 #include <iostream>
-#include <time.h>
 #include <random>
+#include <webots/Supervisor.hpp>
 
-/*
-// Rotations matrix for 90 degree rotations
-static const int rotationsSize = 4;
-static const double rotations[rotationsSize][4] = {{1, 0, 0, 1.57081},
-                                                  {0.577353, 0.577345, 0.577353, 2.0944},
-                                                  {1.69526e-09, 0.707103, 0.707111, 3.14159},
-                                                  {-0.577352, 0.577347, 0.577352, -2.09441}};
+#include "yaml-cpp/yaml.h"
 
-*/
-
-// Rotations matrix for 45 degree rotations
-static const int rotationsSize = 8;                                     
-static const double rotations[rotationsSize][4] = {{1, 0, 0, 1.57081},
-                                                  {0.867737, 0.343283, 0.359429, 1.75753},
-                                                  {0.577353, 0.577345, 0.577353, 2.0944},
-                                                  {0.286947, 0.661632, 0.692752, 2.60662},
-                                                  {1.69526e-09, 0.707103, 0.707111, 3.14159},
-                                                  {-0.286948, 0.661631, 0.692752, -2.60661},
-                                                  {-0.577352, 0.577347, 0.577352, -2.09441},
-                                                  {0.867739, -0.343277, -0.359429, 1.75753}};                               
-
-constexpr int LOOK_AROUND = 54;
-constexpr int CROUCH = 15;
-constexpr int STAND_STILL = 1;
+// AxisAngle rotations will be read from a config file and saved here
+std::vector<std::vector<double>> rotations;
+// Preset motions for the robot will be read and saved here
+std::vector<int> playPages;
 
 int main() {
+
+    // Load config file
+    try {
+        YAML::Node config = YAML::LoadFile("config.yaml");
+        rotations         = config["rotations"].as<std::vector<std::vector<double>>>();
+        playPages         = config["playpages"].as<std::vector<int>>();
+    }
+    catch (const std::string& e) {
+        std::cout << e << std::endl;
+        return 0;
+    }
+
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
-    webots::Node& target = *supervisor.getFromDef("RED_1");
-    
+    webots::Node& target          = *supervisor.getFromDef("RED_1");
+
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
 
     // Add the motion manager to make the robot stand up and look around
     managers::RobotisOp2MotionManager mMotionManager = managers::RobotisOp2MotionManager(&supervisor);
-    mMotionManager.playPage(LOOK_AROUND);
+    mMotionManager.playPage(1);  // Look around
 
     // Generate random seed
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+    std::random_device rd;   // Will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> xDistrib(0, 1080);
     std::uniform_int_distribution<> yDistrib(0, 1600);
 
@@ -74,12 +68,19 @@ int main() {
         const double* target_translation_vec = target_translation_field.getSFVec3f();
 
         // Output current location
-        std::cout << "Location: " << std::endl;
-        std::cout << "X: " << target_translation_vec[0];
-        std::cout << " Y: " << target_translation_vec[1];
-        std::cout << " Z: " << target_translation_vec[2] << std::endl;
-
-        // Prepare new location 
+        try {
+            std::ofstream log;
+            log.open("log.txt", std::fstream::app);
+            log << "Location: " << std::endl;
+            log << "X: " << target_translation_vec[0];
+            log << " Y: " << target_translation_vec[1];
+            log << " Z: " << target_translation_vec[2] << std::endl;
+            log.close();
+        }
+        catch (const std::string& e) {
+            std::cout << e << std::endl;
+        }
+        // Prepare new location
 
         // 0, 0, 0 is centre of the playing field.
         // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
@@ -88,7 +89,7 @@ int main() {
         // Z should be set to 0.32 to be on the ground
         // If the robot teleports into an existing object it may run into issues for that
         // image only, after resetPhysics is should return to a regular state
-         
+
 
         double newPos[3];
         newPos[0] = 5.4 - xDistrib(gen) / 100;
@@ -103,39 +104,43 @@ int main() {
         // Convert the field to a vector to output to console
         const double* target_rotation_vec = target_rotation_field.getSFRotation();
 
-        // Loop 4 times, one for each direction to face
-        for (int i = 0; i < rotationsSize; i++) {
+        // Loop once for each rotation
+        for (long unsigned int i = 0; i < rotations.size(); i++) {
             // Output current rotation
-            std::cout << "Rotation: " << std::endl;
-            std::cout << "X: " << target_rotation_vec[0];
-            std::cout << " Y: " << target_rotation_vec[1];
-            std::cout << " Z: " << target_rotation_vec[2];
-            std::cout << " α: " << target_rotation_vec[3] << std::endl;
+            try {
+                std::ofstream log;
+                log.open("log.txt", std::fstream::app);
+                log << "Rotation: " << std::endl;
+                log << "X: " << target_rotation_vec[0];
+                log << " Y: " << target_rotation_vec[1];
+                log << " Z: " << target_rotation_vec[2];
+                log << " α: " << target_rotation_vec[3] << std::endl;
+                log.close();
+            }
+            catch (const std::string& e) {
+                std::cout << e << std::endl;
+            }
 
-            // Prepare new rotation. These are saved in rotations matrix as the axis-angle
+            // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
 
+            // The setSFRotation webots function expects an array of doubles, not a vector
             double newRot[4];
-            newRot[0] = rotations[i][0];
-            newRot[1] = rotations[i][1];
-            newRot[2] = rotations[i][2];
-            newRot[3] = rotations[i][3];
+            for (long unsigned int j = 0; j < rotations[i].size(); j++) {
+                newRot[j] = rotations[i][j];
+            }
 
-            // Set new rotations
+            // Apply new rotation and reset physics to avoid robot tearing itself apart
             target_rotation_field.setSFRotation(newRot);
-
-            // This line is very important. The robot blows itself up after a 1:05 minutes otherwise
-            // Teleporting is strenuous work apparently
             target.resetPhysics();
 
-            // The following performs a number of preset movements/routines that the robot can
-            // carry out. Any of them can be commented out but leave at least one otherwise
-            // there will be no delay between each step of this loop
-            
-            mMotionManager.playPage(LOOK_AROUND);
-            mMotionManager.playPage(CROUCH);
-            mMotionManager.playPage(STAND_STILL);
-            
+            // The following performs a number of preset movements/routines loaded from the
+            // config file that the robot can carry out. Any of them can be removed or more
+            // added but leave at least one otherwise there will be no delay between each
+            // step of this loop
+            for (int i : playPages) {
+                mMotionManager.playPage(i);
+            }
         }
     };
     return 0;
