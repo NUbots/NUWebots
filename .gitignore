@@ -2,5 +2,6 @@ protos/**/*.cache
 worlds/.*.wbproj
 build/
 
-nugus_controller
+/controllers/nugus_controller/nugus_controller
 /controllers/teleport_controller/teleport_controller
+/nugus_controller_test

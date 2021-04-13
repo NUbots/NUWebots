@@ -1,3 +1,2 @@
-add_subdirectory(NUgus_Controller)
+add_subdirectory(nugus_controller)
 add_subdirectory(teleport_controller)
-
