@@ -3,3 +3,4 @@ worlds/.*.wbproj
 build/
 
 nugus_controller
+/controllers/teleport_controller/teleport_controller
