@@ -1,0 +1,51 @@
+#AngleAxis rotations to spin robot around after teleporting to a location and
+# gain a range of angles
+rotations:
+  -
+    - 1
+    - 0
+    - 0
+    - 1.57081
+  -
+    - 0.867737
+    - 0.343283
+    - 0.359429
+    - 1.75753
+  -
+    - 0.577353
+    - 0.577345
+    - 0.577353
+    - 2.0944
+  -
+    - 0.286947
+    - 0.661632
+    - 0.692752
+    - 2.60662
+  -
+    - 1.69526e-09
+    - 0.707103
+    - 0.707111
+    - 3.14159
+  -
+    - -0.286948
+    - 0.661631
+    - 0.692752
+    - -2.60661
+  -
+    - -0.577352
+    - 0.577347
+    - 0.577352
+    - -2.09441
+  -
+    - 0.867739
+    - -0.343277
+    - -0.359429
+    - 1.75753
+    
+#These are preset webots movements that mean that the robot gets a good look
+# around at each location    
+playpages:
+  - 54 #LOOK AROUND
+  - 15 #CROUCH
+  - 1 #STAND STILL
+
