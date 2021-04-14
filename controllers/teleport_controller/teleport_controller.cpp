@@ -119,16 +119,12 @@ int main() {
             log << " alpha: " << target_rotation_vec[3] << std::endl;
             log.close();
           
-
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
 
             // Apply new rotation and reset physics to avoid robot tearing itself apart
             target_rotation_field.setSFRotation(rotation.data());
-            target.resetPhysics();
-            
-            
-            
+            target.resetPhysics();                             
         }
     };
     return 0;
