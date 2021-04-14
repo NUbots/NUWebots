@@ -67,7 +67,7 @@ int main() {
 
         // Output current location
         std::ofstream log;
-        log.open("teleport_controller_log.txt", std::fstream::app);
+        log.open("teleport_controller_log.log", std::fstream::app);
         if (!log.good())
         {
           std::cout << "Error writing to log file" << std::endl;
@@ -107,7 +107,7 @@ int main() {
             // Output current rotation
             
             std::ofstream log;
-            log.open("teleport_controller_log.txt", std::fstream::app);
+            log.open("teleport_controller_log.log", std::fstream::app);
             if (!log.good())
             {
               std::cout << "Error writing to log file" << std::endl;
