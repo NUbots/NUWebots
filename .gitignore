@@ -3,5 +3,6 @@ worlds/.*.wbproj
 build/
 
 /controllers/nugus_controller/nugus_controller
-
-/nugus_controller_test
+/controllers/teleport_controller/teleport_controller
+/nugus_controller_test*log.txt
+*.log
