@@ -28,7 +28,16 @@
 // AxisAngle rotations will be read from a config file and saved here
 std::vector<std::array<double, 4>> rotations;
 
-int main() {
+int main(int argc, char** argv) {
+
+    // Make sure we have the command line arguments we need
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <DEF>" << std::endl;
+        return EXIT_FAILURE;
+    }
+    // Load def argument which will be used to identify the robot using the webots getFromDef function
+    std::string def = argv[1];
+    
 
     // Load config file
     try {
@@ -47,7 +56,7 @@ int main() {
 
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
-    webots::Node& target          = *supervisor.getFromDef("nugus");
+    webots::Node& target          = *supervisor.getFromDef(def);
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
@@ -67,12 +76,13 @@ int main() {
 
         // Output current location
         std::ofstream log;
-        log.open("teleport_controller_log.log", std::fstream::app);
+        log.open("teleport_controller.log", std::fstream::app);
         if (!log.good())
         {
           std::cout << "Error writing to log file" << std::endl;
         }
-        log << "Location: " << std::endl;
+        log << "\n" << supervisor.getTime() << " - ";
+        log << "Location: ";
         log << "X: " << target_translation_vec[0];
         log << " Y: " << target_translation_vec[1];
         log << " Z: " << target_translation_vec[2] << std::endl;
@@ -107,12 +117,13 @@ int main() {
             // Output current rotation
             
             std::ofstream log;
-            log.open("teleport_controller_log.log", std::fstream::app);
+            log.open("teleport_controller.log", std::fstream::app);
             if (!log.good())
             {
               std::cout << "Error writing to log file" << std::endl;
             }
-            log << "Rotation: " << std::endl;
+            log << supervisor.getTime() << " - ";
+            log << "Rotation: ";
             log << "X: " << target_rotation_vec[0];
             log << " Y: " << target_rotation_vec[1];
             log << " Z: " << target_rotation_vec[2];
