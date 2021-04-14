@@ -110,6 +110,7 @@ int main(int argc, char** argv) {
         tcp_fd = connect(argv[1], std::stoi(argv[2]));
     }
 
+    // Do nothing with the welcome message sent
     char welcome_message[8];
     recv(tcp_fd, welcome_message, sizeof(welcome_message), 0);
 
