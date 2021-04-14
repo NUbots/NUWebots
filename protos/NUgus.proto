@@ -532,14 +532,14 @@ PROTO NUgus [
                           }
                           device [
                             RotationalMotor {
-                              name "right_knee_pitch [foot]" 
+                              name "right_knee_pitch" 
                               maxVelocity 5.75959
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
                               maxTorque 10.0
                             }
                             PositionSensor {
-                              name "right_knee_pitch_sensor [foot]"
+                              name "right_knee_pitch_sensor"
                             }
                           ]
                           endPoint Solid {
@@ -575,14 +575,14 @@ PROTO NUgus [
                                 }
                                 device [
                                   RotationalMotor {
-                                    name "right_ankle_pitch [foot]"
+                                    name "right_ankle_pitch"
                                     maxVelocity 5.75959
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque 10.0
                                   }
                                   PositionSensor {
-                                    name "right_ankle_pitch_sensor [foot]"
+                                    name "right_ankle_pitch_sensor"
                                   }
                                 ]
                                 endPoint Solid {
@@ -618,14 +618,14 @@ PROTO NUgus [
                                       }
                                       device [
                                         RotationalMotor {
-                                          name "right_ankle_roll [foot]"
+                                          name "right_ankle_roll"
                                           maxVelocity 5.75959
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
                                           maxTorque 10.0
                                         }
                                         PositionSensor {
-                                          name "right_ankle_roll_sensor [foot]"
+                                          name "right_ankle_roll_sensor"
                                         }
                                       ]
                                       endPoint Solid {
@@ -667,7 +667,7 @@ PROTO NUgus [
                                       }
                                     }
                                   ]
-                                  name "right_ankle [foot]"
+                                  name "right_ankle"
                                   boundingObject USE right_ankle
                                   physics Physics {
                                     density -1
@@ -681,7 +681,7 @@ PROTO NUgus [
                                 }
                               }
                             ]
-                            name "right_lower_leg [foot]"
+                            name "right_lower_leg"
                             boundingObject USE right_lower_leg
                             physics Physics {
                               density -1
@@ -695,7 +695,7 @@ PROTO NUgus [
                           }
                         }
                       ]
-                      name "right_upper_leg [foot]"
+                      name "right_upper_leg"
                       boundingObject USE right_upper_leg
                       physics Physics {
                         density -1
@@ -874,14 +874,14 @@ PROTO NUgus [
                           }
                           device [
                             RotationalMotor {
-                              name "left_knee_pitch [foot]"
+                              name "left_knee_pitch"
                               maxVelocity 5.75959
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
                               maxTorque 10.0
                             }
                             PositionSensor {
-                              name "left_knee_pitch_sensor [foot]"
+                              name "left_knee_pitch_sensor"
                             }
                           ]
                           endPoint Solid {
@@ -917,14 +917,14 @@ PROTO NUgus [
                                 }
                                 device [
                                   RotationalMotor {
-                                    name "left_ankle_pitch [hip]"
+                                    name "left_ankle_pitch"
                                     maxVelocity 5.75959
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque 10.0
                                   }
                                   PositionSensor {
-                                    name "left_ankle_pitch_sensor [hip]"
+                                    name "left_ankle_pitch_sensor"
                                   }
                                 ]
                                 endPoint Solid {
@@ -960,14 +960,14 @@ PROTO NUgus [
                                       }
                                       device [
                                         RotationalMotor {
-                                          name "left_ankle_roll [foot]"
+                                          name "left_ankle_roll"
                                           maxVelocity 5.75959
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
                                           maxTorque 10.0
                                         }
                                         PositionSensor {
-                                          name "left_ankle_roll_sensor [foot]"
+                                          name "left_ankle_roll_sensor"
                                         }
                                       ]
                                       endPoint Solid {
@@ -1009,7 +1009,7 @@ PROTO NUgus [
                                       }
                                     }
                                   ]
-                                  name "left_ankle [foot]"
+                                  name "left_ankle"
                                   boundingObject USE left_ankle
                                   physics Physics {
                                     density -1
@@ -1023,7 +1023,7 @@ PROTO NUgus [
                                 }
                               }
                             ]
-                            name "left_lower_leg [foot]"
+                            name "left_lower_leg"
                             boundingObject USE left_lower_leg
                             physics Physics {
                               density -1
@@ -1037,7 +1037,7 @@ PROTO NUgus [
                           }
                         }
                       ]
-                      name "left_upper_leg [foot]"
+                      name "left_upper_leg"
                       boundingObject USE left_upper_leg
                       physics Physics {
                         density -1
@@ -1087,14 +1087,14 @@ PROTO NUgus [
         }
         device [
           RotationalMotor {
-            name "neck_yaw [neck]"
+            name "neck_yaw"
             maxVelocity 8.16814
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque 7.3
           }
           PositionSensor {
-            name "neck_yaw_sensor [neck]"
+            name "neck_yaw_sensor"
           }
         ]
         endPoint Solid {
@@ -1130,14 +1130,14 @@ PROTO NUgus [
               }
               device [
                 RotationalMotor {
-                  name "head_pitch [head]"
+                  name "head_pitch"
                   maxVelocity 8.16814
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque 7.3
                 }
                 PositionSensor {
-                  name "head_pitch_sensor [head]"
+                  name "head_pitch_sensor"
                 }
               ]
               endPoint Solid {
