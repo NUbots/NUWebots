@@ -50,7 +50,7 @@ RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
   rotation 0.9999999999999999 0 0 1.8715596617048374e-06
 }
-DEF RED_1 Darwin-opHinge2 {
+DEF RED_1 Darwin-opHinge2Seg {
   translation -4.03 -0.028 0.237
   rotation 0.578 0.382 0.72 0.136
   name "player red 1"
@@ -62,13 +62,20 @@ DEF RED_1 Darwin-opHinge2 {
     ]
   }
   backlash TRUE
-  controller ""
+  controller "teleport_controller"
+  controllerArgs [
+    "RED_1"
+  ]
 }
 
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
   rotation 0.83 -0.48 -0.266 0.0489
   name "player red 2"
+  controller "teleport_controller"
+  controllerArgs [
+    "RED_2"
+  ]
 }
 
 DEF RED_3 RobotisOp3 {
@@ -77,19 +84,27 @@ DEF RED_3 RobotisOp3 {
   name "player red 3"
   cameraWidth 320
   cameraHeight 240
+  controller "teleport_controller"
+  controllerArgs [
+    "RED_3"
+  ]
 }
 
 DEF RED_4 Wolfgang {
   translation -0.9 -0.53 0.43
   rotation 0.078 0.86 -0.5 0.347
   name "player red 4"
+  controller "teleport_controller"
+  controllerArgs [
+    "RED_4"
+  ]
 }
 DEF BLUE_1 NUgus {
   name "player blue 1"
   translation 2.688 -0.3985 0.5249
   rotation -0.0367 -0.0048 0.999 -2.9116
-  controller "nugus_controller"
+  controller "collect_vision_data"
   controllerArgs [
-    "32"
+    "BLUE_1"
   ]
 }
