@@ -4,4 +4,9 @@ build/
 
 /controllers/nugus_controller/nugus_controller
 /controllers/teleport_controller/teleport_controller
+<<<<<<< HEAD
 /nugus_controller_test*log.txt
+=======
+/nugus_controller_test
+>>>>>>> 8eb40fde2cbb06fdc8bce25fdb3acb3b29492035
+*log.txt
