@@ -4,12 +4,12 @@
 # Official soccer field for the Robocup Humanoid League 2021.
 
 PROTO RobocupSoccerField [
-  field SFVec3f                     translation 0 0 0
-  field SFRotation                  rotation    0 1 0 0
-  field SFString                    name        "soccer_field"
-  field SFString{"adult", "kid"}    size        "adult"
-  field SFBool                      turfPhysics TRUE
-  field MFColor  recognitionColors  [0 1 0]    # the field is green
+  field SFVec3f                     translation       0 0 0
+  field SFRotation                  rotation          0 1 0 0
+  field SFString                    name              "soccer_field"
+  field SFString{"adult", "kid"}    size              "adult"
+  field SFBool                      turfPhysics       TRUE
+  field MFColor                     recognitionColors [0 1 0]         # the field is green
 ]
 {
 
@@ -267,55 +267,69 @@ PROTO RobocupSoccerField [
         }
       }
       %{ end }%
-      DEF GRASS Shape {
-        appearance Grass {
-          colorOverride 0.6 1 0.3
-          type "artificial"
-          textureTransform TextureTransform {
-            scale %{= 2 * A }% %{= 2 * A }%
+      Solid {
+        recognitionColors IS recognitionColors
+        name "green grass"
+        children [
+          DEF GRASS Shape {
+            appearance Grass {
+              colorOverride 0.6 1 0.3
+              type "artificial"
+              textureTransform TextureTransform {
+                scale %{= 2 * A }% %{= 2 * A }%
+              }
+            }
+            geometry IndexedFaceSet {
+              coord Coordinate {
+                point [
+                %{ for k, v in pairs(pts) do }%
+                    %{= v.x }% %{= v.y }% %{= v.z }%
+                %{ end }%
+                ]
+              }
+              ccw FALSE
+              coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
+                %{ for k, v in pairs(tg) do }%
+                  %{= v.a - 1 }% %{= v.b - 1 }% %{= v.c - 1 }% -1,
+                %{ end }%
+              ]
+            }
           }
-        }
-        geometry IndexedFaceSet {
-          coord Coordinate {
-            point [
-             %{ for k, v in pairs(pts) do }%
-                %{= v.x }% %{= v.y }% %{= v.z }%
-             %{ end }%
-            ]
-          }
-          ccw FALSE
-          coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
-            %{ for k, v in pairs(tg) do }%
-               %{= v.a - 1 }% %{= v.b - 1 }% %{= v.c - 1 }% -1,
-            %{ end }%
-          ]
-        }
+        ]
       }
-      DEF LINES Shape {
-        appearance Grass {
-          colorOverride 1 1 1
-          type "artificial_white"
-          IBLStrength 1.5
-          textureTransform TextureTransform {
-            scale %{= 2 * A }% %{= 2 * A }%
+
+      Solid {
+        name "white grass"
+        recognitionColors [1 1 1]
+        children [
+          DEF LINES Shape {
+            appearance Grass {
+              colorOverride 1 1 1
+              type "artificial_white"
+              IBLStrength 1.5
+              textureTransform TextureTransform {
+                scale %{= 2 * A }% %{= 2 * A }%
+              }
+            }
+            geometry IndexedFaceSet {
+              coord Coordinate {
+                point [
+                %{ for k, v in pairs(pts) do }%
+                    %{= v.x }% %{= v.y }% %{= v.z }%
+                %{ end }%
+                ]
+              }
+              ccw FALSE
+              coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
+                %{ for k, v in pairs(tl) do }%
+                  %{= v.a - 1 }% %{= v.b - 1 }% %{= v.c - 1 }% -1
+                %{ end }%
+              ]
+            }
           }
-        }
-        geometry IndexedFaceSet {
-          coord Coordinate {
-            point [
-             %{ for k, v in pairs(pts) do }%
-                %{= v.x }% %{= v.y }% %{= v.z }%
-             %{ end }%
-            ]
-          }
-          ccw FALSE
-          coordIndex [ # v.X - 1 because coordIndex starts at 0, while the points (defined in Lua) start at 1
-            %{ for k, v in pairs(tl) do }%
-               %{= v.a - 1 }% %{= v.b - 1 }% %{= v.c - 1 }% -1
-            %{ end }%
-          ]
-        }
+        ]
       }
+
       RobocupGoal {
         translation %{= I - OFFSET_X }% %{= I + (B / 2) - OFFSET_Y }% 0
         rotation 0 0 1 -1.5707996938995747
