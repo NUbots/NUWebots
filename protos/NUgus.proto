@@ -532,7 +532,7 @@ PROTO NUgus [
                           }
                           device [
                             RotationalMotor {
-                              name "right_knee_pitch" 
+                              name "right_knee_pitch"
                               maxVelocity 5.75959
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
