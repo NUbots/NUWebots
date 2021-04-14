@@ -61,7 +61,7 @@ PROTO NUgus [
         }
         device [
           RotationalMotor {
-            name "right_shoulder_pitch"
+            name "right_shoulder_pitch [shoulder]"
             maxVelocity 8.16814
             minPosition -3.14159265359
             maxPosition 3.14159265359
@@ -182,7 +182,7 @@ PROTO NUgus [
                           }
                         }
                       ]
-                      name "right_lower_arm"
+                      name "right_lower_arm [arm]"
                       boundingObject USE right_lower_arm
                       physics Physics {
                         density -1
@@ -196,7 +196,7 @@ PROTO NUgus [
                     }
                   }
                 ]
-                name "right_upper_arm"
+                name "right_upper_arm [arm]"
                 boundingObject USE right_upper_arm
                 physics Physics {
                   density -1
@@ -210,7 +210,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "right_shoulder"
+          name "right_shoulder [arm]"
           boundingObject USE right_shoulder
           physics Physics {
             density -1
@@ -232,7 +232,7 @@ PROTO NUgus [
         }
         device [
           RotationalMotor {
-            name "left_shoulder_pitch"
+            name "left_shoulder_pitch [shoulder]"
             maxVelocity 8.16814
             minPosition -3.14159265359
             maxPosition 3.14159265359
@@ -353,7 +353,7 @@ PROTO NUgus [
                           }
                         }
                       ]
-                      name "left_lower_arm"
+                      name "left_lower_arm [arm]"
                       boundingObject USE left_lower_arm
                       physics Physics {
                         density -1
@@ -367,7 +367,7 @@ PROTO NUgus [
                     }
                   }
                 ]
-                name "left_upper_arm"
+                name "left_upper_arm [arm]"
                 boundingObject USE left_upper_arm
                 physics Physics {
                   density -1
@@ -381,7 +381,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "left_shoulder"
+          name "left_shoulder [arm]"
           boundingObject USE left_shoulder
           physics Physics {
             density -1
@@ -446,7 +446,7 @@ PROTO NUgus [
               }
               device [
                 RotationalMotor {
-                  name "right_hip_roll"
+                  name "right_hip_roll [hip]"
                   maxVelocity 5.75959
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
@@ -653,7 +653,7 @@ PROTO NUgus [
                                             }
                                           }
                                         ]
-                                        name "right_foot"
+                                        name "right_foot [foot]"
                                         boundingObject USE right_foot
                                         physics Physics {
                                           density -1
@@ -788,7 +788,7 @@ PROTO NUgus [
               }
               device [
                 RotationalMotor {
-                  name "left_hip_roll"
+                  name "left_hip_roll [hip]"
                   maxVelocity 5.75959
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
@@ -995,7 +995,7 @@ PROTO NUgus [
                                             }
                                           }
                                         ]
-                                        name "left_foot"
+                                        name "left_foot [foot]"
                                         boundingObject USE left_foot
                                         physics Physics {
                                           density -1
