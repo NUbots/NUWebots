@@ -17,48 +17,46 @@
  * Copyright 2021 NUbots <nubots@nubots.net>
  */
 
-#include <RobotisOp2MotionManager.hpp>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <webots/Supervisor.hpp>
+#include <array>
 
 #include "yaml-cpp/yaml.h"
 
 // AxisAngle rotations will be read from a config file and saved here
-std::vector<std::vector<double>> rotations;
-// Preset motions for the robot will be read and saved here
-std::vector<int> playPages;
+std::vector<std::array<double, 4>> rotations;
 
 int main() {
 
     // Load config file
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
-        rotations         = config["rotations"].as<std::vector<std::vector<double>>>();
-        playPages         = config["playpages"].as<std::vector<int>>();
+        rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
     }
-    catch (const std::string& e) {
-        std::cout << e << std::endl;
-        return 0;
+    catch (const YAML::BadFile& e) {
+        std::cerr << e.msg << std::endl;
+        return 1;
     }
+    catch (const YAML::ParserException& e) {
+        std::cerr << e.msg << std::endl;
+        return 2;
+    }
+    
 
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
-    webots::Node& target          = *supervisor.getFromDef("RED_1");
+    webots::Node& target          = *supervisor.getFromDef("nugus");
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
 
-    // Add the motion manager to make the robot stand up and look around
-    managers::RobotisOp2MotionManager mMotionManager = managers::RobotisOp2MotionManager(&supervisor);
-    mMotionManager.playPage(1);  // Look around
-
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> xDistrib(0, 1080);
-    std::uniform_int_distribution<> yDistrib(0, 1600);
+    std::uniform_int_distribution<> xDistrib(0, 760);
+    std::uniform_int_distribution<> yDistrib(0, 1080);
 
     while (supervisor.step(timeStep) != -1) {
 
@@ -70,7 +68,7 @@ int main() {
         // Output current location
         try {
             std::ofstream log;
-            log.open("log.txt", std::fstream::app);
+            log.open("teleport_controller_log.txt", std::fstream::app);
             log << "Location: " << std::endl;
             log << "X: " << target_translation_vec[0];
             log << " Y: " << target_translation_vec[1];
@@ -78,7 +76,7 @@ int main() {
             log.close();
         }
         catch (const std::string& e) {
-            std::cout << e << std::endl;
+            std::cout << e << std::endl; 
         }
         // Prepare new location
 
@@ -91,30 +89,30 @@ int main() {
         // image only, after resetPhysics is should return to a regular state
 
 
-        double newPos[3];
-        newPos[0] = 5.4 - xDistrib(gen) / 100;
-        newPos[1] = 8 - yDistrib(gen) / 100;
-        newPos[2] = 0.32;
+        std::array<double, 3> newPos;
+        newPos[0] = 3.8 - xDistrib(gen) / 100;
+        newPos[1] = 5.4 - yDistrib(gen) / 100;
+        newPos[2] = 0.51;
 
         // Set new location
-        target_translation_field.setSFVec3f(newPos);
+        target_translation_field.setSFVec3f(newPos.data());
 
         // Grab the current rotation field of the robot to modify
-        webots::Field& target_rotation_field = *target.getField("rotation");
+        webots::Field& target_rotation_field = *(target.getField("rotation"));
         // Convert the field to a vector to output to console
         const double* target_rotation_vec = target_rotation_field.getSFRotation();
-
+        
         // Loop once for each rotation
-        for (long unsigned int i = 0; i < rotations.size(); i++) {
+        for (const std::array<double, 4>& rotation : rotations) {
             // Output current rotation
             try {
                 std::ofstream log;
-                log.open("log.txt", std::fstream::app);
+                log.open("teleport_controller_log.txt", std::fstream::app);
                 log << "Rotation: " << std::endl;
                 log << "X: " << target_rotation_vec[0];
                 log << " Y: " << target_rotation_vec[1];
                 log << " Z: " << target_rotation_vec[2];
-                log << " α: " << target_rotation_vec[3] << std::endl;
+                log << " alpha: " << target_rotation_vec[3] << std::endl;
                 log.close();
             }
             catch (const std::string& e) {
@@ -124,23 +122,12 @@ int main() {
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
 
-            // The setSFRotation webots function expects an array of doubles, not a vector
-            double newRot[4];
-            for (long unsigned int j = 0; j < rotations[i].size(); j++) {
-                newRot[j] = rotations[i][j];
-            }
-
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            target_rotation_field.setSFRotation(newRot);
+            target_rotation_field.setSFRotation(rotation.data());
             target.resetPhysics();
-
-            // The following performs a number of preset movements/routines loaded from the
-            // config file that the robot can carry out. Any of them can be removed or more
-            // added but leave at least one otherwise there will be no delay between each
-            // step of this loop
-            for (int i : playPages) {
-                mMotionManager.playPage(i);
-            }
+            
+            
+            
         }
     };
     return 0;
