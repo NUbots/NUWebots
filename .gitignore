@@ -4,4 +4,4 @@ build/
 
 /controllers/nugus_controller/nugus_controller
 /controllers/teleport_controller/teleport_controller
-/nugus_controller_test
+/nugus_controller_test*log.txt
