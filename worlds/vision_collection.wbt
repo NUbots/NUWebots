@@ -45,6 +45,7 @@ TexturedBackgroundLight {
 }
 RobocupSoccerField {
   size "kid"
+  isRecognition TRUE
 }
 RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187

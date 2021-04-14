@@ -37,7 +37,6 @@ PROTO RobocupGoal [
     bounding_object_thickness_sides = 2 * backpost_radius -- Not defined in rules
     bounding_object_thickness_back = 0.3 -- Not defined in rules
   }%
-
   Solid {
     translation IS translation
     rotation IS rotation
