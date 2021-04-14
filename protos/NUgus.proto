@@ -68,7 +68,7 @@ PROTO NUgus [
             maxTorque 7.3
           }
           PositionSensor {
-            name "right_shoulder_pitch_sensor [shoulder]"
+            name "right_shoulder_pitch_sensor"
           }
         ]
         endPoint Solid {
@@ -104,14 +104,14 @@ PROTO NUgus [
               }
               device [
                 RotationalMotor {
-                  name "right_shoulder_roll [shoulder]"
+                  name "right_shoulder_roll"
                   maxVelocity 8.16814
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque 7.3
                 }
                 PositionSensor {
-                  name "right_shoulder_roll_sensor [shoulder]"
+                  name "right_shoulder_roll_sensor"
                 }
               ]
               endPoint Solid {
@@ -147,14 +147,14 @@ PROTO NUgus [
                     }
                     device [
                       RotationalMotor {
-                        name "right_elbow_pitch [arm]"
+                        name "right_elbow_pitch"
                         maxVelocity 8.16814
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque 7.3
                       }
                       PositionSensor {
-                        name "right_elbow_pitch_sensor [arm]"
+                        name "right_elbow_pitch_sensor"
                       }
                     ]
                     endPoint Solid {
@@ -210,7 +210,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "right_shoulder [shoulder]"
+          name "right_shoulder [arm]"
           boundingObject USE right_shoulder
           physics Physics {
             density -1
@@ -239,7 +239,7 @@ PROTO NUgus [
             maxTorque 7.3
           }
           PositionSensor {
-            name "left_shoulder_pitch_sensor [shoulder]"
+            name "left_shoulder_pitch_sensor"
           }
         ]
         endPoint Solid {
@@ -275,14 +275,14 @@ PROTO NUgus [
               }
               device [
                 RotationalMotor {
-                  name "left_shoulder_roll [shoulder]"
+                  name "left_shoulder_roll"
                   maxVelocity 8.16814
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque 7.3
                 }
                 PositionSensor {
-                  name "left_shoulder_roll_sensor [shoulder]"
+                  name "left_shoulder_roll_sensor"
                 }
               ]
               endPoint Solid {
@@ -318,14 +318,14 @@ PROTO NUgus [
                     }
                     device [
                       RotationalMotor {
-                        name "left_elbow_pitch [arm]"
+                        name "left_elbow_pitch"
                         maxVelocity 8.16814
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque 7.3
                       }
                       PositionSensor {
-                        name "left_elbow_pitch_sensor [arm]"
+                        name "left_elbow_pitch_sensor"
                       }
                     ]
                     endPoint Solid {
@@ -381,7 +381,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "left_shoulder [shoulder]"
+          name "left_shoulder [arm]"
           boundingObject USE left_shoulder
           physics Physics {
             density -1
@@ -403,14 +403,14 @@ PROTO NUgus [
         }
         device [
           RotationalMotor {
-            name "right_hip_yaw [hip]"
+            name "right_hip_yaw"
             maxVelocity 5.75959
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque 10.0
           }
           PositionSensor {
-            name "right_hip_yaw_sensor [hip]"
+            name "right_hip_yaw_sensor"
           }
         ]
         endPoint Solid {
@@ -453,7 +453,7 @@ PROTO NUgus [
                   maxTorque 10.0
                 }
                 PositionSensor {
-                  name "right_hip_roll_sensor [hip]"
+                  name "right_hip_roll_sensor"
                 }
               ]
               endPoint Solid {
@@ -489,14 +489,14 @@ PROTO NUgus [
                     }
                     device [
                       RotationalMotor {
-                        name "right_hip_pitch [hip]"
+                        name "right_hip_pitch"
                         maxVelocity 5.75959
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque 10.0
                       }
                       PositionSensor {
-                        name "right_hip_pitch_sensor [hip]"
+                        name "right_hip_pitch_sensor"
                       }
                     ]
                     endPoint Solid {
@@ -709,7 +709,7 @@ PROTO NUgus [
                     }
                   }
                 ]
-                name "right_hip_roll [hip]"
+                name "right_hip_roll"
                 boundingObject USE right_hip_roll
                 physics Physics {
                   density -1
@@ -723,7 +723,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "right_hip_yaw [hip]"
+          name "right_hip_yaw"
           boundingObject USE right_hip_yaw
           physics Physics {
             density -1
@@ -745,14 +745,14 @@ PROTO NUgus [
         }
         device [
           RotationalMotor {
-            name "left_hip_yaw [hip]"
+            name "left_hip_yaw"
             maxVelocity 5.75959
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque 10.0
           }
           PositionSensor {
-            name "left_hip_yaw_sensor [hip]"
+            name "left_hip_yaw_sensor"
           }
         ]
         endPoint Solid {
@@ -795,7 +795,7 @@ PROTO NUgus [
                   maxTorque 10.0
                 }
                 PositionSensor {
-                  name "left_hip_roll_sensor [hip]"
+                  name "left_hip_roll_sensor"
                 }
               ]
               endPoint Solid {
@@ -831,14 +831,14 @@ PROTO NUgus [
                     }
                     device [
                       RotationalMotor {
-                        name "left_hip_pitch [hip]"
+                        name "left_hip_pitch"
                         maxVelocity 5.75959
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque 10.0
                       }
                       PositionSensor {
-                        name "left_hip_pitch_sensor [hip]"
+                        name "left_hip_pitch_sensor"
                       }
                     ]
                     endPoint Solid {
@@ -1051,7 +1051,7 @@ PROTO NUgus [
                     }
                   }
                 ]
-                name "left_hip_roll [hip]"
+                name "left_hip_roll"
                 boundingObject USE left_hip_roll
                 physics Physics {
                   density -1
@@ -1065,7 +1065,7 @@ PROTO NUgus [
               }
             }
           ]
-          name "left_hip_yaw [hip]"
+          name "left_hip_yaw"
           boundingObject USE left_hip_yaw
           physics Physics {
             density -1
