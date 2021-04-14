@@ -53,6 +53,12 @@ int main(int argc, char** argv) {
         return 2;
     }
     
+    // Open the existing log file and immediately close it to overwrite it for a new instance of
+    // the program
+    std::ofstream log;
+    log.open("teleport_controller.log");
+    log.close();
+    
 
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
