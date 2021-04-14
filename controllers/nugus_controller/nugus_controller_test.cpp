@@ -110,6 +110,9 @@ int main(int argc, char** argv) {
         tcp_fd = connect(argv[1], std::stoi(argv[2]));
     }
 
+    char welcome_message[8];
+    recv(tcp_fd, welcome_message, sizeof(welcome_message), 0);
+
     // Current message counter
     uint32_t current_num = 1;
 
