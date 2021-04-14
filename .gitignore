@@ -4,7 +4,7 @@ build/
 
 /controllers/nugus_controller/nugus_controller
 /controllers/collect_vision_data/collect_vision_data
-/controllers/vision_test/vision_test
+/controllers/teleport_controller/teleport_controller
 
 /nugus_controller_test*log.txt
 *.log
