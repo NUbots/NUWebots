@@ -174,7 +174,7 @@ PROTO RobocupGoal [
           }
         ]
       }
-      %{ if not isRecognition then }%
+      %{ if not fields.isRecognition.value then }%
         Shape {
           appearance DEF NET_APP PBRAppearance {
             baseColor IS netColor
@@ -234,7 +234,7 @@ PROTO RobocupGoal [
             ]
           }
         }
-      %{ end }%
+      %{ end }%   
     ]
     name IS name
     model "robotstadium goal"
