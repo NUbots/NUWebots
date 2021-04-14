@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
         {
           std::cout << "Error writing to log file" << std::endl;
         }
-        log << "\n" << supervisor.getTime() << " - ";
+        log << "\n" << supervisor.getTime() << "s - ";
         log << "Location: ";
         log << "X: " << target_translation_vec[0];
         log << " Y: " << target_translation_vec[1];
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
             {
               std::cout << "Error writing to log file" << std::endl;
             }
-            log << supervisor.getTime() << " - ";
+            log << supervisor.getTime() << "s - ";
             log << "Rotation: ";
             log << "X: " << target_rotation_vec[0];
             log << " Y: " << target_rotation_vec[1];
