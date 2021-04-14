@@ -66,18 +66,18 @@ int main() {
         const double* target_translation_vec = target_translation_field.getSFVec3f();
 
         // Output current location
-        try {
-            std::ofstream log;
-            log.open("teleport_controller_log.txt", std::fstream::app);
-            log << "Location: " << std::endl;
-            log << "X: " << target_translation_vec[0];
-            log << " Y: " << target_translation_vec[1];
-            log << " Z: " << target_translation_vec[2] << std::endl;
-            log.close();
+        std::ofstream log;
+        log.open("teleport_controller_log.txt", std::fstream::app);
+        if (!log.good())
+        {
+          std::cout << "Error writing to log file" << std::endl;
         }
-        catch (const std::string& e) {
-            std::cout << e << std::endl; 
-        }
+        log << "Location: " << std::endl;
+        log << "X: " << target_translation_vec[0];
+        log << " Y: " << target_translation_vec[1];
+        log << " Z: " << target_translation_vec[2] << std::endl;
+        log.close();
+        
         // Prepare new location
 
         // 0, 0, 0 is centre of the playing field.
@@ -105,19 +105,20 @@ int main() {
         // Loop once for each rotation
         for (const std::array<double, 4>& rotation : rotations) {
             // Output current rotation
-            try {
-                std::ofstream log;
-                log.open("teleport_controller_log.txt", std::fstream::app);
-                log << "Rotation: " << std::endl;
-                log << "X: " << target_rotation_vec[0];
-                log << " Y: " << target_rotation_vec[1];
-                log << " Z: " << target_rotation_vec[2];
-                log << " alpha: " << target_rotation_vec[3] << std::endl;
-                log.close();
+            
+            std::ofstream log;
+            log.open("teleport_controller_log.txt", std::fstream::app);
+            if (!log.good())
+            {
+              std::cout << "Error writing to log file" << std::endl;
             }
-            catch (const std::string& e) {
-                std::cout << e << std::endl;
-            }
+            log << "Rotation: " << std::endl;
+            log << "X: " << target_rotation_vec[0];
+            log << " Y: " << target_rotation_vec[1];
+            log << " Z: " << target_rotation_vec[2];
+            log << " alpha: " << target_rotation_vec[3] << std::endl;
+            log.close();
+          
 
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
