@@ -56,15 +56,9 @@ int main(int argc, char** argv) {
         std::cerr << e.msg << std::endl;
         return 2;
     }
-    
-    //---------BEGIN LOG-----------//
+
     // Counter for saving images
     int count = 0;
-    // Open the existing log file and immediately close it to overwrite it for a new instance of
-    // the program
-    std::ofstream log;
-    log.open("teleport_controller.log");
-    log.close();
     
     //---------GET ROBOT, CAMERAS AND SUPERVISOR----------//
     // create the Supervisor instance and assign it to a robot
@@ -88,8 +82,8 @@ int main(int argc, char** argv) {
     left_camera->enableRecognitionSegmentation();
 
     // Create directories for saving data
-    std::filesystem::create_directories("./data/raw");
-    std::filesystem::create_directories("./data/seg");
+    std::filesystem::create_directories("./data/data_normal");
+    std::filesystem::create_directories("./data/data_stereo");
 
     //-----------SET RANDOM SEED-----------//
     // Generate random seed
@@ -100,27 +94,11 @@ int main(int argc, char** argv) {
 
     //--------MAIN CONTROL LOOP------------//
     while (supervisor.step(time_step) != -1) {
-        //-----------GET LOG DATA----------//
+        //----------SET TRANSLATION OF ROBOT------------//
         // Grab the current translation field of the robot to modify
         webots::Field& robot_translation_field = *robot.getField("translation");
         // Convert the field to a vector to output to console
         const double* robot_translation_vec = robot_translation_field.getSFVec3f();
-
-        // Output current location
-        std::ofstream log;
-        log.open("teleport_controller.log", std::fstream::app);
-        if (!log.good())
-        {
-          std::cout << "Error writing to log file" << std::endl;
-        }
-        log << "\n" << supervisor.getTime() << "s - ";
-        log << "Location: ";
-        log << "X: " << robot_translation_vec[0];
-        log << " Y: " << robot_translation_vec[1];
-        log << " Z: " << robot_translation_vec[2] << std::endl;
-        log.close();
-        
-        //----------SET TRANSLATION OF ROBOT------------//
 
         // 0, 0, 0 is centre of the playing field.
         // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
@@ -144,36 +122,44 @@ int main(int argc, char** argv) {
         
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
-            //------LOG ROTATION------------//
-            std::ofstream log;
-            log.open("teleport_controller.log", std::fstream::app);
-            if (!log.good())
-            {
-              std::cout << "Error writing to log file" << std::endl;
-            }
-            log << supervisor.getTime() << "s - ";
-            log << "Rotation: ";
-            log << "X: " << robot_rotation_vec[0];
-            log << " Y: " << robot_rotation_vec[1];
-            log << " Z: " << robot_rotation_vec[2];
-            log << " alpha: " << robot_rotation_vec[3] << std::endl;
-            log.close();
-
-            //-----------SAVE IMAGES-----------//
-            std::string end = std::to_string(count) + ".jpeg";
-            left_camera->saveImage("./data/raw/left_" + end, QUALITY);
-            right_camera->saveImage("./data/raw/right_" + end, QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/seg/left_" + end, QUALITY);
-            right_camera->saveRecognitionSegmentationImage("./data/seg/right_" + end, QUALITY);
+            //-----------SAVE DATA-----------//
+            // Save stereo images
+            left_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_L.jpeg", QUALITY);
+            right_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_R.jpeg", QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_L.png", QUALITY);
+            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_R.png", QUALITY);
             
+            // Save normal images            
+            left_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
+            right_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
+            right_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
+            
+            
+            // Write the lens.yaml data
+            std::ofstream lensFile("./data/data_stereo/lens" + std::to_string(count) + ".yaml");
+            YAML::Emitter lensYaml;  // create the node
+            lensYaml << YAML::BeginMap;
+            lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            lensYaml << YAML::Key << "focal_length" << YAML::Value << left_camera->getFocalLength();
+            lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
+            lensYaml << YAML::EndMap;
+            
+            lensFile << lensYaml.c_str();
+            lensFile.close();
+
+            count++;
+
             //-----------SET ROTATION----------//
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
             robot_rotation_field.setSFRotation(rotation.data());
-            robot.resetPhysics();                             
+            robot.resetPhysics();
+            supervisor.step(time_step);
         }
-        count++;
     }
     return 0;
 }
