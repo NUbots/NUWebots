@@ -21,7 +21,7 @@
 #include <iostream>
 #include <random>
 #include <array>
-
+#include <filesystem>
 #include "yaml-cpp/yaml.h"
 
 #include <webots/Supervisor.hpp>
@@ -69,13 +69,13 @@ int main(int argc, char** argv) {
     //---------GET ROBOT, CAMERAS AND SUPERVISOR----------//
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
-    webots::Node& target          = *supervisor.getFromDef(def);
+    webots::Node& robot          = *supervisor.getFromDef(def);
 
     // Get the time step of the current world.
     int time_step = int(supervisor.getBasicTimeStep());
 
     // Create the Robot instance
-    std::unique_ptr<webots::Robot> robot = std::make_unique<webots::Robot>();
+    // std::unique_ptr<webots::Robot> robot = std::make_unique<webots::Robot>();
 
     // Get the cameras
     std::unique_ptr<webots::Camera> right_camera = std::make_unique<webots::Camera>("right_camera");
@@ -86,6 +86,10 @@ int main(int argc, char** argv) {
     left_camera->recognitionEnable(time_step);
     right_camera->enableRecognitionSegmentation();
     left_camera->enableRecognitionSegmentation();
+
+    // Create directories for saving data
+    std::filesystem::create_directories("./data/raw");
+    std::filesystem::create_directories("./data/seg");
 
     //-----------SET RANDOM SEED-----------//
     // Generate random seed
@@ -98,9 +102,9 @@ int main(int argc, char** argv) {
     while (supervisor.step(time_step) != -1) {
         //-----------GET LOG DATA----------//
         // Grab the current translation field of the robot to modify
-        webots::Field& target_translation_field = *target.getField("translation");
+        webots::Field& robot_translation_field = *robot.getField("translation");
         // Convert the field to a vector to output to console
-        const double* target_translation_vec = target_translation_field.getSFVec3f();
+        const double* robot_translation_vec = robot_translation_field.getSFVec3f();
 
         // Output current location
         std::ofstream log;
@@ -111,9 +115,9 @@ int main(int argc, char** argv) {
         }
         log << "\n" << supervisor.getTime() << "s - ";
         log << "Location: ";
-        log << "X: " << target_translation_vec[0];
-        log << " Y: " << target_translation_vec[1];
-        log << " Z: " << target_translation_vec[2] << std::endl;
+        log << "X: " << robot_translation_vec[0];
+        log << " Y: " << robot_translation_vec[1];
+        log << " Z: " << robot_translation_vec[2] << std::endl;
         log.close();
         
         //----------SET TRANSLATION OF ROBOT------------//
@@ -133,12 +137,12 @@ int main(int argc, char** argv) {
         newPos[2] = 0.51;
 
         // Set new location
-        target_translation_field.setSFVec3f(newPos.data());
+        robot_translation_field.setSFVec3f(newPos.data());
 
         // Grab the current rotation field of the robot to modify
-        webots::Field& target_rotation_field = *(target.getField("rotation"));
+        webots::Field& robot_rotation_field = *(robot.getField("rotation"));
         // Convert the field to a vector to output to console
-        const double* target_rotation_vec = target_rotation_field.getSFRotation();
+        const double* robot_rotation_vec = robot_rotation_field.getSFRotation();
         
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
@@ -151,24 +155,25 @@ int main(int argc, char** argv) {
             }
             log << supervisor.getTime() << "s - ";
             log << "Rotation: ";
-            log << "X: " << target_rotation_vec[0];
-            log << " Y: " << target_rotation_vec[1];
-            log << " Z: " << target_rotation_vec[2];
-            log << " alpha: " << target_rotation_vec[3] << std::endl;
+            log << "X: " << robot_rotation_vec[0];
+            log << " Y: " << robot_rotation_vec[1];
+            log << " Z: " << robot_rotation_vec[2];
+            log << " alpha: " << robot_rotation_vec[3] << std::endl;
             log.close();
 
             //-----------SAVE IMAGES-----------//
-            left_camera->saveImage("/data/raw/left_" + count, QUALITY);
-            right_camera->saveImage("/data/raw/right_" + count, QUALITY);
-            left_camera->saveRecognitionSegmentationImage("/data/seg/left_" + count, QUALITY);
-            right_camera->saveRecognitionSegmentationImage("/data/seg/right_" + count, QUALITY);
+            std::string end = std::to_string(count) + ".jpeg";
+            left_camera->saveImage("./data/raw/left_" + end, QUALITY);
+            right_camera->saveImage("./data/raw/right_" + end, QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/seg/left_" + end, QUALITY);
+            right_camera->saveRecognitionSegmentationImage("./data/seg/right_" + end, QUALITY);
             
             //-----------SET ROTATION----------//
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            target_rotation_field.setSFRotation(rotation.data());
-            target.resetPhysics();                             
+            robot_rotation_field.setSFRotation(rotation.data());
+            robot.resetPhysics();                             
         }
         count++;
     }
