@@ -15,37 +15,56 @@
  * along with the NUbots Codebase.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2021 NUbots <nubots@newcastle.edu.au>
+ *
+ * Portions of this code is taken from the official Webots RoboCup player controller
+ * 2021 by Cyberbotics.
  */
 
-// You may need to add webots include files such as
-// <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
-// and/or add some other includes
+
 #include <cstdlib>
 #include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
-#include <webots/Robot.hpp>
 
-#include "RobotControl.pb.h"
+#include <webots/Accelerometer.hpp>
+#include <webots/Camera.hpp>
+#include <webots/Gyro.hpp>
+#include <webots/Motor.hpp>
+#include <webots/Node.hpp>
+#include <webots/PositionSensor.hpp>
+#include <webots/Robot.hpp>
+#include <webots/TouchSensor.hpp>
+
 #include "messages.pb.h"
 
 #include "utility/tcp.hpp"
 
+#ifdef TURBOJPEG
+#include <turbojpeg.h>
+#else
+#include <jpeglib.h>
+#endif
+
 using namespace utility::tcp;
+using controller::nugus::ActuatorRequests;
+using controller::nugus::CameraExposure;
+using controller::nugus::CameraQuality;
+using controller::nugus::MotorPID;
+using controller::nugus::SensorMeasurements;
+using controller::nugus::SensorTimeStep;
 
 class NUgus : public webots::Robot {
 public:
     NUgus(const int& time_step, const int& server_port)
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
-            send(tcp_fd, "Welcome", 8, 0);
+        send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() {
         close_socket(tcp_fd);
     }
 
     void run() {
-        this.getCamera("right_camera");
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
             if (tcp_fd == -1) {
@@ -54,14 +73,19 @@ public:
                 send(tcp_fd, "Welcome", 8, 0);
                 continue;
             }
-            // Check if we have received a message and deal with it if we have 
-            handleReceived();
+            // Check if we have received a message and deal with it if we have
+            try {
+                handleReceived();
+            }
+            catch (const std::exception& e) {
+                continue;
+            }
             // Send data from the simulated robot hardware to the robot control software
             sendData();
         }
     }
 
-    void checkReceived() {
+    void handleReceived() {
         // Setup arguments for select call
         fd_set rfds;
         FD_ZERO(&rfds);
@@ -73,7 +97,7 @@ public:
         int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
         if (num_ready < 0) {
             std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
-            continue;
+            throw;
         }
         else if (num_ready > 0) {
             // Wire format
@@ -81,9 +105,8 @@ public:
             // uint8_t * Nn  the message
             uint32_t Nn;
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
-                            << std::endl;
-                continue;
+                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
+                throw;
             }
 
             // Covert to host endianness, which might be different to network endianness
@@ -92,31 +115,98 @@ public:
             std::vector<uint8_t> data(Nh, 0);
             if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
-                continue;
+                throw;
             }
 
             // Parse message data
-            controller::nugus::ActuatorRequests msg;
-            if (!msg.ParseFromArray(data.data(), Nh)) {
+            ActuatorRequests actuatorRequests;
+            if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
-                continue;
+                throw;
             }
 
-            // Do things with the ActuatorRequests message
+            //------PARSE ACTUATOR REQUESTS MESSAGE-----------
             // repeated MotorPosition motor_positions = 1;
             // repeated MotorVelocity motor_velocities = 2;
             // repeated MotorForce motor_forces = 3;
             // repeated MotorTorque motor_torques = 4;
             // repeated MotorPID motor_pids = 5;
-            // repeated SensorTimeStep sensor_time_steps = 6;
-            // repeated CameraQuality camera_qualities = 7;
-            // repeated CameraExposure camera_exposures = 8;
+            for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
+                const MotorPID motorPID = actuatorRequests.motor_pids(i);
+                std::unique_ptr<webots::Motor> motor(this->getMotor(motorPID.name()));
+                if (motor) {
+                    motor->setPosition(actuatorRequests.motor_positions(i).position());
+                    motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
+                    motor->setForce(actuatorRequests.motor_forces(i).force());
+                    motor->setTorque(actuatorRequests.motor_torques(i).torque());
+                    motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
+                }
+
+                // repeated CameraQuality camera_qualities = 7;
+                // repeated CameraExposure camera_exposures = 8;
+                // Quality not implemented yet
+                // for (int i = 0; i < actuatorRequests.camera_qualities_size(); i++) {
+                //     const CameraQuality cameraQuality = actuatorRequests.camera_qualities(i);
+                //     std::unique_ptr<webots::Camera> camera(this->getCamera(cameraQuality.name()));
+                //     if (camera) {
+                //         camera->setQuality(cameraQuality.quality());
+                //     }
+                // }
+                for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
+                    const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
+                    std::unique_ptr<webots::Camera> camera(this->getCamera(cameraExposure.name()));
+                    if (camera) {
+                        camera->setExposure(cameraExposure.exposure());
+                    }
+                }
+
+                // repeated SensorTimeStep sensor_time_steps = 6;
+                // we need to enable the sensors after we sent the sensor value to avoid
+                // sending values for disabled sensors.
+                for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
+                    const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
+                    std::unique_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
+                    if (device) {
+                        const int sensor_time_step = sensorTimeStep.timestep();
+                        switch (device->getNodeType()) {
+                            case webots::Node::ACCELEROMETER: {
+                                std::unique_ptr<webots::Accelerometer> accelerometer =
+                                    std::make_unique<webots::Accelerometer>(*device);
+                                accelerometer->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::CAMERA: {
+                                std::unique_ptr<webots::Camera> camera = std::make_unique<webots::Camera>(*device);
+                                camera->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::GYRO: {
+                                std::unique_ptr<webots::Gyro> gyro = std::make_unique<webots::Gyro>(*device);
+                                gyro->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::POSITION_SENSOR: {
+                                std::unique_ptr<webots::PositionSensor> positionSensor =
+                                    std::make_unique<webots::PositionSensor>(*device);
+                                positionSensor->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::TOUCH_SENSOR: {
+                                std::unique_ptr<webots::TouchSensor> touchSensor =
+                                    std::make_unique<webots::TouchSensor>(*device);
+                                touchSensor->enable(sensor_time_step);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-    
+
     void sendData() {
         // Create the SensorMeasurements message
-        auto sensors = std::make_unique<controller::nugus::SensorMeasurements>();
+        auto msg = std::make_unique<SensorMeasurements>();
 
         //   uint32 time = 1;  // time stamp at which the measurements were performed expressed in [ms]
         // repeated Message messages = 2;
@@ -130,11 +220,12 @@ public:
         // repeated PositionSensorMeasurement position_sensors = 10;
 
         // Try to send the message
-        Nh = msg.ByteSizeLong();
+        uint32_t Nh = msg->ByteSizeLong();
+        std::vector<uint8_t> data;
         data.resize(Nh);
-        msg.SerializeToArray(data.data(), Nh);
+        msg->SerializeToArray(data.data(), Nh);
 
-        Nn = htonl(Nh);
+        uint32_t Nn = htonl(Nh);
 
         if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -142,6 +233,46 @@ public:
         else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
+    }
+
+    static void encode_jpeg(const unsigned char* image,
+                            int width,
+                            int height,
+                            int quality,
+                            unsigned long* size,
+                            unsigned char** buffer) {
+#ifdef TURBOJPEG
+        tjhandle compressor = tjInitCompress();
+        tjCompress2(compressor, image, width, 0, height, TJPF_RGB, buffer, size, TJSAMP_444, quality, TJFLAG_FASTDCT);
+        tjDestroy(compressor);
+#else
+        struct jpeg_compress_struct cinfo;
+        struct jpeg_error_mgr jerr;
+        JSAMPROW row_pointer[1];
+        cinfo.err = jpeg_std_error(&jerr);
+        jpeg_create_compress(&cinfo);
+        cinfo.image_width      = width;
+        cinfo.image_height     = height;
+        cinfo.input_components = 3;
+        cinfo.in_color_space   = JCS_RGB;
+        jpeg_set_defaults(&cinfo);
+        jpeg_set_quality(&cinfo, quality, TRUE);
+        jpeg_mem_dest(&cinfo, buffer, size);
+        jpeg_start_compress(&cinfo, TRUE);
+        while (cinfo.next_scanline < cinfo.image_height) {
+            row_pointer[0] = (unsigned char*) &image[cinfo.next_scanline * width * 3];
+            jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        }
+        jpeg_finish_compress(&cinfo);
+        jpeg_destroy_compress(&cinfo);
+#endif
+    }
+    static void free_jpeg(unsigned char* buffer) {
+#ifdef TURBOJPEG
+        tjFree(buffer);
+#else
+        free(buffer);
+#endif
     }
 
 private:
