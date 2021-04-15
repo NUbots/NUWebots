@@ -57,6 +57,7 @@ DEF RED_1 Darwin-opHinge2Seg {
   name "player red 1"
   cameraWidth 320
   cameraHeight 240
+  supervisor TRUE
   jersey RobotisJersey {
     jerseyTexture [
       "textures/robotis-op2_1_red.png"
@@ -73,6 +74,7 @@ DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
   rotation 0.83 -0.48 -0.266 0.0489
   name "player red 2"
+  supervisor TRUE
   controller "teleport_controller"
   controllerArgs [
     "RED_2"
@@ -85,6 +87,7 @@ DEF RED_3 RobotisOp3 {
   name "player red 3"
   cameraWidth 320
   cameraHeight 240
+  supervisor TRUE
   controller "teleport_controller"
   controllerArgs [
     "RED_3"
@@ -95,6 +98,7 @@ DEF RED_4 Wolfgang {
   translation -0.9 -0.53 0.43
   rotation 0.078 0.86 -0.5 0.347
   name "player red 4"
+  supervisor TRUE
   controller "teleport_controller"
   controllerArgs [
     "RED_4"
@@ -104,6 +108,7 @@ DEF BLUE_1 NUgus {
   name "player blue 1"
   translation 2.688 -0.3985 0.5249
   rotation -0.0367 -0.0048 0.999 -2.9116
+  supervisor TRUE
   controller "collect_vision_data"
   controllerArgs [
     "BLUE_1"
