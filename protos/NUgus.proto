@@ -1175,6 +1175,17 @@ PROTO NUgus [
                         fieldOfView 1.047
                         width 640
                         height 480
+						lens Lens {
+							center 0.5 0.5   # [0, 1] [0, 1]
+							radialCoefficients 0 0       # any vector
+							tangentialCoefficients 0 0       # any vector
+						}
+						focus Focus {
+							focalDistance    0   # [0, inf)
+							focalLength      0   # [0, inf)
+							maxFocalDistance 0   # [0, inf)
+							minFocalDistance 0   # [0, inf)
+						}
                         recognition Recognition {
                           frameColor 0 0 1
                           frameThickness 3
@@ -1188,6 +1199,17 @@ PROTO NUgus [
                         fieldOfView 1.047
                         width 640
                         height 480
+						lens Lens {
+							center 0.5 0.5   # [0, 1] [0, 1]
+							radialCoefficients 0 0       # any vector
+							tangentialCoefficients 0 0       # any vector
+						}
+						focus Focus {
+							focalDistance    0   # [0, inf)
+							focalLength      0   # [0, inf)
+							maxFocalDistance 0   # [0, inf)
+							minFocalDistance 0   # [0, inf)
+						}
                         recognition Recognition {
                           frameColor 0 0 1
                           frameThickness 3
