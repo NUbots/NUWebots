@@ -170,30 +170,27 @@ public:
                         const int sensor_time_step = sensorTimeStep.timestep();
                         switch (device->getNodeType()) {
                             case webots::Node::ACCELEROMETER: {
-                                std::unique_ptr<webots::Accelerometer> accelerometer =
-                                    std::make_unique<webots::Accelerometer>(*device);
+                                std::unique_ptr<webots::Accelerometer> accelerometer(this->getAccelerometer(sensorTimeStep.name()));
                                 accelerometer->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::CAMERA: {
-                                std::unique_ptr<webots::Camera> camera = std::make_unique<webots::Camera>(*device);
+                                std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
                                 camera->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::GYRO: {
-                                std::unique_ptr<webots::Gyro> gyro = std::make_unique<webots::Gyro>(*device);
+                                std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
                                 gyro->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::POSITION_SENSOR: {
-                                std::unique_ptr<webots::PositionSensor> positionSensor =
-                                    std::make_unique<webots::PositionSensor>(*device);
+                                std::unique_ptr<webots::PositionSensor> positionSensor(this->getPositionSensor(sensorTimeStep.name()));
                                 positionSensor->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::TOUCH_SENSOR: {
-                                std::unique_ptr<webots::TouchSensor> touchSensor =
-                                    std::make_unique<webots::TouchSensor>(*device);
+                                std::unique_ptr<webots::TouchSensor> touchSensor(this->getTouchSensor(sensorTimeStep.name()));
                                 touchSensor->enable(sensor_time_step);
                                 break;
                             }
