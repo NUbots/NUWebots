@@ -168,31 +168,40 @@ public:
                     std::unique_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
                     if (device) {
                         const int sensor_time_step = sensorTimeStep.timestep();
-                        switch (device->getNodeType()) {
-                            case webots::Node::ACCELEROMETER: {
-                                std::unique_ptr<webots::Accelerometer> accelerometer(this->getAccelerometer(sensorTimeStep.name()));
-                                accelerometer->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::CAMERA: {
-                                std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
-                                camera->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::GYRO: {
-                                std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
-                                gyro->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::POSITION_SENSOR: {
-                                std::unique_ptr<webots::PositionSensor> positionSensor(this->getPositionSensor(sensorTimeStep.name()));
-                                positionSensor->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::TOUCH_SENSOR: {
-                                std::unique_ptr<webots::TouchSensor> touchSensor(this->getTouchSensor(sensorTimeStep.name()));
-                                touchSensor->enable(sensor_time_step);
-                                break;
+                        if (sensor_time_step) {
+                            sensors.insert(device);
+                        }                            
+                        else {
+                            sensors.erase(device);
+                        }                            
+                        bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < basic_time_step) || (sensor_time_step % basic_time_step != 0);
+                        if(valid_time_step) {
+                            switch (device->getNodeType()) {
+                                case webots::Node::ACCELEROMETER: {
+                                    std::unique_ptr<webots::Accelerometer> accelerometer(this->getAccelerometer(sensorTimeStep.name()));
+                                    accelerometer->enable(sensor_time_step);
+                                    break;
+                                }
+                                case webots::Node::CAMERA: {
+                                    std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
+                                    camera->enable(sensor_time_step);
+                                    break;
+                                }
+                                case webots::Node::GYRO: {
+                                    std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
+                                    gyro->enable(sensor_time_step);
+                                    break;
+                                }
+                                case webots::Node::POSITION_SENSOR: {
+                                    std::unique_ptr<webots::PositionSensor> positionSensor(this->getPositionSensor(sensorTimeStep.name()));
+                                    positionSensor->enable(sensor_time_step);
+                                    break;
+                                }
+                                case webots::Node::TOUCH_SENSOR: {
+                                    std::unique_ptr<webots::TouchSensor> touchSensor(this->getTouchSensor(sensorTimeStep.name()));
+                                    touchSensor->enable(sensor_time_step);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -215,6 +224,100 @@ public:
         // repeated Force6DMeasurement force6ds = 8;
         // repeated GyroMeasurement gyros = 9;
         // repeated PositionSensorMeasurement position_sensors = 10;
+
+        for (std::set<std::unique_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
+            webots::Accelerometer *accelerometer = dynamic_cast<webots::Accelerometer *>(*it);
+            if (accelerometer) {
+                if (controller_time % accelerometer->getSamplingPeriod()) {
+                    continue;
+                }
+                AccelerometerMeasurement *measurement = sensorMeasurements.add_accelerometers();
+                measurement->set_name(accelerometer->getName());
+                const double *values = accelerometer->getValues();
+                Vector3 *vector3 = measurement->mutable_value();
+                vector3->set_x(values[0]);
+                vector3->set_y(values[1]);
+                vector3->set_z(values[2]);
+                continue;
+            }
+            webots::Camera *camera = dynamic_cast<webots::Camera *>(*it);
+            if (camera) {
+                if (controller_time % camera->getSamplingPeriod()) {
+                    continue;
+                }                    
+                CameraMeasurement *measurement = sensorMeasurements.add_cameras();
+                measurement->set_name(camera->getName());
+                measurement->set_width(camera->getWidth());
+                measurement->set_height(camera->getHeight());
+                measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
+                measurement->set_image((const char *)camera->getImage());
+
+                // testing JPEG compression (impacts the performance)
+                unsigned char *buffer = NULL;
+                long unsigned int bufferSize = 0;
+                const unsigned char *image = camera->getImage();
+                encode_jpeg(image, camera->getWidth(), camera->getHeight(), 95, &bufferSize, &buffer);
+                free_jpeg(buffer);
+                buffer = NULL;
+
+                continue;
+            }
+            webots::Gyro *gyro = dynamic_cast<webots::Gyro *>(*it);
+            if (gyro) {
+                if (controller_time % gyro->getSamplingPeriod()) {
+                    continue;
+                }
+                GyroMeasurement *measurement = sensorMeasurements.add_gyros();
+                measurement->set_name(gyro->getName());
+                const double *values = gyro->getValues();
+                Vector3 *vector3 = measurement->mutable_value();
+                vector3->set_x(values[0]);
+                vector3->set_y(values[1]);
+                vector3->set_z(values[2]);
+                continue;
+            }
+            webots::PositionSensor *position_sensor = dynamic_cast<webots::PositionSensor *>(*it);
+            if (position_sensor) {
+                if (controller_time % position_sensor->getSamplingPeriod()) {
+                    continue;
+                }
+                PositionSensorMeasurement *measurement = sensorMeasurements.add_position_sensors();
+                measurement->set_name(position_sensor->getName());
+                measurement->set_value(position_sensor->getValue());
+                continue;
+            }
+            webots::TouchSensor *touch_sensor = dynamic_cast<webots::TouchSensor *>(*it);
+            if (touch_sensor) {
+                if (controller_time % touch_sensor->getSamplingPeriod()) {
+                    continue;
+                }                    
+                webots::TouchSensor::Type type = touch_sensor->getType();
+                switch (type) {
+                    case webots::TouchSensor::BUMPER: {
+                        BumperMeasurement *measurement = sensorMeasurements.add_bumpers();
+                        measurement->set_name(touch_sensor->getName());
+                        measurement->set_value(touch_sensor->getValue() == 1.0);
+                        continue;
+                    }
+                    case webots::TouchSensor::FORCE: {
+                        ForceMeasurement *measurement = sensorMeasurements.add_forces();
+                        measurement->set_name(touch_sensor->getName());
+                        measurement->set_value(touch_sensor->getValue());
+                        continue;
+                    }
+                    case webots::TouchSensor::FORCE3D: {
+                        Force3DMeasurement *measurement = sensorMeasurements.add_force3ds();
+                        measurement->set_name(touch_sensor->getName());
+                        const double *values = touch_sensor->getValues();
+                        Vector3 *vector3 = measurement->mutable_value();
+                        vector3->set_x(values[0]);
+                        vector3->set_y(values[1]);
+                        vector3->set_z(values[2]);
+                        continue;
+                    }
+                }
+            }
+        }
 
         // Try to send the message
         uint32_t Nh = msg->ByteSizeLong();
@@ -279,6 +382,8 @@ private:
     const int server_port;
     /// File descriptor to use for the TCP connection
     int tcp_fd;
+    /// Set of robot sensors
+    std::set<std::unique_ptr<webots::Device>> sensors;
 };
 
 
