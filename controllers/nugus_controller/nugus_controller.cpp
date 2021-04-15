@@ -28,6 +28,7 @@
 #include <webots/Robot.hpp>
 
 #include "RobotControl.pb.h"
+#include "messages.pb.h"
 
 #include "utility/tcp.hpp"
 
