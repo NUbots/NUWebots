@@ -14,6 +14,7 @@ PROTO NUgus [
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
+  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
 ]
 {
   Robot {
@@ -69,6 +70,7 @@ PROTO NUgus [
           }
           PositionSensor {
             name "right_shoulder_pitch_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
           }
         ]
         endPoint Solid {
@@ -112,6 +114,7 @@ PROTO NUgus [
                 }
                 PositionSensor {
                   name "right_shoulder_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
                 }
               ]
               endPoint Solid {
@@ -155,6 +158,7 @@ PROTO NUgus [
                       }
                       PositionSensor {
                         name "right_elbow_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
                       }
                     ]
                     endPoint Solid {
@@ -240,6 +244,7 @@ PROTO NUgus [
           }
           PositionSensor {
             name "left_shoulder_pitch_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
           }
         ]
         endPoint Solid {
@@ -283,6 +288,7 @@ PROTO NUgus [
                 }
                 PositionSensor {
                   name "left_shoulder_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
                 }
               ]
               endPoint Solid {
@@ -326,6 +332,7 @@ PROTO NUgus [
                       }
                       PositionSensor {
                         name "left_elbow_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
                       }
                     ]
                     endPoint Solid {
@@ -411,6 +418,7 @@ PROTO NUgus [
           }
           PositionSensor {
             name "right_hip_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
           }
         ]
         endPoint Solid {
@@ -454,6 +462,7 @@ PROTO NUgus [
                 }
                 PositionSensor {
                   name "right_hip_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
                 }
               ]
               endPoint Solid {
@@ -497,6 +506,7 @@ PROTO NUgus [
                       }
                       PositionSensor {
                         name "right_hip_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
                       }
                     ]
                     endPoint Solid {
@@ -540,6 +550,7 @@ PROTO NUgus [
                             }
                             PositionSensor {
                               name "right_knee_pitch_sensor"
+                              resolution IS DYNAMIXEL-RESOLUTION
                             }
                           ]
                           endPoint Solid {
@@ -583,6 +594,7 @@ PROTO NUgus [
                                   }
                                   PositionSensor {
                                     name "right_ankle_pitch_sensor"
+                                    resolution IS DYNAMIXEL-RESOLUTION
                                   }
                                 ]
                                 endPoint Solid {
@@ -626,6 +638,7 @@ PROTO NUgus [
                                         }
                                         PositionSensor {
                                           name "right_ankle_roll_sensor"
+                                          resolution IS DYNAMIXEL-RESOLUTION
                                         }
                                       ]
                                       endPoint Solid {
@@ -753,6 +766,7 @@ PROTO NUgus [
           }
           PositionSensor {
             name "left_hip_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
           }
         ]
         endPoint Solid {
@@ -796,6 +810,7 @@ PROTO NUgus [
                 }
                 PositionSensor {
                   name "left_hip_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
                 }
               ]
               endPoint Solid {
@@ -839,6 +854,7 @@ PROTO NUgus [
                       }
                       PositionSensor {
                         name "left_hip_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
                       }
                     ]
                     endPoint Solid {
@@ -882,6 +898,7 @@ PROTO NUgus [
                             }
                             PositionSensor {
                               name "left_knee_pitch_sensor"
+                              resolution IS DYNAMIXEL-RESOLUTION
                             }
                           ]
                           endPoint Solid {
@@ -925,6 +942,7 @@ PROTO NUgus [
                                   }
                                   PositionSensor {
                                     name "left_ankle_pitch_sensor"
+                                    resolution IS DYNAMIXEL-RESOLUTION
                                   }
                                 ]
                                 endPoint Solid {
@@ -968,6 +986,7 @@ PROTO NUgus [
                                         }
                                         PositionSensor {
                                           name "left_ankle_roll_sensor"
+                                          resolution IS DYNAMIXEL-RESOLUTION
                                         }
                                       ]
                                       endPoint Solid {
@@ -1095,6 +1114,7 @@ PROTO NUgus [
           }
           PositionSensor {
             name "neck_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
           }
         ]
         endPoint Solid {
@@ -1138,6 +1158,7 @@ PROTO NUgus [
                 }
                 PositionSensor {
                   name "head_pitch_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
                 }
               ]
               endPoint Solid {
