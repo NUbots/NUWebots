@@ -45,9 +45,7 @@ public:
     }
 
     void run() {
-        // Message counter
-        uint32_t current_num = 1;
-
+        this.getCamera("right_camera");
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
             if (tcp_fd == -1) {
@@ -56,66 +54,93 @@ public:
                 send(tcp_fd, "Welcome", 8, 0);
                 continue;
             }
+            // Check if we have received a message and deal with it if we have 
+            handleReceived();
+            // Send data from the simulated robot hardware to the robot control software
+            sendData();
+        }
+    }
 
-            // Setup arguments for select call
-            fd_set rfds;
-            FD_ZERO(&rfds);
-            FD_SET(tcp_fd, &rfds);
-            timeval timeout = {0, 0};
+    void checkReceived() {
+        // Setup arguments for select call
+        fd_set rfds;
+        FD_ZERO(&rfds);
+        FD_SET(tcp_fd, &rfds);
+        timeval timeout = {0, 0};
 
-            // Watch TCP file descriptor to see when it has input.
-            // No wait - polling as fast as possible
-            int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
-            if (num_ready < 0) {
-                std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
+        // Watch TCP file descriptor to see when it has input.
+        // No wait - polling as fast as possible
+        int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
+        if (num_ready < 0) {
+            std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
+            continue;
+        }
+        else if (num_ready > 0) {
+            // Wire format
+            // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
+            // uint8_t * Nn  the message
+            uint32_t Nn;
+            if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
+                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
+                            << std::endl;
                 continue;
             }
-            else if (num_ready > 0) {
-                // Wire format
-                // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
-                // uint8_t * Nn  the message
-                uint32_t Nn;
-                if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                    std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
-                              << std::endl;
-                    continue;
-                }
 
-                // Covert to host endianness, which might be different to network endianness
-                uint32_t Nh = ntohl(Nn);
+            // Covert to host endianness, which might be different to network endianness
+            uint32_t Nh = ntohl(Nn);
 
-                std::vector<uint8_t> data(Nh, 0);
-                if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
-                    std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
-                    continue;
-                }
-
-                // Parse message data
-                controller::nugus::RobotControl msg;
-                if (!msg.ParseFromArray(data.data(), Nh)) {
-                    std::cerr << "Error: Failed to parse serialised message" << std::endl;
-                    continue;
-                }
-
-                // Read out the current message counter from the message
-                current_num = msg.num();
-
-                // Send a message to the client
-                msg.set_num(current_num);
-
-                Nh = msg.ByteSizeLong();
-                data.resize(Nh);
-                msg.SerializeToArray(data.data(), Nh);
-
-                Nn = htonl(Nh);
-
-                if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
-                }
-                else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
-                }
+            std::vector<uint8_t> data(Nh, 0);
+            if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
+                std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
+                continue;
             }
+
+            // Parse message data
+            controller::nugus::ActuatorRequests msg;
+            if (!msg.ParseFromArray(data.data(), Nh)) {
+                std::cerr << "Error: Failed to parse serialised message" << std::endl;
+                continue;
+            }
+
+            // Do things with the ActuatorRequests message
+            // repeated MotorPosition motor_positions = 1;
+            // repeated MotorVelocity motor_velocities = 2;
+            // repeated MotorForce motor_forces = 3;
+            // repeated MotorTorque motor_torques = 4;
+            // repeated MotorPID motor_pids = 5;
+            // repeated SensorTimeStep sensor_time_steps = 6;
+            // repeated CameraQuality camera_qualities = 7;
+            // repeated CameraExposure camera_exposures = 8;
+        }
+    }
+    
+    void sendData() {
+        // Create the SensorMeasurements message
+        auto sensors = std::make_unique<controller::nugus::SensorMeasurements>();
+
+        //   uint32 time = 1;  // time stamp at which the measurements were performed expressed in [ms]
+        // repeated Message messages = 2;
+        // repeated AccelerometerMeasurement accelerometers = 3;
+        // repeated BumperMeasurement bumpers = 4;
+        // repeated CameraMeasurement cameras = 5;
+        // repeated ForceMeasurement forces = 6;
+        // repeated Force3DMeasurement force3ds = 7;
+        // repeated Force6DMeasurement force6ds = 8;
+        // repeated GyroMeasurement gyros = 9;
+        // repeated PositionSensorMeasurement position_sensors = 10;
+
+        // Try to send the message
+        Nh = msg.ByteSizeLong();
+        data.resize(Nh);
+        msg.SerializeToArray(data.data(), Nh);
+
+        Nn = htonl(Nh);
+
+        if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
+            std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+        }
+        else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
+            std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
     }
 
