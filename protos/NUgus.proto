@@ -7,8 +7,7 @@
 PROTO NUgus [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 1 0 0
-  field  MFString    jerseyTorsoTexture      "textures/NUgus_torso_base_color.jpg"
-  field  MFString    jerseyLowerArmTexture   "textures/NUgus_lower_arm_base_color.jpg"
+  field  MFString    jerseyLowerArmTexture   "textures/NUgus_lower_arm_red.jpg"
   field  MFString    robotTexture            "textures/NUgus_base_color.jpg"
   field  SFString    name            "NUgus"  # Is `Robot.name`.
   field  SFString    controller      "void"             # Is `Robot.controller`.
@@ -17,6 +16,8 @@ PROTO NUgus [
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
+  field  SFNode      jerseyFront     RobotisJerseyFront{ }
+  field  SFNode      jerseyBack      RobotisJerseyBack{ }
 ]
 {
   Robot {
@@ -33,6 +34,14 @@ PROTO NUgus [
         translation 0.000000 0.000000 0.000000
         rotation 0.000000 0.000000 1.000000 1.570790
         children [
+          DEF JERSEY_FRONT_SLOT Slot {
+            type "robotis jersey front"
+            endPoint IS jerseyFront
+          }
+          DEF JERSEY_BACK_SLOT Slot {
+            type "robotis jersey back"
+            endPoint IS jerseyBack
+          }
           Shape {
             appearance PBRAppearance {
               baseColor 0.500000 0.500000 0.500000
@@ -41,7 +50,7 @@ PROTO NUgus [
               metalness 0
               emissiveColor 0.000000 0.000000 0.000000
               baseColorMap ImageTexture {
-                url IS jerseyTorsoTexture
+                url IS robotTexture
               }
             }
             geometry DEF torso IndexedFaceSet {
