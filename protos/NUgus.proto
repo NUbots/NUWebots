@@ -28,26 +28,30 @@ PROTO NUgus [
     synchronization IS synchronization
     selfCollision IS selfCollision
 
-    %{
-    if fields.name.value ~= '' then
-      -- name is supposed to be something like "red player 2" or "blue player 1"
-      local words = {}
-      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-      local color = words[1]
-      local number = words[3]
-  }%
-  jerseyFront RobotisJerseyFront {
-    jerseyFrontTexture [
-      %{='"textures/robotis-op2_' .. number .. '_' .. color .. '.jpg"'}%
-    ]
-  }
-  %{
-    end
-  }%
-
-
-
     children [
+      %{
+        if fields.name.value ~= '' then
+          -- name is supposed to be something like "red player 2" or "blue player 1"
+          local words = {}
+          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+          local color = words[1]
+          local number = words[3]
+          print(color, number)
+      }%
+      DEF jerseyFront RobotisJerseyFront {
+        jerseyFrontTexture [
+          %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+        ]
+      }
+      DEF jerseyBack RobotisJerseyBack {
+        jerseyBackTexture [
+          %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+        ]
+      }
+      %{
+        end
+      }%
+      
       Transform {
         translation 0.000000 0.000000 0.000000
         rotation 0.000000 0.000000 1.000000 1.570790
