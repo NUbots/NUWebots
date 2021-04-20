@@ -9,15 +9,13 @@ PROTO NUgus [
   field  SFRotation  rotation        0 1 0 0
   field  MFString    jerseyLowerArmTexture   "textures/NUgus_lower_arm_red.jpg"
   field  MFString    robotTexture            "textures/NUgus_base_color.jpg"
-  field  SFString    name            "NUgus"  # Is `Robot.name`.
+  field  SFString    name            "blue player 1"  # Is `Robot.name`.
   field  SFString    controller      "void"             # Is `Robot.controller`.
   field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
   field  SFString    customData      ""                 # Is `Robot.customData`.
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
-  field  SFNode      jerseyFront     RobotisJerseyFront{ }
-  field  SFNode      jerseyBack      RobotisJerseyBack{ }
 ]
 {
   Robot {
@@ -29,6 +27,26 @@ PROTO NUgus [
     supervisor IS supervisor
     synchronization IS synchronization
     selfCollision IS selfCollision
+
+    %{
+    if fields.name.value ~= '' then
+      -- name is supposed to be something like "red player 2" or "blue player 1"
+      local words = {}
+      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+      local color = words[1]
+      local number = words[3]
+  }%
+  jerseyFront RobotisJerseyFront {
+    jerseyFrontTexture [
+      %{='"textures/robotis-op2_' .. number .. '_' .. color .. '.jpg"'}%
+    ]
+  }
+  %{
+    end
+  }%
+
+
+
     children [
       Transform {
         translation 0.000000 0.000000 0.000000
