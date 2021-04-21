@@ -9,7 +9,7 @@ PROTO NUgus [
   field  SFRotation  rotation        0 1 0 0
   field  MFString    jerseyLowerArmTexture   "textures/NUgus_lower_arm_red.jpg"
   field  MFString    robotTexture            "textures/NUgus_base_color.jpg"
-  field  SFString    name            "blue player 1"  # Is `Robot.name`.
+  field  SFString    name            "NUgus"  # Is `Robot.name`.
   field  SFString    controller      "void"             # Is `Robot.controller`.
   field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
   field  SFString    customData      ""                 # Is `Robot.customData`.
@@ -51,7 +51,7 @@ PROTO NUgus [
       %{
         end
       }%
-      
+
       Transform {
         translation 0.000000 0.000000 0.000000
         rotation 0.000000 0.000000 1.000000 1.570790
