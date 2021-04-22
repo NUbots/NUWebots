@@ -7,8 +7,7 @@
 PROTO NUgus [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 1 0 0
-  field  MFString    jerseyLowerArmTexture   "textures/NUgus_lower_arm_red.jpg"
-  field  MFString    robotTexture            "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
   field  SFString    name            "NUgus"  # Is `Robot.name`.
   field  SFString    controller      "void"             # Is `Robot.controller`.
   field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
@@ -38,12 +37,12 @@ PROTO NUgus [
           local number = words[3]
           print(color, number)
       }%
-      DEF jerseyFront RobotisJerseyFront {
+      DEF jerseyFront JerseyFront {
         jerseyFrontTexture [
           %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
-      DEF jerseyBack RobotisJerseyBack {
+      DEF jerseyBack JerseyBack {
         jerseyBackTexture [
           %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
         ]
@@ -57,11 +56,11 @@ PROTO NUgus [
         rotation 0.000000 0.000000 1.000000 1.570790
         children [
           DEF JERSEY_FRONT_SLOT Slot {
-            type "robotis jersey front"
+            type "jersey front"
             endPoint IS jerseyFront
           }
           DEF JERSEY_BACK_SLOT Slot {
-            type "robotis jersey back"
+            type "jersey back"
             endPoint IS jerseyBack
           }
           Shape {
@@ -160,14 +159,32 @@ PROTO NUgus [
                 children [
                   Shape {
                     appearance PBRAppearance {
+
+                      %{
+                        if fields.name.value ~= '' then
+                          -- name is supposed to be something like "red player 2" or "blue player 1"
+                          local words = {}
+                          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                          local color = words[1]
+                          local number = words[3]
+                          print(color, number)
+                      }%
+
                       baseColor 0.500000 0.500000 0.500000
                       transparency 0.000000
                       roughness 1.000000
                       metalness 0
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
-                        url IS robotTexture
+                        url [
+                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                        ]
                       }
+
+                      %{
+                        end
+                      }%
+
                     }
                     geometry DEF right_upper_arm IndexedFaceSet {
                       coord Coordinate {
@@ -204,16 +221,33 @@ PROTO NUgus [
                       translation 0.010000 -0.190000 0.040000
                       rotation 0.000000 1.000000 0.000000 0.000000
                       children [
+
                         Shape {
                           appearance PBRAppearance {
+
+                            %{
+                              if fields.name.value ~= '' then
+                                -- name is supposed to be something like "red player 2" or "blue player 1"
+                                local words = {}
+                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                local color = words[1]
+                                local number = words[3]
+                                print(color, number)
+                            }%
+
                             baseColor 0.500000 0.500000 0.500000
                             transparency 0.000000
                             roughness 1.000000
                             metalness 0
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
-                              url IS jerseyLowerArmTexture
+                              url [
+                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                              ]
                             }
+                            %{
+                              end
+                            }%
                           }
                           geometry DEF right_lower_arm IndexedFaceSet {
                             coord Coordinate {
@@ -340,14 +374,30 @@ PROTO NUgus [
                 children [
                   Shape {
                     appearance PBRAppearance {
+
+                      %{
+                        if fields.name.value ~= '' then
+                          -- name is supposed to be something like "red player 2" or "blue player 1"
+                          local words = {}
+                          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                          local color = words[1]
+                          local number = words[3]
+                          print(color, number)
+                      }%
+
                       baseColor 0.500000 0.500000 0.500000
                       transparency 0.000000
                       roughness 1.000000
                       metalness 0
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
-                        url IS robotTexture
+                        url [
+                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                        ]
                       }
+                      %{
+                        end
+                      }%
                     }
                     geometry DEF left_upper_arm IndexedFaceSet {
                       coord Coordinate {
@@ -386,14 +436,31 @@ PROTO NUgus [
                       children [
                         Shape {
                           appearance PBRAppearance {
+
+                            %{
+                              if fields.name.value ~= '' then
+                                -- name is supposed to be something like "red player 2" or "blue player 1"
+                                local words = {}
+                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                local color = words[1]
+                                local number = words[3]
+                                print(color, number)
+                            }%
+
                             baseColor 0.500000 0.500000 0.500000
                             transparency 0.000000
                             roughness 1.000000
                             metalness 0
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
-                              url IS jerseyLowerArmTexture
+                              url [
+                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                              ]
                             }
+
+                            %{
+                              end
+                            }%
                           }
                           geometry DEF left_lower_arm IndexedFaceSet {
                             coord Coordinate {
@@ -612,14 +679,31 @@ PROTO NUgus [
                             children [
                               Shape {
                                 appearance PBRAppearance {
+
+                                  %{
+                                    if fields.name.value ~= '' then
+                                      -- name is supposed to be something like "red player 2" or "blue player 1"
+                                      local words = {}
+                                      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                      local color = words[1]
+                                      local number = words[3]
+                                      print(color, number)
+                                  }%
+
                                   baseColor 0.500000 0.500000 0.500000
                                   transparency 0.000000
                                   roughness 1.000000
                                   metalness 0
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
-                                    url IS robotTexture
+                                    url [
+                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                    ]
                                   }
+
+                                  %{
+                                    end
+                                  }%
                                 }
                                 geometry DEF right_lower_leg IndexedFaceSet {
                                   coord Coordinate {
@@ -972,14 +1056,30 @@ PROTO NUgus [
                             children [
                               Shape {
                                 appearance PBRAppearance {
+
+                                  %{
+                                    if fields.name.value ~= '' then
+                                      -- name is supposed to be something like "red player 2" or "blue player 1"
+                                      local words = {}
+                                      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                      local color = words[1]
+                                      local number = words[3]
+                                      print(color, number)
+                                  }%
+
                                   baseColor 0.500000 0.500000 0.500000
                                   transparency 0.000000
                                   roughness 1.000000
                                   metalness 0
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
-                                    url IS robotTexture
+                                    url [
+                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                    ]
                                   }
+                                  %{
+                                    end
+                                  }%
                                 }
                                 geometry DEF left_lower_leg IndexedFaceSet {
                                   coord Coordinate {
