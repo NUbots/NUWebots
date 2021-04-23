@@ -1300,9 +1300,9 @@ PROTO NUgus [
                       Camera {
                         name "right_camera"
 
-                        translation 0.08893612063588988 -0.03529909622045881 0.0713674563254241
-                        rotation 0.5773189906399273 -0.5955679903440563 -0.5585709909438886 2.06586
-                        fieldOfView 1.047
+                        translation 0.069952 -0.033795 0.06488
+                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        fieldOfView 1.5707
                         width 640
                         height 480
                         lens Lens {
@@ -1311,10 +1311,10 @@ PROTO NUgus [
                           tangentialCoefficients 0 0       # any vector
                         }
                         focus Focus {
-                          focalDistance    0   # [0, inf)
-                          focalLength      0   # [0, inf)
+                          focalDistance    0
+                          focalLength      0.00198
                           maxFocalDistance 0   # [0, inf)
-                          minFocalDistance 0   # [0, inf)
+                          minFocalDistance 0.1   # [0, inf)
                         }
 
                         recognition Recognition {
@@ -1326,9 +1326,9 @@ PROTO NUgus [
                       Camera {
                         name "left_camera"
 
-                        translation 0.08893612063588988 0.03529909622045881 0.0713674563254241
-                        rotation 0.5773189906399273 -0.5955679903440563 -0.5585709909438886 2.06585
-                        fieldOfView 1.047
+                        translation 0.069952 0.033795 0.06488
+                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        fieldOfView 1.5707
                         width 640
                         height 480
                         lens Lens {
@@ -1338,9 +1338,9 @@ PROTO NUgus [
                         }
                         focus Focus {
                           focalDistance    0   # [0, inf)
-                          focalLength      0   # [0, inf)
+                          focalLength      0.00198   # [0, inf)
                           maxFocalDistance 0   # [0, inf)
-                          minFocalDistance 0   # [0, inf)
+                          minFocalDistance 0.1   # [0, inf)
                         }
 
                         recognition Recognition {
