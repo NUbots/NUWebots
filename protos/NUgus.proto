@@ -35,7 +35,6 @@ PROTO NUgus [
           for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
           local color = words[1]
           local number = words[3]
-          print(color, number)
       }%
       DEF jerseyFront JerseyFront {
         jerseyFrontTexture [
@@ -47,9 +46,6 @@ PROTO NUgus [
           %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
-      %{
-        end
-      }%
 
       Transform {
         translation 0.000000 0.000000 0.000000
@@ -159,17 +155,6 @@ PROTO NUgus [
                 children [
                   Shape {
                     appearance PBRAppearance {
-
-                      %{
-                        if fields.name.value ~= '' then
-                          -- name is supposed to be something like "red player 2" or "blue player 1"
-                          local words = {}
-                          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                          local color = words[1]
-                          local number = words[3]
-                          print(color, number)
-                      }%
-
                       baseColor 0.500000 0.500000 0.500000
                       transparency 0.000000
                       roughness 1.000000
@@ -180,11 +165,6 @@ PROTO NUgus [
                           %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
-
-                      %{
-                        end
-                      }%
-
                     }
                     geometry DEF right_upper_arm IndexedFaceSet {
                       coord Coordinate {
@@ -224,17 +204,6 @@ PROTO NUgus [
 
                         Shape {
                           appearance PBRAppearance {
-
-                            %{
-                              if fields.name.value ~= '' then
-                                -- name is supposed to be something like "red player 2" or "blue player 1"
-                                local words = {}
-                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                local color = words[1]
-                                local number = words[3]
-                                print(color, number)
-                            }%
-
                             baseColor 0.500000 0.500000 0.500000
                             transparency 0.000000
                             roughness 1.000000
@@ -245,9 +214,6 @@ PROTO NUgus [
                                 %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
-                            %{
-                              end
-                            }%
                           }
                           geometry DEF right_lower_arm IndexedFaceSet {
                             coord Coordinate {
@@ -374,17 +340,6 @@ PROTO NUgus [
                 children [
                   Shape {
                     appearance PBRAppearance {
-
-                      %{
-                        if fields.name.value ~= '' then
-                          -- name is supposed to be something like "red player 2" or "blue player 1"
-                          local words = {}
-                          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                          local color = words[1]
-                          local number = words[3]
-                          print(color, number)
-                      }%
-
                       baseColor 0.500000 0.500000 0.500000
                       transparency 0.000000
                       roughness 1.000000
@@ -395,9 +350,6 @@ PROTO NUgus [
                           %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
-                      %{
-                        end
-                      }%
                     }
                     geometry DEF left_upper_arm IndexedFaceSet {
                       coord Coordinate {
@@ -436,17 +388,6 @@ PROTO NUgus [
                       children [
                         Shape {
                           appearance PBRAppearance {
-
-                            %{
-                              if fields.name.value ~= '' then
-                                -- name is supposed to be something like "red player 2" or "blue player 1"
-                                local words = {}
-                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                local color = words[1]
-                                local number = words[3]
-                                print(color, number)
-                            }%
-
                             baseColor 0.500000 0.500000 0.500000
                             transparency 0.000000
                             roughness 1.000000
@@ -457,10 +398,6 @@ PROTO NUgus [
                                 %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
-
-                            %{
-                              end
-                            }%
                           }
                           geometry DEF left_lower_arm IndexedFaceSet {
                             coord Coordinate {
@@ -679,17 +616,6 @@ PROTO NUgus [
                             children [
                               Shape {
                                 appearance PBRAppearance {
-
-                                  %{
-                                    if fields.name.value ~= '' then
-                                      -- name is supposed to be something like "red player 2" or "blue player 1"
-                                      local words = {}
-                                      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                      local color = words[1]
-                                      local number = words[3]
-                                      print(color, number)
-                                  }%
-
                                   baseColor 0.500000 0.500000 0.500000
                                   transparency 0.000000
                                   roughness 1.000000
@@ -700,10 +626,6 @@ PROTO NUgus [
                                       %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
-
-                                  %{
-                                    end
-                                  }%
                                 }
                                 geometry DEF right_lower_leg IndexedFaceSet {
                                   coord Coordinate {
@@ -1056,17 +978,6 @@ PROTO NUgus [
                             children [
                               Shape {
                                 appearance PBRAppearance {
-
-                                  %{
-                                    if fields.name.value ~= '' then
-                                      -- name is supposed to be something like "red player 2" or "blue player 1"
-                                      local words = {}
-                                      for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                      local color = words[1]
-                                      local number = words[3]
-                                      print(color, number)
-                                  }%
-
                                   baseColor 0.500000 0.500000 0.500000
                                   transparency 0.000000
                                   roughness 1.000000
