@@ -93,6 +93,7 @@ int main(int argc, char** argv) {
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> xDistrib(0, 1080);
     std::uniform_int_distribution<> yDistrib(0, 760);
+    std::uniform_int_distribution<> zDistrib(0, 5);
 
     //--------MAIN CONTROL LOOP------------//
     while (supervisor.step(time_step) != -1) {
@@ -106,13 +107,13 @@ int main(int argc, char** argv) {
         // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
         // from red
         // Y ranges from -3.8 - 3.8, the positive value on the red goal side
-        // Z should be set to 0.51 to be on the ground
+        // Z should be set to 0.51 to be on the ground (and add a bit of noise)
         // If the robot teleports into an existing object it may run into issues for that
         // image only, after resetPhysics is should return to a regular state
         std::array<double, 3> newPos;
         newPos[0] = 5.4 - xDistrib(gen) / 100;
         newPos[1] = 3.8 - yDistrib(gen) / 100;
-        newPos[2] = 0.51;
+        newPos[2] = 0.51; //- zDistrib(gen) / 100;  //TODO(wongjoel) the bit adding noise is commented out to make debugging easier
 
         // Set new location
         robot_translation_field.setSFVec3f(newPos.data());
