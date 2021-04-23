@@ -205,7 +205,7 @@ PROTO NUgus [
                   }
                 ]
                 name "right_upper_arm [arm]"
-                boundingObject USE {
+                boundingObject Transform {
                   translation 0.009816 -0.101303 -0.001043
                   rotation 0.037370 -0.768622 -0.638611 3.143952
                   children [
