@@ -16,11 +16,11 @@ PROTO NUgus [
   field  SFBool      selfCollision        TRUE              # Is `Robot.selfCollision`.
   field  SFFloat     MX64-torque    7.30
   field  SFFloat     MX64-vel       8.17
-  field  SFFloat     MX64-damping   1.54
+  field  SFFloat     MX64-damping   0.65
   field  SFFloat     MX64-friction  1.73
   field  SFFloat     MX106-torque   10.00
   field  SFFloat     MX106-vel      5.76
-  field  SFFloat     MX106-damping  0.81
+  field  SFFloat     MX106-damping  1.23
   field  SFFloat     MX106-friction 2.55
   field  SFVec3f     PID            0.5 0.0009765625 0.125
   field  SFFloat     backlash        0.01
