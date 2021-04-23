@@ -6,3 +6,6 @@ build/
 /controllers/teleport_controller/teleport_controller
 /nugus_controller_test*log.txt
 *.log
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+.vs/Webots/v16/.suo
