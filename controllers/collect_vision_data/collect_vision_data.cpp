@@ -23,6 +23,8 @@
 #include <array>
 #include <filesystem>
 #include "yaml-cpp/yaml.h"
+#include <eigen3/Eigen/Core>
+#include <eigen3/Eigen/Geometry>
 
 #include <webots/Supervisor.hpp>
 #include <webots/Camera.hpp>
@@ -59,7 +61,7 @@ int main(int argc, char** argv) {
 
     // Counter for saving images
     int count = 0;
-    
+
     //---------GET ROBOT, CAMERAS AND SUPERVISOR----------//
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
@@ -119,23 +121,68 @@ int main(int argc, char** argv) {
         webots::Field& robot_rotation_field = *(robot.getField("rotation"));
         // Convert the field to a vector to output to console
         const double* robot_rotation_vec = robot_rotation_field.getSFRotation();
-        
+
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
+
+            //-----------SET ROTATION----------//
+            // Prepare new rotation. These are saved in rotations vector as the axis-angle
+            // calculation is rough to calculate on the fly
+            // Apply new rotation and reset physics to avoid robot tearing itself apart
+            robot_rotation_field.setSFRotation(rotation.data());
+            robot.resetPhysics();
+
+            // TODO(KipHamiltons) verify this is the right rotation - as in, verify is Roc, not Rco, and that the encoding of xyzw is the same order here
+            // Get WORLD TO TORSO
+            // World to torso transformation
+            Eigen::Affine3d Htw;
+            // TODO(wongjoel) verify these are the correct indexes
+            Htw.linear() = Eigen::AngleAxisd(rotation[0], Eigen::Vector3d(rotation[1], rotation[2], rotation[3])).toRotationMatrix();
+            Htw.translation() = Eigen::Vector3d(newPos.data());
+
+            // Get TORSO TO NECK
+            // relative to torso, torso to neck
+            webots::Field& neck_translation = robot.getFromProtoDef("neck_solid").getField("translation");
+
+            // Rtn, torso to neck
+            webots::Field& neck_rotation = robot.getFromProtoDef("neck_solid").getField("rotation");
+            // Homogenous transformation of the neck to the robot's torso
+            Eigen::Affine3d Htn;
+            // TODO(wongjoel) compile error below:
+            Htn.translation() = neck_translation;
+            // TODO(wongjoel) verify these are the correct indexes
+            Htn.linear() = Eigen::AngleAxisd(neck_rotation[0], Eigen::Vector3d(neck_rotation[1], neck_rotation[2], neck_rotation[3])).toRotationMatrix();
+
+            // Get NECK TO CAMERA
+            webots::Field& camera_translation = robot.getFromProtoDef("right_camera").getField("translation");
+            webots::Field& camera_rotation = robot.getFromProtoDef("right_camera").getField("rotation");
+            Eigen::Affine3d Hnc;
+            // TODO(wongjoel) compile error below:
+            Hnc.translation() = camera_translation;
+            // TODO(wongjoel) verify these are the correct indexes
+            Hnc.linear() = Eigen::AngleAxisd(camera_rotation[0], Eigen::Vector3d(camera_rotation[1], camera_rotation[2], camera_rotation[3])).toRotationMatrix();
+
+            Eigen::Affine3d Hwc = Hwt * Htn * Hnc;
+
+            // Hoc.linear() = Roc.matrix();
+            // // TODO(YsobelSims) should this vector be negated?? this might be rWCc or rCWc or some other thing kip didn't think of
+            // Hoc.translation() = Eigen::Vector3d(newPos.data());
+
             //-----------SAVE DATA-----------//
             // Save stereo images
             left_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_L.jpeg", QUALITY);
             right_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_R.jpeg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_L.png", QUALITY);
             right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_R.png", QUALITY);
-            
-            // Save normal images            
+
+            // Save normal images
             left_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
             right_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
             right_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
-            
-            
+
+
+
             // Write the lens.yaml data
             std::ofstream lensFile("./data/data_stereo/lens" + std::to_string(count) + ".yaml");
             YAML::Emitter lensYaml;  // create the node
@@ -145,19 +192,20 @@ int main(int argc, char** argv) {
             lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
+            lensYaml << YAML::Key << "Hoc" << YAML::Value;
+            lensYaml << YAML::BeginSeq;
+            //TODO(wongjoel) this emits a list instead of an array, need to spit out an array in format [0.0 0.0 0.0 0.0]
+            lensYaml << YAML::Flow << std::vector({Hwc(0, 0), Hwc(0, 1), Hwc(0, 2), newPos[0]});
+            lensYaml << YAML::Flow << std::vector({Hwc(1, 0), Hwc(1, 1), Hwc(1, 2), newPos[1]});
+            lensYaml << YAML::Flow << std::vector({Hwc(2, 0), Hwc(2, 1), Hwc(2, 2), newPos[2]});
+            lensYaml << YAML::Flow << YAML::BeginSeq 0 << 0 << 0 << 1 << YAML::EndSeq;
+            lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
-            
+
             lensFile << lensYaml.c_str();
             lensFile.close();
 
             count++;
-
-            //-----------SET ROTATION----------//
-            // Prepare new rotation. These are saved in rotations vector as the axis-angle
-            // calculation is rough to calculate on the fly
-            // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field.setSFRotation(rotation.data());
-            robot.resetPhysics();
             supervisor.step(time_step);
         }
     }
