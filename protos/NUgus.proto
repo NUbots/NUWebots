@@ -25,15 +25,8 @@ PROTO NUgus [
   field  SFVec3f     PID            0.5 0.0009765625 0.125
   field  SFFloat     backlash        0.01
   field  SFFloat     gearMass        0.001
-  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
-  field  SFString    name            "NUgus"  # Is `Robot.name`.
-  field  SFString    controller      "void"             # Is `Robot.controller`.
-  field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
-  field  SFString    customData      ""                 # Is `Robot.customData`.
-  field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
-  field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
-  field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
 ]
 {
   Robot {
