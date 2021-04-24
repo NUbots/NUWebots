@@ -1307,14 +1307,14 @@ PROTO NUgus [
                         height 480
                         spherical FALSE
                         noise 0.03
-                        motionBlur 50
+                        motionBlur 32
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
                           tangentialCoefficients 0 0       # any vector
                         }
                         focus Focus {
-                          focalDistance    0
+                          focalDistance    0.0
                           focalLength      0.00198
                           maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
@@ -1335,14 +1335,14 @@ PROTO NUgus [
                         height 480
                         spherical FALSE
                         noise 0.03
-                        motionBlur 50
+                        motionBlur 32
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
                           tangentialCoefficients 0 0       # any vector
                         }
                         focus Focus {
-                          focalDistance    0   # [0, inf)
+                          focalDistance    0.0   # [0, inf)
                           focalLength      0.00198   # [0, inf)
                           maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
