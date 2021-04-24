@@ -14,19 +14,25 @@ PROTO NUgus [
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision        TRUE              # Is `Robot.selfCollision`.
-  field  SFFloat     MX64-torque    7.30
-  field  SFFloat     MX64-vel       8.17
-  field  SFFloat     MX64-damping   0.65
-  field  SFFloat     MX64-friction  1.73
-  field  SFFloat     MX106-torque   10.00
-  field  SFFloat     MX106-vel      5.76
-  field  SFFloat     MX106-damping  1.23
-  field  SFFloat     MX106-friction 2.55
-  field  SFVec3f     PID            0.5 0.0009765625 0.125
-  field  SFFloat     backlash        0.01
-  field  SFFloat     gearMass        0.001
+  field  SFFloat     MX64-torque          7.30
+  field  SFFloat     MX64-vel             8.17
+  field  SFFloat     MX64-damping         0.65
+  field  SFFloat     MX64-friction        1.73
+  field  SFFloat     MX106-torque         10.00
+  field  SFFloat     MX106-vel            5.76
+  field  SFFloat     MX106-damping        1.23
+  field  SFFloat     MX106-friction       2.55
+  field  SFVec3f     PID                  0.5 0.0009765625 0.125
+  field  SFFloat     backlash             0.01
+  field  SFFloat     gearMass             0.001
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
-  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture         "textures/NUgus_base_color.jpg"
+  field SFFloat      fieldOfView          1.5707
+  field SFFloat      cameraWidth          640
+  field SFFloat      cameraHeight         480
+  field SFFloat      cameraLensFocalLength 0.00198
+  field SFFloat      cameraNoise          0.000000001
+  field SFFloat      cameraMotionBlur     10
 ]
 {
   Robot {
@@ -1511,12 +1517,12 @@ PROTO NUgus [
 
                         translation 0.069952 -0.033795 0.06488
                         rotation -0.570515 0.570516 0.590782 -2.07437
-                        fieldOfView 1.5707
-                        width 640
-                        height 480
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
                         spherical FALSE
-                        noise 0.000000001
-                        motionBlur 10
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
@@ -1524,7 +1530,7 @@ PROTO NUgus [
                         }
                         focus Focus {
                           focalDistance    0.0
-                          focalLength      0.00198
+                          focalLength      IS cameraLensFocalLength
                           maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
                         }
@@ -1533,12 +1539,12 @@ PROTO NUgus [
                         name "left_camera"
                         translation 0.069952 0.033795 0.06488
                         rotation -0.570515 0.570516 0.590782 -2.07437
-                        fieldOfView 1.5707
-                        width 640
-                        height 480
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
                         spherical FALSE
-                        noise 0.000000001
-                        motionBlur 10
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
@@ -1546,7 +1552,7 @@ PROTO NUgus [
                         }
                         focus Focus {
                           focalDistance    0.0   # [0, inf)
-                          focalLength      0.00198   # [0, inf)
+                          focalLength      IS cameraLensFocalLength   # [0, inf)
                           maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
                         }
