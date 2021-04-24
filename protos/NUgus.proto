@@ -1305,6 +1305,7 @@ PROTO NUgus [
                         fieldOfView 1.5707
                         width 640
                         height 480
+                        spherical FALSE
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
@@ -1313,7 +1314,7 @@ PROTO NUgus [
                         focus Focus {
                           focalDistance    0
                           focalLength      0.00198
-                          maxFocalDistance 0   # [0, inf)
+                          maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
                         }
 
@@ -1325,12 +1326,12 @@ PROTO NUgus [
                       }
                       Camera {
                         name "left_camera"
-
                         translation 0.069952 0.033795 0.06488
                         rotation -0.570515 0.570516 0.590782 -2.07437
                         fieldOfView 1.5707
                         width 640
                         height 480
+                        spherical FALSE
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
                           radialCoefficients 0 0       # any vector
@@ -1339,7 +1340,7 @@ PROTO NUgus [
                         focus Focus {
                           focalDistance    0   # [0, inf)
                           focalLength      0.00198   # [0, inf)
-                          maxFocalDistance 0   # [0, inf)
+                          maxFocalDistance 4.5   # [0, inf)
                           minFocalDistance 0.1   # [0, inf)
                         }
 
