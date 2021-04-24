@@ -1498,11 +1498,6 @@ PROTO NUgus [
                         fieldOfView 1.5707
                         width 640
                         height 480
-                        recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
-                          segmentation TRUE
-                        }
                       }
                       Camera {
                         name "left_camera"
@@ -1511,11 +1506,6 @@ PROTO NUgus [
                         fieldOfView 1.5707
                         width 640
                         height 480
-                        recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
-                          segmentation TRUE
-                        }
                       }
                     ]
                   }
