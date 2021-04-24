@@ -5,16 +5,27 @@
 # Extracted from: NUgus.urdf
 
 PROTO NUgus [
-  field  SFVec3f     translation     0 0 0
-  field  SFRotation  rotation        0 1 0 0
+  field  SFVec3f     translation          0 0 0
+  field  SFRotation  rotation             0 1 0 0
+  field  SFString    name                 "NUgus"  # Is `Robot.name`.
+  field  SFString    controller           "void"             # Is `Robot.controller`.
+  field  MFString    controllerArgs       []                 # Is `Robot.controllerArgs`.
+  field  SFString    customData           ""                 # Is `Robot.customData`.
+  field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
+  field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
+  field  SFBool      selfCollision        TRUE              # Is `Robot.selfCollision`.
+  field  SFFloat     MX64-torque    7.30
+  field  SFFloat     MX64-vel       8.17
+  field  SFFloat     MX64-damping   0.65
+  field  SFFloat     MX64-friction  1.73
+  field  SFFloat     MX106-torque   10.00
+  field  SFFloat     MX106-vel      5.76
+  field  SFFloat     MX106-damping  1.23
+  field  SFFloat     MX106-friction 2.55
+  field  SFVec3f     PID            0.5 0.0009765625 0.125
+  field  SFFloat     backlash        0.01
+  field  SFFloat     gearMass        0.001
   field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
-  field  SFString    name            "NUgus"  # Is `Robot.name`.
-  field  SFString    controller      "void"             # Is `Robot.controller`.
-  field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
-  field  SFString    customData      ""                 # Is `Robot.customData`.
-  field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
-  field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
-  field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
 ]
 {
   Robot {
@@ -84,12 +95,14 @@ PROTO NUgus [
           }
         ]
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        gearMass IS gearMass
+        backlash IS backlash
         jointParameters HingeJointParameters {
           axis 0.000006 1.000000 -0.000000
           anchor 0.005000 -0.115000 0.180000
-          dampingConstant 0.0
-          staticFriction 0.0
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
         }
         device [
           RotationalMotor {
@@ -97,7 +110,8 @@ PROTO NUgus [
             maxVelocity 8.16814
             minPosition -3.14159265359
             maxPosition 3.14159265359
-            maxTorque 7.3
+            maxTorque IS MX64-torque
+            controlPID IS PID
           }
           PositionSensor {
             name "right_shoulder_pitch_sensor"
@@ -130,20 +144,23 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000006
                 anchor -0.015000 0.000000 0.005000
-                dampingConstant 0.0
-                staticFriction 0.0
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
               }
               device [
                 RotationalMotor {
                   name "right_shoulder_roll"
-                  maxVelocity 8.16814
+                  maxVelocity IS MX64-vel
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
-                  maxTorque 7.3
+                  maxTorque IS MX64-torque
+                  controlPID IS PID
                 }
                 PositionSensor {
                   name "right_shoulder_roll_sensor"
@@ -178,20 +195,23 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  HingeJoint {
+                  HingeJointWithBacklash {
+                    gearMass IS gearMass
+                    backlash IS backlash
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
                       anchor 0.010000 -0.190000 0.040000
-                      dampingConstant 0.0
-                      staticFriction 0.0
+                      dampingConstant IS MX64-damping
+                      staticFriction IS MX64-friction
                     }
                     device [
                       RotationalMotor {
                         name "right_elbow_pitch"
-                        maxVelocity 8.16814
+                        maxVelocity IS MX64-vel
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
-                        maxTorque 7.3
+                        maxTorque IS MX64-torque
+                        controlPID IS PID
                       }
                       PositionSensor {
                         name "right_elbow_pitch_sensor"
@@ -269,12 +289,14 @@ PROTO NUgus [
           }
         }
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        gearMass IS gearMass
+        backlash IS backlash
         jointParameters HingeJointParameters {
           axis 0.000006 1.000000 -0.000000
           anchor 0.005000 0.115000 0.180000
-          dampingConstant 0.0
-          staticFriction 0.0
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
         }
         device [
           RotationalMotor {
@@ -282,7 +304,8 @@ PROTO NUgus [
             maxVelocity 8.16814
             minPosition -3.14159265359
             maxPosition 3.14159265359
-            maxTorque 7.3
+            maxTorque IS MX64-torque
+            controlPID IS PID
           }
           PositionSensor {
             name "left_shoulder_pitch_sensor"
@@ -315,20 +338,23 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000006
                 anchor 0.015000 0.000000 0.005000
-                dampingConstant 0.0
-                staticFriction 0.0
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
               }
               device [
                 RotationalMotor {
                   name "left_shoulder_roll"
-                  maxVelocity 8.16814
+                  maxVelocity IS MX64-vel
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
-                  maxTorque 7.3
+                  maxTorque IS MX64-torque
+                  controlPID IS PID
                 }
                 PositionSensor {
                   name "left_shoulder_roll_sensor"
@@ -363,20 +389,23 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  HingeJoint {
+                  HingeJointWithBacklash {
+                    gearMass IS gearMass
+                    backlash IS backlash
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
                       anchor -0.010000 -0.190000 0.039990
-                      dampingConstant 0.0
-                      staticFriction 0.0
+                      dampingConstant IS MX64-damping
+                      staticFriction IS MX64-friction 
                     }
                     device [
                       RotationalMotor {
                         name "left_elbow_pitch"
-                        maxVelocity 8.16814
+                        maxVelocity IS MX64-vel
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
-                        maxTorque 7.3
+                        maxTorque IS MX64-torque
+                        controlPID IS PID 
                       }
                       PositionSensor {
                         name "left_elbow_pitch_sensor"
@@ -453,20 +482,23 @@ PROTO NUgus [
           }
         }
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        gearMass IS gearMass
+        backlash IS backlash
         jointParameters HingeJointParameters {
           axis 0.000000 0.000000 1.000000
           anchor 0.000000 -0.055000 0.000000
-          dampingConstant 0.0
-          staticFriction 0.0
+          dampingConstant IS MX106-damping
+          staticFriction IS MX106-friction
         }
         device [
           RotationalMotor {
             name "right_hip_yaw"
-            maxVelocity 5.75959
+            maxVelocity IS MX106-vel
             minPosition -3.14159265359
             maxPosition 3.14159265359
-            maxTorque 10.0
+            maxTorque IS MX106-torque
+            controlPID IS PID  
           }
           PositionSensor {
             name "right_hip_yaw_sensor"
@@ -499,12 +531,14 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000000
                 anchor 0.000000 0.000000 -0.060000
-                dampingConstant 0.0
-                staticFriction 0.0
+                dampingConstant IS MX106-damping
+                staticFriction IS MX106-friction
               }
               device [
                 RotationalMotor {
@@ -512,7 +546,8 @@ PROTO NUgus [
                   maxVelocity 5.75959
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
-                  maxTorque 10.0
+                  maxTorque IS MX106-torque
+                  controlPID IS PID  
                 }
                 PositionSensor {
                   name "right_hip_roll_sensor"
@@ -545,20 +580,23 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  HingeJoint {
+                  HingeJointWithBacklash {
+                    gearMass IS gearMass
+                    backlash IS backlash
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
                       anchor 0.000000 -0.010000 0.010000
-                      dampingConstant 0.0
-                      staticFriction 0.0
+                      dampingConstant IS MX106-damping
+                      staticFriction IS MX106-friction
                     }
                     device [
                       RotationalMotor {
                         name "right_hip_pitch"
-                        maxVelocity 5.75959
+                        maxVelocity IS MX106-vel
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
-                        maxTorque 10.0
+                        maxTorque IS MX106-torque
+                        controlPID IS PID  
                       }
                       PositionSensor {
                         name "right_hip_pitch_sensor"
@@ -591,20 +629,23 @@ PROTO NUgus [
                             creaseAngle 1
                           }
                         }
-                        HingeJoint {
+                        HingeJointWithBacklash {
+                          gearMass IS gearMass
+                          backlash IS backlash
                           jointParameters HingeJointParameters {
                             axis 1.000000 0.000000 0.000000
                             anchor 0.000000 0.009990 -0.199750
-                            dampingConstant 0.0
-                            staticFriction 0.0
+                            dampingConstant IS MX106-damping
+                            staticFriction IS MX106-friction
                           }
                           device [
                             RotationalMotor {
                               name "right_knee_pitch"
-                              maxVelocity 5.75959
+                              maxVelocity IS MX106-vel
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
-                              maxTorque 10.0
+                              maxTorque IS MX106-torque
+                              controlPID IS PID  
                             }
                             PositionSensor {
                               name "right_knee_pitch_sensor"
@@ -639,20 +680,23 @@ PROTO NUgus [
                                   creaseAngle 1
                                 }
                               }
-                              HingeJoint {
+                              HingeJointWithBacklash {
+                                gearMass IS gearMass
+                                backlash IS backlash
                                 jointParameters HingeJointParameters {
                                   axis 1.000000 0.000003 -0.000000
                                   anchor 0.000000 0.010000 -0.200000
-                                  dampingConstant 0.0
-                                  staticFriction 0.0
+                                  dampingConstant IS MX106-damping
+                                  staticFriction IS MX106-friction
                                 }
                                 device [
                                   RotationalMotor {
                                     name "right_ankle_pitch"
-                                    maxVelocity 5.75959
+                                    maxVelocity IS MX106-vel
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
-                                    maxTorque 10.0
+                                    maxTorque IS MX106-torque
+                                    controlPID IS PID  
                                   }
                                   PositionSensor {
                                     name "right_ankle_pitch_sensor"
@@ -685,20 +729,23 @@ PROTO NUgus [
                                         creaseAngle 1
                                       }
                                     }
-                                    HingeJoint {
+                                    HingeJointWithBacklash {
+                                      gearMass IS gearMass
+                                      backlash IS backlash
                                       jointParameters HingeJointParameters {
                                         axis 0.000003 -1.000000 0.000003
                                         anchor 0.000000 0.040000 0.000000
-                                        dampingConstant 0.0
-                                        staticFriction 0.0
+                                        dampingConstant IS MX106-damping
+                                        staticFriction IS MX106-friction
                                       }
                                       device [
                                         RotationalMotor {
                                           name "right_ankle_roll"
-                                          maxVelocity 5.75959
+                                          maxVelocity IS MX106-vel
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
-                                          maxTorque 10.0
+                                          maxTorque IS MX106-torque
+                                          controlPID IS PID  
                                         }
                                         PositionSensor {
                                           name "right_ankle_roll_sensor"
@@ -815,20 +862,23 @@ PROTO NUgus [
           }
         }
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        gearMass IS gearMass
+        backlash IS backlash
         jointParameters HingeJointParameters {
           axis 0.000000 0.000000 1.000000
           anchor 0.000000 0.055000 0.000000
-          dampingConstant 0.0
-          staticFriction 0.0
+          dampingConstant IS MX106-damping
+          staticFriction IS MX106-friction
         }
         device [
           RotationalMotor {
             name "left_hip_yaw"
-            maxVelocity 5.75959
+            maxVelocity IS MX106-vel
             minPosition -3.14159265359
             maxPosition 3.14159265359
-            maxTorque 10.0
+            maxTorque IS MX106-torque
+            controlPID IS PID  
           }
           PositionSensor {
             name "left_hip_yaw_sensor"
@@ -861,12 +911,14 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000000
                 anchor 0.000000 0.000000 -0.060000
-                dampingConstant 0.0
-                staticFriction 0.0
+                dampingConstant IS MX106-damping
+                staticFriction IS MX106-friction
               }
               device [
                 RotationalMotor {
@@ -874,7 +926,8 @@ PROTO NUgus [
                   maxVelocity 5.75959
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
-                  maxTorque 10.0
+                  maxTorque IS MX106-torque
+                  controlPID IS PID  
                 }
                 PositionSensor {
                   name "left_hip_roll_sensor"
@@ -907,20 +960,23 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  HingeJoint {
+                  HingeJointWithBacklash {
+                    gearMass IS gearMass
+                    backlash IS backlash
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
                       anchor 0.000000 -0.010000 0.000000
-                      dampingConstant 0.0
-                      staticFriction 0.0
+                      dampingConstant IS MX106-damping
+                      staticFriction IS MX106-friction
                     }
                     device [
                       RotationalMotor {
                         name "left_hip_pitch"
-                        maxVelocity 5.75959
+                        maxVelocity IS MX106-vel
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
-                        maxTorque 10.0
+                        maxTorque IS MX106-torque
+                        controlPID IS PID  
                       }
                       PositionSensor {
                         name "left_hip_pitch_sensor"
@@ -953,20 +1009,23 @@ PROTO NUgus [
                             creaseAngle 1
                           }
                         }
-                        HingeJoint {
+                        HingeJointWithBacklash {
+                          gearMass IS gearMass
+                          backlash IS backlash
                           jointParameters HingeJointParameters {
                             axis 1.000000 0.000000 0.000000
                             anchor 0.000000 0.009490 -0.189760
-                            dampingConstant 0.0
-                            staticFriction 0.0
+                            dampingConstant IS MX106-damping
+                            staticFriction IS MX106-friction
                           }
                           device [
                             RotationalMotor {
                               name "left_knee_pitch"
-                              maxVelocity 5.75959
+                              maxVelocity IS MX106-vel
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
-                              maxTorque 10.0
+                              maxTorque IS MX106-torque
+                              controlPID IS PID  
                             }
                             PositionSensor {
                               name "left_knee_pitch_sensor"
@@ -1004,7 +1063,9 @@ PROTO NUgus [
                                   creaseAngle 1
                                 }
                               }
-                              HingeJoint {
+                              HingeJointWithBacklash {
+                                gearMass IS gearMass
+                                backlash IS backlash
                                 jointParameters HingeJointParameters {
                                   axis 1.000000 0.000003 -0.000000
                                   anchor 0.000000 0.010000 -0.200000
@@ -1018,6 +1079,7 @@ PROTO NUgus [
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque 10.0
+                                    controlPID IS PID
                                   }
                                   PositionSensor {
                                     name "left_ankle_pitch_sensor"
@@ -1050,20 +1112,23 @@ PROTO NUgus [
                                         creaseAngle 1
                                       }
                                     }
-                                    HingeJoint {
+                                    HingeJointWithBacklash {
+                                      gearMass IS gearMass
+                                      backlash IS backlash
                                       jointParameters HingeJointParameters {
                                         axis 0.000003 -1.000000 0.000003
                                         anchor 0.000000 0.040000 0.000000
-                                        dampingConstant 0.0
-                                        staticFriction 0.0
+                                        dampingConstant IS MX106-damping
+                                        staticFriction IS MX106-friction
                                       }
                                       device [
                                         RotationalMotor {
                                           name "left_ankle_roll"
-                                          maxVelocity 5.75959
+                                          maxVelocity IS MX106-vel
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
-                                          maxTorque 10.0
+                                          maxTorque IS MX106-torque
+                                          controlPID IS PID  
                                         }
                                         PositionSensor {
                                           name "left_ankle_roll_sensor"
@@ -1180,20 +1245,23 @@ PROTO NUgus [
           }
         }
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        gearMass IS gearMass
+        backlash IS backlash
         jointParameters HingeJointParameters {
           axis 0.000000 0.000000 1.000000
           anchor 0.000000 0.000000 0.260000
-          dampingConstant 0.0
-          staticFriction 0.0
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
         }
         device [
           RotationalMotor {
             name "neck_yaw"
-            maxVelocity 8.16814
+            maxVelocity IS MX64-vel
             minPosition -3.14159265359
             maxPosition 3.14159265359
-            maxTorque 7.3
+            maxTorque IS MX64-torque
+            controlPID IS PID
           }
           PositionSensor {
             name "neck_yaw_sensor"
@@ -1226,20 +1294,23 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 1.000000 0.000000 0.000000
                 anchor 0.000000 0.000000 0.000000
-                dampingConstant 0.0
-                staticFriction 0.0
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
               }
               device [
                 RotationalMotor {
                   name "head_pitch"
-                  maxVelocity 8.16814
+                  maxVelocity IS MX64-vel
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
-                  maxTorque 7.3
+                  maxTorque IS MX64-torque
+                  controlPID IS PID
                 }
                 PositionSensor {
                   name "head_pitch_sensor"
