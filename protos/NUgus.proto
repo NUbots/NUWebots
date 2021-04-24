@@ -1528,7 +1528,7 @@ PROTO NUgus [
                         width 640
                         height 480
                         spherical FALSE
-                        noise 0.03
+                        noise 0.000000001
                         motionBlur 32
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
@@ -1550,7 +1550,7 @@ PROTO NUgus [
                         width 640
                         height 480
                         spherical FALSE
-                        noise 0.03
+                        noise 0.000000001
                         motionBlur 32
                         lens Lens {
                           center 0.5 0.5   # [0, 1] [0, 1]
