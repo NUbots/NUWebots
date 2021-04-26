@@ -53,6 +53,14 @@ using controller::nugus::CameraQuality;
 using controller::nugus::MotorPID;
 using controller::nugus::SensorMeasurements;
 using controller::nugus::SensorTimeStep;
+using controller::nugus::AccelerometerMeasurement;
+using controller::nugus::CameraMeasurement;
+using controller::nugus::GyroMeasurement;
+using controller::nugus::PositionSensorMeasurement;
+using controller::nugus::BumperMeasurement;
+using controller::nugus::ForceMeasurement;
+using controller::nugus::Force3DMeasurement;
+using controller::nugus::Vector3;
 
 class NUgus : public webots::Robot {
 public:
@@ -165,7 +173,7 @@ public:
                 // sending values for disabled sensors.
                 for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
                     const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
-                    std::unique_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
+                    std::shared_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
                     if (device) {
                         const int sensor_time_step = sensorTimeStep.timestep();
                         if (sensor_time_step) {
@@ -174,7 +182,7 @@ public:
                         else {
                             sensors.erase(device);
                         }                            
-                        bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < basic_time_step) || (sensor_time_step % basic_time_step != 0);
+                        bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < this->getBasicTimeStep()) || (sensor_time_step % int(this->getBasicTimeStep()) != 0);
                         if(valid_time_step) {
                             switch (device->getNodeType()) {
                                 case webots::Node::ACCELEROMETER: {
@@ -212,7 +220,7 @@ public:
 
     void sendData() {
         // Create the SensorMeasurements message
-        auto msg = std::make_unique<SensorMeasurements>();
+        auto sensorMeasurements = std::make_unique<SensorMeasurements>();
 
         //   uint32 time = 1;  // time stamp at which the measurements were performed expressed in [ms]
         // repeated Message messages = 2;
@@ -225,94 +233,94 @@ public:
         // repeated GyroMeasurement gyros = 9;
         // repeated PositionSensorMeasurement position_sensors = 10;
 
-        for (std::set<std::unique_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
-            webots::Accelerometer *accelerometer = dynamic_cast<webots::Accelerometer *>(*it);
+        for (std::set<std::shared_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
+            std::shared_ptr<webots::Accelerometer> accelerometer = std::dynamic_pointer_cast<webots::Accelerometer>(*it);
             if (accelerometer) {
-                if (controller_time % accelerometer->getSamplingPeriod()) {
+                if (time_step % accelerometer->getSamplingPeriod()) {
                     continue;
                 }
-                AccelerometerMeasurement *measurement = sensorMeasurements.add_accelerometers();
-                measurement->set_name(accelerometer->getName());
-                const double *values = accelerometer->getValues();
-                Vector3 *vector3 = measurement->mutable_value();
-                vector3->set_x(values[0]);
-                vector3->set_y(values[1]);
-                vector3->set_z(values[2]);
+                AccelerometerMeasurement measurement = *sensorMeasurements->add_accelerometers();
+                measurement.set_name(accelerometer->getName());
+                const double* values = accelerometer->getValues();
+                Vector3 vector3 = *measurement.mutable_value();
+                vector3.set_x(values[0]);
+                vector3.set_y(values[1]);
+                vector3.set_z(values[2]);
                 continue;
             }
-            webots::Camera *camera = dynamic_cast<webots::Camera *>(*it);
+            std::shared_ptr<webots::Camera> camera = std::dynamic_pointer_cast<webots::Camera>(*it);
             if (camera) {
-                if (controller_time % camera->getSamplingPeriod()) {
+                if (time_step % camera->getSamplingPeriod()) {
                     continue;
                 }                    
-                CameraMeasurement *measurement = sensorMeasurements.add_cameras();
-                measurement->set_name(camera->getName());
-                measurement->set_width(camera->getWidth());
-                measurement->set_height(camera->getHeight());
-                measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
-                measurement->set_image((const char *)camera->getImage());
+                CameraMeasurement measurement = *sensorMeasurements->add_cameras();
+                measurement.set_name(camera->getName());
+                measurement.set_width(camera->getWidth());
+                measurement.set_height(camera->getHeight());
+                measurement.set_quality(-1);  // raw image (JPEG compression not yet supported)
+                measurement.set_image((const char *)camera->getImage());
 
                 // testing JPEG compression (impacts the performance)
-                unsigned char *buffer = NULL;
-                long unsigned int bufferSize = 0;
-                const unsigned char *image = camera->getImage();
-                encode_jpeg(image, camera->getWidth(), camera->getHeight(), 95, &bufferSize, &buffer);
-                free_jpeg(buffer);
-                buffer = NULL;
+                // unsigned char *buffer = NULL;
+                // long unsigned int bufferSize = 0;
+                // const unsigned char *image = camera->getImage();
+                // encode_jpeg(image, camera->getWidth(), camera->getHeight(), 95, &bufferSize, &buffer);
+                // free_jpeg(buffer);
+                // buffer = NULL;
 
                 continue;
             }
-            webots::Gyro *gyro = dynamic_cast<webots::Gyro *>(*it);
+            std::shared_ptr<webots::Gyro> gyro = std::dynamic_pointer_cast<webots::Gyro>(*it);
             if (gyro) {
-                if (controller_time % gyro->getSamplingPeriod()) {
+                if (time_step % gyro->getSamplingPeriod()) {
                     continue;
                 }
-                GyroMeasurement *measurement = sensorMeasurements.add_gyros();
-                measurement->set_name(gyro->getName());
-                const double *values = gyro->getValues();
-                Vector3 *vector3 = measurement->mutable_value();
-                vector3->set_x(values[0]);
-                vector3->set_y(values[1]);
-                vector3->set_z(values[2]);
+                GyroMeasurement measurement = *sensorMeasurements->add_gyros();
+                measurement.set_name(gyro->getName());
+                const double* values = gyro->getValues();
+                Vector3 vector3 = *measurement.mutable_value();
+                vector3.set_x(values[0]);
+                vector3.set_y(values[1]);
+                vector3.set_z(values[2]);
                 continue;
             }
-            webots::PositionSensor *position_sensor = dynamic_cast<webots::PositionSensor *>(*it);
+            std::shared_ptr<webots::PositionSensor> position_sensor = std::dynamic_pointer_cast<webots::PositionSensor>(*it);
             if (position_sensor) {
-                if (controller_time % position_sensor->getSamplingPeriod()) {
+                if (time_step % position_sensor->getSamplingPeriod()) {
                     continue;
                 }
-                PositionSensorMeasurement *measurement = sensorMeasurements.add_position_sensors();
-                measurement->set_name(position_sensor->getName());
-                measurement->set_value(position_sensor->getValue());
+                PositionSensorMeasurement measurement = *sensorMeasurements->add_position_sensors();
+                measurement.set_name(position_sensor->getName());
+                measurement.set_value(position_sensor->getValue());
                 continue;
             }
-            webots::TouchSensor *touch_sensor = dynamic_cast<webots::TouchSensor *>(*it);
+            std::shared_ptr<webots::TouchSensor> touch_sensor = std::dynamic_pointer_cast<webots::TouchSensor>(*it);
             if (touch_sensor) {
-                if (controller_time % touch_sensor->getSamplingPeriod()) {
+                if (time_step % touch_sensor->getSamplingPeriod()) {
                     continue;
                 }                    
                 webots::TouchSensor::Type type = touch_sensor->getType();
                 switch (type) {
                     case webots::TouchSensor::BUMPER: {
-                        BumperMeasurement *measurement = sensorMeasurements.add_bumpers();
-                        measurement->set_name(touch_sensor->getName());
-                        measurement->set_value(touch_sensor->getValue() == 1.0);
+                        BumperMeasurement measurement = *sensorMeasurements->add_bumpers();
+                        measurement.set_name(touch_sensor->getName());
+                        measurement.set_value(touch_sensor->getValue() == 1.0);
                         continue;
                     }
                     case webots::TouchSensor::FORCE: {
-                        ForceMeasurement *measurement = sensorMeasurements.add_forces();
-                        measurement->set_name(touch_sensor->getName());
-                        measurement->set_value(touch_sensor->getValue());
+                        ForceMeasurement measurement = *sensorMeasurements->add_forces();
+                        measurement.set_name(touch_sensor->getName());
+                        measurement.set_value(touch_sensor->getValue());
                         continue;
                     }
                     case webots::TouchSensor::FORCE3D: {
-                        Force3DMeasurement *measurement = sensorMeasurements.add_force3ds();
-                        measurement->set_name(touch_sensor->getName());
-                        const double *values = touch_sensor->getValues();
-                        Vector3 *vector3 = measurement->mutable_value();
-                        vector3->set_x(values[0]);
-                        vector3->set_y(values[1]);
-                        vector3->set_z(values[2]);
+                        Force3DMeasurement measurement = *sensorMeasurements->add_force3ds();
+                        measurement.set_name(touch_sensor->getName());
+                        const double* values = touch_sensor->getValues();
+                        Vector3 vector3 = *measurement.mutable_value();
+                        vector3.set_x(values[0]);
+                        vector3.set_y(values[1]);
+                        vector3.set_z(values[2]);
                         continue;
                     }
                 }
@@ -320,10 +328,10 @@ public:
         }
 
         // Try to send the message
-        uint32_t Nh = msg->ByteSizeLong();
+        uint32_t Nh = sensorMeasurements->ByteSizeLong();
         std::vector<uint8_t> data;
         data.resize(Nh);
-        msg->SerializeToArray(data.data(), Nh);
+        sensorMeasurements->SerializeToArray(data.data(), Nh);
 
         uint32_t Nn = htonl(Nh);
 
@@ -335,45 +343,45 @@ public:
         }
     }
 
-    static void encode_jpeg(const unsigned char* image,
-                            int width,
-                            int height,
-                            int quality,
-                            unsigned long* size,
-                            unsigned char** buffer) {
-#ifdef TURBOJPEG
-        tjhandle compressor = tjInitCompress();
-        tjCompress2(compressor, image, width, 0, height, TJPF_RGB, buffer, size, TJSAMP_444, quality, TJFLAG_FASTDCT);
-        tjDestroy(compressor);
-#else
-        struct jpeg_compress_struct cinfo;
-        struct jpeg_error_mgr jerr;
-        JSAMPROW row_pointer[1];
-        cinfo.err = jpeg_std_error(&jerr);
-        jpeg_create_compress(&cinfo);
-        cinfo.image_width      = width;
-        cinfo.image_height     = height;
-        cinfo.input_components = 3;
-        cinfo.in_color_space   = JCS_RGB;
-        jpeg_set_defaults(&cinfo);
-        jpeg_set_quality(&cinfo, quality, TRUE);
-        jpeg_mem_dest(&cinfo, buffer, size);
-        jpeg_start_compress(&cinfo, TRUE);
-        while (cinfo.next_scanline < cinfo.image_height) {
-            row_pointer[0] = (unsigned char*) &image[cinfo.next_scanline * width * 3];
-            jpeg_write_scanlines(&cinfo, row_pointer, 1);
-        }
-        jpeg_finish_compress(&cinfo);
-        jpeg_destroy_compress(&cinfo);
-#endif
-    }
-    static void free_jpeg(unsigned char* buffer) {
-#ifdef TURBOJPEG
-        tjFree(buffer);
-#else
-        free(buffer);
-#endif
-    }
+//     static void encode_jpeg(const unsigned char* image,
+//                             int width,
+//                             int height,
+//                             int quality,
+//                             unsigned long* size,
+//                             unsigned char** buffer) {
+// #ifdef TURBOJPEG
+//         tjhandle compressor = tjInitCompress();
+//         tjCompress2(compressor, image, width, 0, height, TJPF_RGB, buffer, size, TJSAMP_444, quality, TJFLAG_FASTDCT);
+//         tjDestroy(compressor);
+// #else
+//         struct jpeg_compress_struct cinfo;
+//         struct jpeg_error_mgr jerr;
+//         JSAMPROW row_pointer[1];
+//         cinfo.err = jpeg_std_error(&jerr);
+//         jpeg_create_compress(&cinfo);
+//         cinfo.image_width      = width;
+//         cinfo.image_height     = height;
+//         cinfo.input_components = 3;
+//         cinfo.in_color_space   = JCS_RGB;
+//         jpeg_set_defaults(&cinfo);
+//         jpeg_set_quality(&cinfo, quality, TRUE);
+//         jpeg_mem_dest(&cinfo, buffer, size);
+//         jpeg_start_compress(&cinfo, TRUE);
+//         while (cinfo.next_scanline < cinfo.image_height) {
+//             row_pointer[0] = (unsigned char*) &image[cinfo.next_scanline * width * 3];
+//             jpeg_write_scanlines(&cinfo, row_pointer, 1);
+//         }
+//         jpeg_finish_compress(&cinfo);
+//         jpeg_destroy_compress(&cinfo);
+// #endif
+//     }
+//     static void free_jpeg(unsigned char* buffer) {
+// #ifdef TURBOJPEG
+//         tjFree(buffer);
+// #else
+//         free(buffer);
+// #endif
+//     }
 
 private:
     /// Controller time step
@@ -383,7 +391,7 @@ private:
     /// File descriptor to use for the TCP connection
     int tcp_fd;
     /// Set of robot sensors
-    std::set<std::unique_ptr<webots::Device>> sensors;
+    std::set<std::shared_ptr<webots::Device>> sensors;
 };
 
 
