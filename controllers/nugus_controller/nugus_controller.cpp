@@ -153,12 +153,14 @@ public:
                         camera->setExposure(cameraExposure.exposure());
                     }
                 }
-                // For each time step sent, we enable that device
+                // For each time step message sent, we enable that device if the value exists
                 for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
                     const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
                     std::shared_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
                     if (device) {
                         const int sensor_time_step = sensorTimeStep.timestep();
+                        // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
+                        // remove it
                         if (sensor_time_step) {
                             sensors.insert(device);
                         }
@@ -169,6 +171,7 @@ public:
                         bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < this->getBasicTimeStep())
                                                || (sensor_time_step % int(this->getBasicTimeStep()) != 0);
                         if (valid_time_step) {
+                            // Given a valid time step, enable the corresponding device
                             switch (device->getNodeType()) {
                                 case webots::Node::ACCELEROMETER: {
                                     std::unique_ptr<webots::Accelerometer> accelerometer(
@@ -210,18 +213,10 @@ public:
         // Create the SensorMeasurements message
         auto sensorMeasurements = std::make_unique<SensorMeasurements>();
 
-        //   uint32 time = 1;  // time stamp at which the measurements were performed expressed in [ms]
-        // repeated Message messages = 2;
-        // repeated AccelerometerMeasurement accelerometers = 3;
-        // repeated BumperMeasurement bumpers = 4;
-        // repeated CameraMeasurement cameras = 5;
-        // repeated ForceMeasurement forces = 6;
-        // repeated Force3DMeasurement force3ds = 7;
-        // repeated Force6DMeasurement force6ds = 8;
-        // repeated GyroMeasurement gyros = 9;
-        // repeated PositionSensorMeasurement position_sensors = 10;
-
+        // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
         for (std::set<std::shared_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
+            // Try to cast to an accelerometer and if it works, add the accelerometer values to the SensorMeasurement
+            // message
             std::shared_ptr<webots::Accelerometer> accelerometer =
                 std::dynamic_pointer_cast<webots::Accelerometer>(*it);
             if (accelerometer) {
@@ -237,6 +232,7 @@ public:
                 vector3.set_z(values[2]);
                 continue;
             }
+            // Try to cast to a camera and if it works, add the camera values to the SensorMeasurement message
             std::shared_ptr<webots::Camera> camera = std::dynamic_pointer_cast<webots::Camera>(*it);
             if (camera) {
                 if (time_step % camera->getSamplingPeriod()) {
@@ -248,17 +244,9 @@ public:
                 measurement.set_height(camera->getHeight());
                 measurement.set_quality(-1);  // raw image (JPEG compression not yet supported)
                 measurement.set_image((const char*) camera->getImage());
-
-                // testing JPEG compression (impacts the performance)
-                // unsigned char *buffer = NULL;
-                // long unsigned int bufferSize = 0;
-                // const unsigned char *image = camera->getImage();
-                // encode_jpeg(image, camera->getWidth(), camera->getHeight(), 95, &bufferSize, &buffer);
-                // free_jpeg(buffer);
-                // buffer = NULL;
-
                 continue;
             }
+            // Try to cast to a gyroscope and if it works, add the gyroscope values to the SensorMeasurement message
             std::shared_ptr<webots::Gyro> gyro = std::dynamic_pointer_cast<webots::Gyro>(*it);
             if (gyro) {
                 if (time_step % gyro->getSamplingPeriod()) {
@@ -273,6 +261,8 @@ public:
                 vector3.set_z(values[2]);
                 continue;
             }
+            // Try to cast to a position sensor and if it works, add the position sensor values to the SensorMeasurement
+            // message
             std::shared_ptr<webots::PositionSensor> position_sensor =
                 std::dynamic_pointer_cast<webots::PositionSensor>(*it);
             if (position_sensor) {
@@ -284,12 +274,15 @@ public:
                 measurement.set_value(position_sensor->getValue());
                 continue;
             }
+            // Try to cast to a touch sensor and if it works, add the touch sensor values to the SensorMeasurement
+            // message
             std::shared_ptr<webots::TouchSensor> touch_sensor = std::dynamic_pointer_cast<webots::TouchSensor>(*it);
             if (touch_sensor) {
                 if (time_step % touch_sensor->getSamplingPeriod()) {
                     continue;
                 }
                 webots::TouchSensor::Type type = touch_sensor->getType();
+                // Find what type of touch sensor we have and set the right values for that type of touch sensor
                 switch (type) {
                     case webots::TouchSensor::BUMPER: {
                         BumperMeasurement measurement = *sensorMeasurements->add_bumpers();
@@ -332,46 +325,6 @@ public:
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
     }
-
-    //     static void encode_jpeg(const unsigned char* image,
-    //                             int width,
-    //                             int height,
-    //                             int quality,
-    //                             unsigned long* size,
-    //                             unsigned char** buffer) {
-    // #ifdef TURBOJPEG
-    //         tjhandle compressor = tjInitCompress();
-    //         tjCompress2(compressor, image, width, 0, height, TJPF_RGB, buffer, size, TJSAMP_444, quality,
-    //         TJFLAG_FASTDCT); tjDestroy(compressor);
-    // #else
-    //         struct jpeg_compress_struct cinfo;
-    //         struct jpeg_error_mgr jerr;
-    //         JSAMPROW row_pointer[1];
-    //         cinfo.err = jpeg_std_error(&jerr);
-    //         jpeg_create_compress(&cinfo);
-    //         cinfo.image_width      = width;
-    //         cinfo.image_height     = height;
-    //         cinfo.input_components = 3;
-    //         cinfo.in_color_space   = JCS_RGB;
-    //         jpeg_set_defaults(&cinfo);
-    //         jpeg_set_quality(&cinfo, quality, TRUE);
-    //         jpeg_mem_dest(&cinfo, buffer, size);
-    //         jpeg_start_compress(&cinfo, TRUE);
-    //         while (cinfo.next_scanline < cinfo.image_height) {
-    //             row_pointer[0] = (unsigned char*) &image[cinfo.next_scanline * width * 3];
-    //             jpeg_write_scanlines(&cinfo, row_pointer, 1);
-    //         }
-    //         jpeg_finish_compress(&cinfo);
-    //         jpeg_destroy_compress(&cinfo);
-    // #endif
-    //     }
-    //     static void free_jpeg(unsigned char* buffer) {
-    // #ifdef TURBOJPEG
-    //         tjFree(buffer);
-    // #else
-    //         free(buffer);
-    // #endif
-    //     }
 
 private:
     /// Controller time step
