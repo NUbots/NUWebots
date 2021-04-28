@@ -25,9 +25,17 @@
 #include "yaml-cpp/yaml.h"
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <sstream>
+#include <iomanip>
 
 #include <webots/Supervisor.hpp>
 #include <webots/Camera.hpp>
+
+std::string padLeft(int number, int width) {
+    std::stringstream ss;
+    ss << std::setw(width) << std::setfill('0') << number;
+    return ss.str();
+}
 
 const int QUALITY = 100;
 
@@ -84,7 +92,7 @@ int main(int argc, char** argv) {
     left_camera->enableRecognitionSegmentation();
 
     // Create directories for saving data
-    std::filesystem::create_directories("./data/data_normal");
+    std::filesystem::create_directories("./data/data_mono");
     std::filesystem::create_directories("./data/data_stereo");
 
     //-----------SET RANDOM SEED-----------//
@@ -93,7 +101,7 @@ int main(int argc, char** argv) {
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> xDistrib(0, 1080);
     std::uniform_int_distribution<> yDistrib(0, 760);
-    std::uniform_int_distribution<> zDistrib(0, 5);
+    std::uniform_int_distribution<> zDistrib(-5, 5);
 
     //--------MAIN CONTROL LOOP------------//
     while (supervisor.step(time_step) != -1) {
@@ -113,7 +121,7 @@ int main(int argc, char** argv) {
         std::array<double, 3> newPos;
         newPos[0] = 5.4 - xDistrib(gen) / 100;
         newPos[1] = 3.8 - yDistrib(gen) / 100;
-        newPos[2] = 0.51; //- zDistrib(gen) / 100;  //TODO(wongjoel) the bit adding noise is commented out to make debugging easier
+        newPos[2] = 0.51 - zDistrib(gen) / 100;
 
         // Set new location
         robot_translation_field.setSFVec3f(newPos.data());
@@ -143,33 +151,27 @@ int main(int argc, char** argv) {
 
             // Get TORSO TO NECK
             // relative to torso, torso to neck
-            webots::Field* neck_translation = robot.getFromProtoDef("neck_solid")->getField("translation");
+            const double* neck_translation = robot.getFromProtoDef("neck_solid")->getField("translation")->getSFVec3f();
 
             // Rtn, torso to neck
-            webots::Field* neck_rotation = robot.getFromProtoDef("neck_solid")->getField("rotation");
+            const double* neck_rotation = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();
 
             // Homogenous transformation of the neck to the robot's torso
             Eigen::Affine3d Htn;
-            Htn.translation() = Eigen::Vector3d(*neck_translation->getMFVec3f(0), *neck_translation->getMFVec3f(1), *neck_translation->getMFVec3f(2));
+            Htn.translation() = Eigen::Vector3d(neck_translation[0], neck_translation[1], neck_translation[2]);
 
             // TODO(wongjoel) verify these are the correct indexes
-            Htn.linear() = Eigen::AngleAxisd(
-                *neck_rotation->getMFRotation(0),
-                Eigen::Vector3d(*neck_rotation->getMFRotation(1), *neck_rotation->getMFRotation(2), *neck_rotation->getMFRotation(3))
-            ).toRotationMatrix();
+            Htn.linear() = Eigen::AngleAxisd(neck_rotation[0], Eigen::Vector3d(neck_rotation[1], neck_rotation[2], neck_rotation[3])).toRotationMatrix();
 
             // Get NECK TO CAMERA
-            webots::Field* camera_translation = robot.getFromProtoDef("right_camera")->getField("translation");
-            webots::Field* camera_rotation = robot.getFromProtoDef("right_camera")->getField("rotation");
+            const double* camera_translation = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
+            const double* camera_rotation = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();
             
             Eigen::Affine3d Hnc;
-            Hnc.translation() = Eigen::Vector3d(*camera_translation->getMFVec3f(0), *camera_translation->getMFVec3f(1), *camera_translation->getMFVec3f(2));
+            Hnc.translation() = Eigen::Vector3d(camera_translation[0], camera_translation[1], camera_translation[2]);
 
             // TODO(wongjoel) verify these are the correct indexes
-            Hnc.linear() = Eigen::AngleAxisd(
-                *camera_rotation->getMFRotation(0),
-                Eigen::Vector3d(*camera_rotation->getMFRotation(1), *camera_rotation->getMFRotation(2), *camera_rotation->getMFRotation(3))
-            ).toRotationMatrix();
+            Hnc.linear() = Eigen::AngleAxisd(camera_rotation[0], Eigen::Vector3d(camera_rotation[1], camera_rotation[2], camera_rotation[3])).toRotationMatrix();
 
             Eigen::Affine3d Hwc = Htw.inverse() * Htn * Hnc;
 
@@ -178,22 +180,19 @@ int main(int argc, char** argv) {
             // Hoc.translation() = Eigen::Vector3d(newPos.data());
 
             //-----------SAVE DATA-----------//
+            std::string count_padded = padLeft(count, 4);
+
             // Save stereo images
-            left_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_L.jpeg", QUALITY);
-            right_camera->saveImage("./data/data_stereo/image" + std::to_string(count) + "_R.jpeg", QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_L.png", QUALITY);
-            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + std::to_string(count) + "_R.png", QUALITY);
+            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpeg", QUALITY);
+            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpeg", QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_L_mask.png", QUALITY);
+            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_R_mask.png", QUALITY);
 
-            // Save normal images
-            left_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
-            right_camera->saveImage("./data/data_normal/image0" + std::to_string(count) + ".jpeg", QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
-            right_camera->saveRecognitionSegmentationImage("./data/data_normal/mask0" + std::to_string(count) + ".png", QUALITY);
+            // Save mono images
+            left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpeg", QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", QUALITY);
 
-
-
-            // Write the lens.yaml data
-            std::ofstream lensFile("./data/data_stereo/lens" + std::to_string(count) + ".yaml");
+            // Prepare the lens data
             YAML::Emitter lensYaml;  // create the node
             lensYaml << YAML::BeginMap;
             lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
@@ -203,7 +202,6 @@ int main(int argc, char** argv) {
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
             lensYaml << YAML::Key << "Hoc" << YAML::Value;
             lensYaml << YAML::BeginSeq;
-            //TODO(wongjoel) this emits a list instead of an array, need to spit out an array in format [0.0 0.0 0.0 0.0]
             lensYaml << YAML::Flow << std::vector({Hwc(0, 0), Hwc(0, 1), Hwc(0, 2), newPos[0]});
             lensYaml << YAML::Flow << std::vector({Hwc(1, 0), Hwc(1, 1), Hwc(1, 2), newPos[1]});
             lensYaml << YAML::Flow << std::vector({Hwc(2, 0), Hwc(2, 1), Hwc(2, 2), newPos[2]});
@@ -211,6 +209,8 @@ int main(int argc, char** argv) {
             lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
 
+            // Write the lens data
+            std::ofstream lensFile("./data/data_stereo/image" + count_padded + "lens.yaml");
             lensFile << lensYaml.c_str();
             lensFile.close();
 
