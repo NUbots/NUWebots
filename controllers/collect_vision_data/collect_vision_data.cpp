@@ -143,27 +143,35 @@ int main(int argc, char** argv) {
 
             // Get TORSO TO NECK
             // relative to torso, torso to neck
-            webots::Field& neck_translation = robot.getFromProtoDef("neck_solid").getField("translation");
+            webots::Field* neck_translation = robot.getFromProtoDef("neck_solid")->getField("translation");
 
             // Rtn, torso to neck
-            webots::Field& neck_rotation = robot.getFromProtoDef("neck_solid").getField("rotation");
+            webots::Field* neck_rotation = robot.getFromProtoDef("neck_solid")->getField("rotation");
+
             // Homogenous transformation of the neck to the robot's torso
             Eigen::Affine3d Htn;
-            // TODO(wongjoel) compile error below:
-            Htn.translation() = neck_translation;
+            Htn.translation() = Eigen::Vector3d(*neck_translation->getMFVec3f(0), *neck_translation->getMFVec3f(1), *neck_translation->getMFVec3f(2));
+
             // TODO(wongjoel) verify these are the correct indexes
-            Htn.linear() = Eigen::AngleAxisd(neck_rotation[0], Eigen::Vector3d(neck_rotation[1], neck_rotation[2], neck_rotation[3])).toRotationMatrix();
+            Htn.linear() = Eigen::AngleAxisd(
+                *neck_rotation->getMFRotation(0),
+                Eigen::Vector3d(*neck_rotation->getMFRotation(1), *neck_rotation->getMFRotation(2), *neck_rotation->getMFRotation(3))
+            ).toRotationMatrix();
 
             // Get NECK TO CAMERA
-            webots::Field& camera_translation = robot.getFromProtoDef("right_camera").getField("translation");
-            webots::Field& camera_rotation = robot.getFromProtoDef("right_camera").getField("rotation");
+            webots::Field* camera_translation = robot.getFromProtoDef("right_camera")->getField("translation");
+            webots::Field* camera_rotation = robot.getFromProtoDef("right_camera")->getField("rotation");
+            
             Eigen::Affine3d Hnc;
-            // TODO(wongjoel) compile error below:
-            Hnc.translation() = camera_translation;
-            // TODO(wongjoel) verify these are the correct indexes
-            Hnc.linear() = Eigen::AngleAxisd(camera_rotation[0], Eigen::Vector3d(camera_rotation[1], camera_rotation[2], camera_rotation[3])).toRotationMatrix();
+            Hnc.translation() = Eigen::Vector3d(*camera_translation->getMFVec3f(0), *camera_translation->getMFVec3f(1), *camera_translation->getMFVec3f(2));
 
-            Eigen::Affine3d Hwc = Hwt * Htn * Hnc;
+            // TODO(wongjoel) verify these are the correct indexes
+            Hnc.linear() = Eigen::AngleAxisd(
+                *camera_rotation->getMFRotation(0),
+                Eigen::Vector3d(*camera_rotation->getMFRotation(1), *camera_rotation->getMFRotation(2), *camera_rotation->getMFRotation(3))
+            ).toRotationMatrix();
+
+            Eigen::Affine3d Hwc = Htw.inverse() * Htn * Hnc;
 
             // Hoc.linear() = Roc.matrix();
             // // TODO(YsobelSims) should this vector be negated?? this might be rWCc or rCWc or some other thing kip didn't think of
@@ -199,7 +207,7 @@ int main(int argc, char** argv) {
             lensYaml << YAML::Flow << std::vector({Hwc(0, 0), Hwc(0, 1), Hwc(0, 2), newPos[0]});
             lensYaml << YAML::Flow << std::vector({Hwc(1, 0), Hwc(1, 1), Hwc(1, 2), newPos[1]});
             lensYaml << YAML::Flow << std::vector({Hwc(2, 0), Hwc(2, 1), Hwc(2, 2), newPos[2]});
-            lensYaml << YAML::Flow << YAML::BeginSeq 0 << 0 << 0 << 1 << YAML::EndSeq;
+            lensYaml << YAML::Flow << YAML::BeginSeq << 0 << 0 << 0 << 1 << YAML::EndSeq;
             lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
 
