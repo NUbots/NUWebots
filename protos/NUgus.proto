@@ -18,7 +18,7 @@ PROTO NUgus [
   field SFFloat      fieldOfView          1.5707
   field SFFloat      cameraWidth          640
   field SFFloat      cameraHeight         480
-  field SFFloat      cameraLensFocalLength 0.00198
+  field SFFloat      cameraLensFocalLength 1.98
   field SFFloat      cameraNoise          0.000000001
   field SFFloat      cameraMotionBlur     10
 ]
@@ -1284,7 +1284,6 @@ PROTO NUgus [
                     children [
                       Camera {
                         name "right_camera"
-
                         translation 0.069952 -0.033795 0.06488
                         rotation -0.570515 0.570516 0.590782 -2.07437
                         fieldOfView IS fieldOfView
@@ -1301,8 +1300,8 @@ PROTO NUgus [
                         focus Focus {
                           focalDistance    0.0
                           focalLength      IS cameraLensFocalLength
-                          maxFocalDistance 4.5   # [0, inf)
-                          minFocalDistance 0.1   # [0, inf)
+                          maxFocalDistance 0.0   # [0, inf)
+                          minFocalDistance 0.0   # [0, inf)
                         }
                       }
                       Camera {
@@ -1323,8 +1322,8 @@ PROTO NUgus [
                         focus Focus {
                           focalDistance    0.0   # [0, inf)
                           focalLength      IS cameraLensFocalLength   # [0, inf)
-                          maxFocalDistance 4.5   # [0, inf)
-                          minFocalDistance 0.1   # [0, inf)
+                          maxFocalDistance 0.0   # [0, inf)
+                          minFocalDistance 0.0   # [0, inf)
                         }
                       }
                     ]
