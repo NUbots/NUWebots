@@ -1303,6 +1303,10 @@ PROTO NUgus [
                           maxFocalDistance 0.0   # [0, inf)
                           minFocalDistance 0.0   # [0, inf)
                         }
+                        recognition Recognition {
+                          frameThickness 0
+                          segmentation TRUE
+                        }
                       }
                       Camera {
                         name "left_camera"
@@ -1324,6 +1328,10 @@ PROTO NUgus [
                           focalLength      IS cameraLensFocalLength   # [0, inf)
                           maxFocalDistance 0.0   # [0, inf)
                           minFocalDistance 0.0   # [0, inf)
+                        }
+                        recognition Recognition {
+                          frameThickness 0
+                          segmentation TRUE
                         }
                       }
                     ]
