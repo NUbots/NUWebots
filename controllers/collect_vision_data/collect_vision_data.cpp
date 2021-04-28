@@ -210,7 +210,7 @@ int main(int argc, char** argv) {
             lensYaml << YAML::EndMap;
 
             // Write the lens data
-            std::ofstream lensFile("./data/data_stereo/image" + count_padded + "lens.yaml");
+            std::ofstream lensFile("./data/data_stereo/image" + count_padded + "_lens.yaml");
             lensFile << lensYaml.c_str();
             lensFile.close();
 
