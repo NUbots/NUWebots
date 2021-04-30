@@ -92,4 +92,5 @@ DEF BLUE_1 NUgus {
   controllerArgs [
     "32"
   ]
+  name "red player 1"
 }
