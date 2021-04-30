@@ -180,16 +180,16 @@ int main(int argc, char** argv) {
             // Hoc.translation() = Eigen::Vector3d(newPos.data());
 
             //-----------SAVE DATA-----------//
-            std::string count_padded = padLeft(count, 4);
+            std::string count_padded = padLeft(count, 7);
 
             // Save stereo images
-            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpeg", QUALITY);
-            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpeg", QUALITY);
+            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
+            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_L_mask.png", QUALITY);
             right_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_R_mask.png", QUALITY);
 
             // Save mono images
-            left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpeg", QUALITY);
+            left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", QUALITY);
 
             // Prepare the lens data
@@ -198,7 +198,7 @@ int main(int argc, char** argv) {
             lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
             lensYaml << YAML::Key << "focal_length" << YAML::Value << left_camera->getFocalLength();
             lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            lensYaml << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
             lensYaml << YAML::Key << "Hoc" << YAML::Value;
             lensYaml << YAML::BeginSeq;
@@ -209,10 +209,15 @@ int main(int argc, char** argv) {
             lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
 
-            // Write the lens data
-            std::ofstream lensFile("./data/data_stereo/image" + count_padded + "_lens.yaml");
-            lensFile << lensYaml.c_str();
-            lensFile.close();
+            // Write the stereo lens data
+            std::ofstream stereoLensFile("./data/data_stereo/lens" + count_padded + ".yaml");
+            stereoLensFile << lensYaml.c_str();
+            stereoLensFile.close();
+
+            // Write the mono lens data
+            std::ofstream monoLensFile("./data/data_mono/lens" + count_padded + ".yaml");
+            monoLensFile << lensYaml.c_str();
+            monoLensFile.close();
 
             count++;
             supervisor.step(time_step);
