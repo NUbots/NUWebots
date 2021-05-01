@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field.setSFRotation(rotation.data());  // Rotation is interpreted as [rz, ry, rz, \alpha]
+            robot_rotation_field.setSFRotation(rotation.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
             robot.resetPhysics();
 
             // TODO(KipHamiltons) verify this is the right rotation - as in, verify is Roc, not Rco, and that the encoding of xyzw is the same order here
@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
             // relative to torso, torso to neck
             const double* rNTt = robot.getFromProtoDef("neck_solid")->getField("translation")->getSFVec3f();
             // Rtn, torso to neck
-            const double* Rnt = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rz, ry, rz, \alpha]
+            const double* Rnt = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
 
             // Homogenous transformation of the neck to the robot's torso
             Eigen::Affine3d Hnt;
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
 
             // Get NECK TO CAMERA
             const double* rCNn = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
-            const double* Rcn = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rz, ry, rz, \alpha]
+            const double* Rcn = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
             
             Eigen::Affine3d Hcn;
             Hcn.translation() = Eigen::Vector3d(rCNn[0], rCNn[1], rCNn[2]);
