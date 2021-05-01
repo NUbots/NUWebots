@@ -13,7 +13,7 @@ PROTO NUgus [
   field  SFString    customData      ""                 # Is `Robot.customData`.
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
-  field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
+  field  SFBool      selfCollision   TRUE              # Is `Robot.selfCollision`.
 ]
 {
   Robot {
@@ -1092,12 +1092,34 @@ PROTO NUgus [
                                           }
                                         ]
                                         name "left_foot [foot]"
-                                        boundingObject Transform {
-                                          translation 0.011347 -0.062189 -0.023023
-                                          rotation 0.577994 0.576060 -0.577994 2.096332
+                                        boundingObject Group {
                                           children [
-                                            Box {
-                                               size 0.078414 0.135720 0.219532
+                                            Transform {
+                                              translation 0.010500000000000002 0.037500000000000006 -0.023
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.025 0.078
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation 0.011000000000000003 -0.128 -0.033
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.132 0.08 0.058
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation 0.010500000000000002 -0.027999999999999997 -0.0495
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.12 0.025
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -1115,11 +1137,11 @@ PROTO NUgus [
                                   ]
                                   name "left_ankle"
                                   boundingObject Transform {
-                                    translation 0.000077 0.026219 -0.017801
-                                    rotation -0.000000 -0.707107 0.707107 3.141593
+                                    translation 0.0 0.02 -0.0175
+                                    rotation 0.0 0.0 1.0 0.0
                                     children [
                                       Box {
-                                         size 0.061433 0.066525 0.094015
+                                        size 0.06 0.08 0.065
                                       }
                                     ]
                                   }
@@ -1137,11 +1159,11 @@ PROTO NUgus [
                             ]
                             name "left_lower_leg"
                             boundingObject Transform {
-                              translation 0.001888 0.013813 -0.097688
-                              rotation 0.993677 -0.112167 -0.005014 0.089911
+                              translation 0.0 0.0175 -0.06749999999999999
+                              rotation 1.0 0.0 0.0 0.1745327073427288
                               children [
                                 Box {
-                                   size 0.069137 0.081378 0.233796
+                                  size 0.06 0.065 0.165
                                 }
                               ]
                             }
@@ -1343,11 +1365,11 @@ PROTO NUgus [
                 ]
                 name "head"
                 boundingObject Transform {
-                  translation -0.002953 -0.002320 0.064834
-                  rotation 0.025107 0.057446 -0.998033 2.293012
+                  translation 0.0 0.0 0.069
+                  rotation 0.0 0.0 1.0 0.0
                   children [
-                    Box {
-                       size 0.156379 0.156754 0.157874
+                    Sphere {
+                      radius 0.088
                     }
                   ]
                 }
