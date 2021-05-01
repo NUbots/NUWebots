@@ -138,38 +138,35 @@ int main(int argc, char** argv) {
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field.setSFRotation(rotation.data());
+            robot_rotation_field.setSFRotation(rotation.data());  // Rotation is interpreted as [rz, ry, rz, \alpha]
             robot.resetPhysics();
 
             // TODO(KipHamiltons) verify this is the right rotation - as in, verify is Roc, not Rco, and that the encoding of xyzw is the same order here
             // Get WORLD TO TORSO
             // World to torso transformation
             Eigen::Affine3d Htw;
-            // TODO(wongjoel) verify these are the correct indexes
-            Htw.linear() = Eigen::AngleAxisd(rotation[0], Eigen::Vector3d(rotation[1], rotation[2], rotation[3])).toRotationMatrix();
+            Htw.linear() = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
             Htw.translation() = Eigen::Vector3d(newPos.data());
 
             // Get TORSO TO NECK
             // relative to torso, torso to neck
             const double* rNTt = robot.getFromProtoDef("neck_solid")->getField("translation")->getSFVec3f();
             // Rtn, torso to neck
-            const double* Rnt = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();
+            const double* Rnt = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rz, ry, rz, \alpha]
 
             // Homogenous transformation of the neck to the robot's torso
             Eigen::Affine3d Hnt;
             Hnt.translation() = Eigen::Vector3d(rNTt[0], rNTt[1], rNTt[2]);
-            // TODO(wongjoel) verify these are the correct indexes
-            Hnt.linear() = Eigen::AngleAxisd(Rnt[0], Eigen::Vector3d(Rnt[1], Rnt[2], Rnt[3])).toRotationMatrix();
+            Hnt.linear() = Eigen::AngleAxisd(Rnt[3], Eigen::Vector3d(Rnt[0], Rnt[1], Rnt[2])).toRotationMatrix();
 
             // Get NECK TO CAMERA
             const double* rCNn = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
-            const double* Rcn = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();
+            const double* Rcn = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rz, ry, rz, \alpha]
             
             Eigen::Affine3d Hcn;
             Hcn.translation() = Eigen::Vector3d(rCNn[0], rCNn[1], rCNn[2]);
 
-            // TODO(wongjoel) verify these are the correct indexes
-            Hcn.linear() = Eigen::AngleAxisd(Rcn[0], Eigen::Vector3d(Rcn[1], Rcn[2], Rcn[3])).toRotationMatrix();
+            Hcn.linear() = Eigen::AngleAxisd(Rcn[3], Eigen::Vector3d(Rcn[0], Rcn[1], Rcn[2])).toRotationMatrix();
 
             Eigen::Affine3d Hcw = (Hcn * Hnt) * Htw;
 
