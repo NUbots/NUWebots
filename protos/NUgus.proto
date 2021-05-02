@@ -183,12 +183,25 @@ PROTO NUgus [
                         }
                       ]
                       name "right_lower_arm [arm]"
-                      boundingObject Transform {
-                        translation 0.005449 -0.096201 0.003036
-                        rotation 0.014447 0.711504 -0.702533 3.098292
+                      boundingObject Group {
                         children [
-                          Box {
-                             size 0.055750 0.092688 0.255432
+                          Transform {
+                            translation 0.0049999999999999975 -0.052500000000000005 -0.0014999999999999979
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.155 0.057
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation 0.0049999999999999975 -0.1775 0.0020000000000000018
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.095 0.08
+                              }
+                            ]
                           }
                         ]
                       }
@@ -205,12 +218,43 @@ PROTO NUgus [
                   }
                 ]
                 name "right_upper_arm [arm]"
-                boundingObject Transform {
-                  translation 0.009816 -0.101303 -0.001043
-                  rotation 0.037370 -0.768622 -0.638611 3.143952
+                boundingObject Group {
                   children [
-                    Box {
-                       size 0.094456 0.101360 0.263797
+                    Transform {
+                      translation 0.0075 -0.0625 -0.0014999999999999979
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.065 0.175 0.057
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.012500000000000004 -0.17500000000000002 -0.017499999999999998
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.075 0.05 0.025
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.0475 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.0225 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
                     }
                   ]
                 }
@@ -227,12 +271,25 @@ PROTO NUgus [
             }
           ]
           name "right_shoulder [arm]"
-          boundingObject Transform {
-            translation -0.007694 -0.002411 0.004482
-            rotation 0.999170 -0.026378 0.031049 1.573058
+          boundingObject Group {
             children [
-              Box {
-                 size 0.079788 0.084434 0.084839
+              Transform {
+                translation -0.008 0.0375 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+              Transform {
+                translation -0.005 -0.035 0.005
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
               }
             ]
           }
@@ -378,12 +435,25 @@ PROTO NUgus [
                         }
                       ]
                       name "left_lower_arm [arm]"
-                      boundingObject Transform {
-                        translation -0.005861 -0.096205 0.001593
-                        rotation 0.999972 0.005097 -0.005482 1.562455
+                      boundingObject Group {
                         children [
-                          Box {
-                             size 0.058128 0.083541 0.254548
+                          Transform {
+                            translation -0.0049999999999999975 -0.052500000000000005 -0.0014999999999999979
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.155 0.057
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation -0.0049999999999999975 -0.1775 0.0020000000000000018
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.095 0.08
+                              }
+                            ]
                           }
                         ]
                       }
@@ -400,12 +470,43 @@ PROTO NUgus [
                   }
                 ]
                 name "left_upper_arm [arm]"
-                boundingObject Transform {
-                  translation -0.007618 -0.101796 -0.001161
-                  rotation -0.999714 0.023520 -0.004295 1.757359
+                boundingObject Group {
                   children [
-                    Box {
-                       size 0.095452 0.102084 0.266358
+                    Transform {
+                      translation -0.0075 -0.0625 -0.0014999999999999979
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.065 0.175 0.057
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.012500000000000004 -0.17500000000000002 -0.017499999999999998
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.075 0.05 0.025
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.0475 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.0225 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
                     }
                   ]
                 }
@@ -422,12 +523,25 @@ PROTO NUgus [
             }
           ]
           name "left_shoulder [arm]"
-          boundingObject Transform {
-            translation 0.007694 -0.002411 0.004482
-            rotation 0.999170 0.026378 -0.031049 1.573058
+          boundingObject Group {
             children [
-              Box {
-                 size 0.079795 0.084443 0.084851
+              Transform {
+                translation 0.015 0.0386 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+              Transform {
+                translation 0.015 -0.0368 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
               }
             ]
           }
@@ -1569,7 +1683,7 @@ PROTO NUgus [
       rotation 0.010690 0.999943 0.000078 3.127061
       children [
         Box {
-           size 0.140936 0.189870 0.259693
+           size 0.140936 0.154 0.229
         }
       ]
     }
