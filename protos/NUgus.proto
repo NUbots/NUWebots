@@ -488,6 +488,7 @@ PROTO NUgus [
             HingeJoint {
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000000
+                anchor 0.000000 0.000000 -0.055
                 dampingConstant 0.0
                 staticFriction 0.0
               }
@@ -504,6 +505,7 @@ PROTO NUgus [
                 }
               ]
               endPoint Solid {
+                translation 0.000000 0.000000 -0.055
                 rotation 0.000000 1.000000 0.000000 0.000000
                 children [
                   Shape {
@@ -529,6 +531,7 @@ PROTO NUgus [
                   HingeJoint {
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
+                      anchor 0.000000 0 0
                       dampingConstant 0.0
                       staticFriction 0.0
                     }
@@ -545,6 +548,7 @@ PROTO NUgus [
                       }
                     ]
                     endPoint Solid {
+                      translation 0.000000 -0.010000 0.005
                       rotation -1.000000 0.000000 0.000000 0.050000
                       children [
                         Shape {
@@ -940,6 +944,7 @@ PROTO NUgus [
             HingeJoint {
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0.000000
+                anchor 0.000000 0.000000 -0.055
                 dampingConstant 0.0
                 staticFriction 0.0
               }
@@ -956,6 +961,7 @@ PROTO NUgus [
                 }
               ]
               endPoint Solid {
+                translation 0.000000 0.000000 -0.055
                 rotation 0.000000 1.000000 0.000000 0.000000
                 children [
                   Shape {
@@ -981,6 +987,7 @@ PROTO NUgus [
                   HingeJoint {
                     jointParameters HingeJointParameters {
                       axis 1.000000 0.000000 0.000000
+                      anchor 0.000000 0 0.000000
                       dampingConstant 0.0
                       staticFriction 0.0
                     }
@@ -997,6 +1004,7 @@ PROTO NUgus [
                       }
                     ]
                     endPoint Solid {
+                      translation 0.000000 -0.010000 0.005
                       rotation -1.000000 0.000000 0.000000 0.050000
                       children [
                         Shape {
