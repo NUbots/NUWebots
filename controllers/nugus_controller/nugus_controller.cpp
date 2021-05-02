@@ -39,12 +39,6 @@
 
 #include "utility/tcp.hpp"
 
-#ifdef TURBOJPEG
-    #include <turbojpeg.h>
-#else
-    #include <jpeglib.h>
-#endif
-
 using namespace utility::tcp;
 using controller::nugus::AccelerometerMeasurement;
 using controller::nugus::ActuatorRequests;
@@ -72,23 +66,31 @@ public:
     }
 
     void run() {
+        int controller_time = 0;
+
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
             if (tcp_fd == -1) {
                 std::cerr << "Error: Failed to start TCP server, retrying ..." << std::endl;
                 tcp_fd = create_socket_server(server_port);
                 send(tcp_fd, "Welcome", 8, 0);
+                controller_time = 0;
                 continue;
             }
+            controller_time += this->getBasicTimeStep();
+
+            // Send data from the simulated robot hardware to the robot control software
+            sendData(controller_time);
+            
             // Check if we have received a message and deal with it if we have
             try {
                 handleReceived();
             }
             catch (const std::exception& e) {
+                std::cout << "didn't work" << std::endl;
                 continue;
             }
-            // Send data from the simulated robot hardware to the robot control software
-            sendData();
+            
         }
     }
 
@@ -124,14 +126,14 @@ public:
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 throw;
             }
-
+            
             // Parse message data
             ActuatorRequests actuatorRequests;
             if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
                 throw;
             }
-
+            std::cout << "got a message actuator requests" << std::endl;
             //------PARSE ACTUATOR REQUESTS MESSAGE-----------
             // For each motor in the message, get the motor and set the values for it
             for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
@@ -209,9 +211,15 @@ public:
         }
     }
 
-    void sendData() {
+    void sendData(int controller_time) {
         // Create the SensorMeasurements message
         auto sensorMeasurements = std::make_unique<SensorMeasurements>();
+
+        sensorMeasurements->set_time(controller_time);
+        struct timeval tp;
+        gettimeofday(&tp, NULL);
+        uint64_t real_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
+        sensorMeasurements->set_real_time(real_time);
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
         for (std::set<std::shared_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {

@@ -1388,6 +1388,7 @@ PROTO NUgus [
         translation 0.000000 0.000000 0.2
         children [
           Accelerometer {
+            name "accelerometer"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
@@ -1539,6 +1540,7 @@ PROTO NUgus [
               ]
           }
           Gyro {
+            name "gyroscope"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
