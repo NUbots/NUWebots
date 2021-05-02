@@ -1141,7 +1141,7 @@ PROTO NUgus [
                                     rotation 0.0 0.0 1.0 0.0
                                     children [
                                       Box {
-                                        size 0.06 0.08 0.065
+                                        size 0.04 0.08 0.065
                                       }
                                     ]
                                   }
@@ -1158,12 +1158,34 @@ PROTO NUgus [
                               }
                             ]
                             name "left_lower_leg"
-                            boundingObject Transform {
-                              translation 0.0 0.0175 -0.06749999999999999
-                              rotation 1.0 0.0 0.0 0.1745327073427288
+                            boundingObject Group {
                               children [
-                                Box {
-                                  size 0.06 0.065 0.165
+                                Transform {
+                                  translation 0 0 -0.0575
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.06 0.065 0.165
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation -0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation 0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -1180,12 +1202,34 @@ PROTO NUgus [
                         }
                       ]
                       name "left_upper_leg"
-                      boundingObject Transform {
-                        translation -0.000694 0.006100 -0.101326
-                        rotation 1.000000 0.000000 -0.000000 3.004779
+                      boundingObject Group {
                         children [
-                          Box {
-                             size 0.092446 0.096597 0.243083
+                          Transform {
+                            translation 0.0 -0.0132 -0.107
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.07 0.037 0.104
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation -0.0375 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation 0.037500000000000006 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
                           }
                         ]
                       }
