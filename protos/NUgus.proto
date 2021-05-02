@@ -591,7 +591,7 @@ PROTO NUgus [
                             }
                           ]
                           endPoint Solid {
-                            translation 0.000000 0.009990 -0.199750
+                            translation 0.000000 0 -0.2
                             rotation 1.000000 0.000000 0.000000 0.050000
                             children [
                               Shape {
@@ -857,11 +857,11 @@ PROTO NUgus [
                 ]
                 name "right_hip_roll"
                 boundingObject Transform {
-                  translation -0.000034 0.004316 -0.007293
-                  rotation 0.000000 0.707107 0.707107 3.141593
+                  translation 0.0 0.0025000000000000022 -0.0075
+                  rotation 0.0 0.0 1.0 0.0
                   children [
                     Box {
-                       size 0.061434 0.066525 0.094015
+                      size 0.035 0.085 0.065
                     }
                   ]
                 }
@@ -878,12 +878,35 @@ PROTO NUgus [
             }
           ]
           name "right_hip_yaw"
-          boundingObject Transform {
-            translation 0.007088 0.000193 -0.034942
-            rotation 0.577762 -0.572669 -0.581585 4.172751
+          boundingObject Group {
             children [
-              Box {
-                 size 0.072956 0.093692 0.108128
+              Transform {
+                translation 0.0 0.0 -0.015
+                rotation 1.0 0.0 0.0 1.5707963267948966
+                children [
+                  Cylinder {
+                    height 0.03
+                    radius 0.054
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 -0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
               }
             ]
           }
@@ -1047,7 +1070,7 @@ PROTO NUgus [
                             }
                           ]
                           endPoint Solid {
-                            translation 0.000000 0.009490 -0.189760
+                            translation 0.000000 0 -0.2
                             rotation 1.000000 0.000000 0.000000 0.050000
                             children [
                               Shape {
@@ -1313,11 +1336,11 @@ PROTO NUgus [
                 ]
                 name "left_hip_roll"
                 boundingObject Transform {
-                  translation 0.000034 0.004316 -0.007293
-                  rotation -1.000000 0.000000 -0.000000 1.570796
+                  translation 0.0 0.0025000000000000022 -0.0075
+                  rotation 0.0 0.0 1.0 0.0
                   children [
                     Box {
-                       size 0.061434 0.066525 0.094015
+                      size 0.035 0.085 0.065
                     }
                   ]
                 }
@@ -1334,12 +1357,35 @@ PROTO NUgus [
             }
           ]
           name "left_hip_yaw"
-          boundingObject Transform {
-            translation -0.006922 0.000263 -0.034947
-            rotation 0.581640 0.561666 0.588410 4.153285
+          boundingObject Group {
             children [
-              Box {
-                 size 0.073451 0.096899 0.110830
+              Transform {
+                translation 0.0 0.0 -0.015
+                rotation 1.0 0.0 0.0 1.5707963267948966
+                children [
+                  Cylinder {
+                    height 0.03
+                    radius 0.054
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 -0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
               }
             ]
           }
