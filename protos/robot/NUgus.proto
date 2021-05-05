@@ -1274,7 +1274,7 @@ PROTO NUgus [
                       creaseAngle 1
                     }
                   }
-                  Transform {
+                  DEF neck_transform Transform {
                     translation 0.000000 0.000000 0.000000
                     rotation 0.000000 0.000000 1.000000 -1.570790
                     children [

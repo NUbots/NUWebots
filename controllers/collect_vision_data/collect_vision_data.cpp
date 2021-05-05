@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
             // World to torso transformation
             Eigen::Affine3d Htw;
             Htw.linear() = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
-            Htw.translation() = Eigen::Vector3d(newPos.data());
+            Htw.translation() = Htw.rotation() * -Eigen::Vector3d(newPos.data());
 
             // Get TORSO TO NECK
             // relative to torso, torso to neck
@@ -156,19 +156,35 @@ int main(int argc, char** argv) {
 
             // Homogenous transformation of the neck to the robot's torso
             Eigen::Affine3d Hnt;
-            Hnt.translation() = Eigen::Vector3d(rNTt[0], rNTt[1], rNTt[2]);
             Hnt.linear() = Eigen::AngleAxisd(Rnt[3], Eigen::Vector3d(Rnt[0], Rnt[1], Rnt[2])).toRotationMatrix();
+            Hnt.translation() = Hnt.rotation() * -Eigen::Vector3d(rNTt[0], rNTt[1], rNTt[2]);
 
-            // Get NECK TO CAMERA
-            const double* rCNn = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
-            const double* Rcn = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
+
+            // Get NECK TO TRANSFORM
+            // relative to torso, torso to neck
+            const double* rXNn = robot.getFromProtoDef("neck_transform")->getField("translation")->getSFVec3f();
+            // Rtn, torso to neck
+            const double* Rxn = robot.getFromProtoDef("neck_transform")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
+
+            // Homogenous transformation of the neck to the robot's torso
+            Eigen::Affine3d Hxn;
+            Hxn.linear() = Eigen::AngleAxisd(Rxn[3], Eigen::Vector3d(Rxn[0], Rxn[1], Rxn[2])).toRotationMatrix();
+            Hxn.translation() = Hxn.rotation() * -Eigen::Vector3d(rXNn[0], rXNn[1], rXNn[2]);
+
+
+            // Get TRANSFORM TO CAMERA
+            // const double* rCXn = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
+            // const double* Rcx = robot.getFromProtoDef("right_camera")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
             
-            Eigen::Affine3d Hcn;
-            Hcn.translation() = Eigen::Vector3d(rCNn[0], rCNn[1], rCNn[2]);
+            Eigen::Affine3d Hcx;
 
-            Hcn.linear() = Eigen::AngleAxisd(Rcn[3], Eigen::Vector3d(Rcn[0], Rcn[1], Rcn[2])).toRotationMatrix();
+            Hcx.linear() = Eigen::AngleAxisd(2* M_PI / 180, Eigen::Vector3d(0,1,0)).toRotationMatrix();
+            Hcx.translation() = Eigen::Vector3d(0.069952, 0.033795, 0.06488);
 
-            Eigen::Affine3d Hcw = (Hcn * Hnt) * Htw;
+            // Hcx.linear() = Eigen::AngleAxisd(Rcx[3], Eigen::Vector3d(Rcx[0], Rcx[1], Rcx[2])).toRotationMatrix();
+            // Hcx.translation() = Hcx.rotation() * -Eigen::Vector3d(rCXn[0], rCXn[1], rCXn[2]);
+
+            Eigen::Affine3d Hcw = (Hcx * (Hxn * (Hnt * Htw)));
 
             // Hoc.linear() = Roc.matrix();
             // // TODO(YsobelSims) should this vector be negated?? this might be rWCc or rCWc or some other thing kip didn't think of
@@ -191,15 +207,15 @@ int main(int argc, char** argv) {
             YAML::Emitter lensYaml;  // create the node
             lensYaml << YAML::BeginMap;
             lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            lensYaml << YAML::Key << "focal_length" << YAML::Value << left_camera->getFocalLength();
+            lensYaml << YAML::Key << "focal_length" << YAML::Value << 420;
             lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
             lensYaml << YAML::Key << "Hoc" << YAML::Value;
             lensYaml << YAML::BeginSeq;
-            lensYaml << YAML::Flow << std::vector({Hcw(0, 0), Hcw(0, 1), Hcw(0, 2), newPos[0]});
-            lensYaml << YAML::Flow << std::vector({Hcw(1, 0), Hcw(1, 1), Hcw(1, 2), newPos[1]});
-            lensYaml << YAML::Flow << std::vector({Hcw(2, 0), Hcw(2, 1), Hcw(2, 2), newPos[2]});
+            lensYaml << YAML::Flow << std::vector({Hcw(0, 0), Hcw(0, 1), Hcw(0, 2), Hcw(0,3)});
+            lensYaml << YAML::Flow << std::vector({Hcw(1, 0), Hcw(1, 1), Hcw(1, 2), Hcw(1,3)});
+            lensYaml << YAML::Flow << std::vector({Hcw(2, 0), Hcw(2, 1), Hcw(2, 2), Hcw(2,3)});
             lensYaml << YAML::Flow << YAML::BeginSeq << 0 << 0 << 0 << 1 << YAML::EndSeq;
             lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
