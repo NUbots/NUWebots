@@ -731,6 +731,114 @@ PROTO NUgus [
                                               creaseAngle 1
                                             }
                                           }
+                                          TouchSensor {
+                                            translation -0.0575 0.025 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_br"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation 0.041 0.025 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_bl"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation -0.0575 -0.154 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_fr"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation 0.0409 -0.154 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_fl"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
                                         ]
                                         name "right_foot [foot]"
                                         boundingObject USE right_foot
@@ -1095,6 +1203,114 @@ PROTO NUgus [
                                               ]
                                               creaseAngle 1
                                             }
+                                          }
+                                          TouchSensor {
+                                            translation -0.041 0.025 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "left_touch_sensor_br"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation 0.057 0.025 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "left_touch_sensor_bl"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation 0.057 -0.154 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "left_touch_sensor_fl"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
+                                          }
+                                          TouchSensor {
+                                            translation -0.041 -0.154 -0.061
+                                            rotation 0 0 0 0
+                                            children [
+                                              Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                                geometry Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "left_touch_sensor_fr"
+                                            boundingObject Box{
+                                              size 0.01 0.01 0.005
+                                            }
+                                            physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            type "force-3d"
                                           }
                                         ]
                                         name "left_foot [foot]"
