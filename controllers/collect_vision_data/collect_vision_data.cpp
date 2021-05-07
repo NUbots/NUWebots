@@ -151,22 +151,22 @@ int main(int argc, char** argv) {
             // Get TORSO TO NECK
             // relative to torso, torso to neck
             const double* rNTt = robot.getFromProtoDef("neck_solid")->getField("translation")->getSFVec3f();
-            // Rtn, torso to neck
+            // Rtn, torso to neck - Head Yaw?
             const double* Rnt = robot.getFromProtoDef("neck_solid")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
 
-            // Homogenous transformation of the neck to the robot's torso
+            // Homogenous transformation of the neck to the robot's torso - Matrix from torso to head yaw
             Eigen::Affine3d Hnt;
             Hnt.linear() = Eigen::AngleAxisd(Rnt[3], Eigen::Vector3d(Rnt[0], Rnt[1], Rnt[2])).toRotationMatrix();
             Hnt.translation() = Hnt.rotation() * -Eigen::Vector3d(rNTt[0], rNTt[1], rNTt[2]);
 
 
-            // Get NECK TO TRANSFORM
+            // Get NECK TO TRANSFORM - Head yaw to head pitch
             // relative to torso, torso to neck
             const double* rXNn = robot.getFromProtoDef("neck_transform")->getField("translation")->getSFVec3f();
             // Rtn, torso to neck
             const double* Rxn = robot.getFromProtoDef("neck_transform")->getField("rotation")->getSFRotation();  // Rotation is interpreted as [rx, ry, rz, \alpha]
 
-            // Homogenous transformation of the neck to the robot's torso
+            // Homogenous transformation of the neck to the robot's torso - Matrix from head yaw to head pitch
             Eigen::Affine3d Hxn;
             Hxn.linear() = Eigen::AngleAxisd(Rxn[3], Eigen::Vector3d(Rxn[0], Rxn[1], Rxn[2])).toRotationMatrix();
             Hxn.translation() = Hxn.rotation() * -Eigen::Vector3d(rXNn[0], rXNn[1], rXNn[2]);
