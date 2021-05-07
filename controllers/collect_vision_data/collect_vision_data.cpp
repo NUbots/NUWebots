@@ -119,12 +119,17 @@ int main(int argc, char** argv) {
         // If the robot teleports into an existing object it may run into issues for that
         // image only, after resetPhysics is should return to a regular state
         std::array<double, 3> newPos;
-        newPos[0] = 5.4 - xDistrib(gen) / 100;
-        newPos[1] = 3.8 - yDistrib(gen) / 100;
-        newPos[2] = 0.51 - zDistrib(gen) / 100;
+        newPos[0] = 0.0; // 5.4 - xDistrib(gen) / 100;
+        newPos[1] = 0.0; // 3.8 - yDistrib(gen) / 100;
+        newPos[2] = 0.51; // - zDistrib(gen) / 100;
 
         // Set new location
         robot_translation_field.setSFVec3f(newPos.data());
+        supervisor.step(time_step);
+
+        // const double* values = robot_translation_field.getSFVec3f();
+        // std::cout << values[0] << ", " << values[1] << ", " << values[2] << std::endl;
+        // std::cout << newPos[0] << ", " << newPos[1] << ", " << newPos[2] << std::endl;
 
         // Grab the current rotation field of the robot to modify
         webots::Field& robot_rotation_field = *(robot.getField("rotation"));
@@ -133,20 +138,23 @@ int main(int argc, char** argv) {
 
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
+            const std::array<double, 4> rotationX = rotation; // { 1.000000, 0.000000, 0.0, 0 };
 
             //-----------SET ROTATION----------//
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field.setSFRotation(rotation.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
+            robot_rotation_field.setSFRotation(rotationX.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
             robot.resetPhysics();
 
             // TODO(KipHamiltons) verify this is the right rotation - as in, verify is Roc, not Rco, and that the encoding of xyzw is the same order here
             // Get WORLD TO TORSO
             // World to torso transformation
             Eigen::Affine3d Htw;
-            Htw.linear() = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
+            Htw.linear() = Eigen::AngleAxisd(rotationX[3], Eigen::Vector3d(rotationX[0], rotationX[1], rotationX[2])).toRotationMatrix();
             Htw.translation() = Htw.rotation() * -Eigen::Vector3d(newPos.data());
+
+            std::cout << "Htw " << std::endl << Htw.matrix() << std::endl << std::endl;
 
             // Get TORSO TO NECK
             // relative to torso, torso to neck
@@ -158,6 +166,8 @@ int main(int argc, char** argv) {
             Eigen::Affine3d Hnt;
             Hnt.linear() = Eigen::AngleAxisd(Rnt[3], Eigen::Vector3d(Rnt[0], Rnt[1], Rnt[2])).toRotationMatrix();
             Hnt.translation() = Hnt.rotation() * -Eigen::Vector3d(rNTt[0], rNTt[1], rNTt[2]);
+
+            std::cout << "Hnt " << std::endl << Hnt.matrix() << std::endl << std::endl;
 
 
             // Get NECK TO TRANSFORM - Head yaw to head pitch
@@ -171,6 +181,7 @@ int main(int argc, char** argv) {
             Hxn.linear() = Eigen::AngleAxisd(Rxn[3], Eigen::Vector3d(Rxn[0], Rxn[1], Rxn[2])).toRotationMatrix();
             Hxn.translation() = Hxn.rotation() * -Eigen::Vector3d(rXNn[0], rXNn[1], rXNn[2]);
 
+            std::cout << "Hxn " << std::endl << Hxn.matrix() << std::endl << std::endl;
 
             // Get TRANSFORM TO CAMERA
             // const double* rCXn = robot.getFromProtoDef("right_camera")->getField("translation")->getSFVec3f();
@@ -179,12 +190,26 @@ int main(int argc, char** argv) {
             Eigen::Affine3d Hcx;
 
             Hcx.linear() = Eigen::AngleAxisd(2* M_PI / 180, Eigen::Vector3d(0,1,0)).toRotationMatrix();
-            Hcx.translation() = Eigen::Vector3d(0.069952, 0.033795, 0.06488);
+            Hcx.translation() = Hcx.rotation() * -Eigen::Vector3d(0.069952, 0.033795, 0.06488);
+
+            std::cout << "Hcx " << std::endl << Hcx.matrix() << std::endl << std::endl;
 
             // Hcx.linear() = Eigen::AngleAxisd(Rcx[3], Eigen::Vector3d(Rcx[0], Rcx[1], Rcx[2])).toRotationMatrix();
             // Hcx.translation() = Hcx.rotation() * -Eigen::Vector3d(rCXn[0], rCXn[1], rCXn[2]);
 
+            std::cout << "(Hnt * Htw) " << std::endl << (Hnt * Htw).matrix() << std::endl << std::endl;
+            std::cout << "(Hxn * (Hnt * Htw)) " << std::endl << (Hxn * (Hnt * Htw)).matrix() << std::endl << std::endl;
+            std::cout << "(Hcx * (Hxn * (Hnt * Htw))) " << std::endl << (Hcx * (Hxn * (Hnt * Htw))).matrix() << std::endl << std::endl;
+
             Eigen::Affine3d Hcw = (Hcx * (Hxn * (Hnt * Htw)));
+            Eigen::Affine3d Hwc = Hcw.inverse();
+
+            // This fixes roll being inverted, but we're not sure why
+            // Hwc.linear() = Hwc.rotation().transpose();
+
+
+            std::cout << "Hcw " << std::endl << Hcw.matrix() << std::endl << std::endl;
+            std::cout << "Hwc " << std::endl << Hwc.matrix() << std::endl << std::endl;
 
             // Hoc.linear() = Roc.matrix();
             // // TODO(YsobelSims) should this vector be negated?? this might be rWCc or rCWc or some other thing kip didn't think of
@@ -203,6 +228,12 @@ int main(int argc, char** argv) {
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", QUALITY);
 
+            // For some reason the first iteration has the robot in the wrong position
+            if (count == 0) {
+                count++;
+                continue;
+            }
+
             // Prepare the lens data
             YAML::Emitter lensYaml;  // create the node
             lensYaml << YAML::BeginMap;
@@ -213,9 +244,9 @@ int main(int argc, char** argv) {
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
             lensYaml << YAML::Key << "Hoc" << YAML::Value;
             lensYaml << YAML::BeginSeq;
-            lensYaml << YAML::Flow << std::vector({Hcw(0, 0), Hcw(0, 1), Hcw(0, 2), Hcw(0,3)});
-            lensYaml << YAML::Flow << std::vector({Hcw(1, 0), Hcw(1, 1), Hcw(1, 2), Hcw(1,3)});
-            lensYaml << YAML::Flow << std::vector({Hcw(2, 0), Hcw(2, 1), Hcw(2, 2), Hcw(2,3)});
+            lensYaml << YAML::Flow << std::vector({Hwc(0, 0), Hwc(0, 1), Hwc(0, 2), Hwc(0,3)});
+            lensYaml << YAML::Flow << std::vector({Hwc(1, 0), Hwc(1, 1), Hwc(1, 2), Hwc(1,3)});
+            lensYaml << YAML::Flow << std::vector({Hwc(2, 0), Hwc(2, 1), Hwc(2, 2), Hwc(2,3)});
             lensYaml << YAML::Flow << YAML::BeginSeq << 0 << 0 << 0 << 1 << YAML::EndSeq;
             lensYaml << YAML::EndSeq;
             lensYaml << YAML::EndMap;
