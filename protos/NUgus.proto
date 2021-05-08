@@ -756,7 +756,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation 0.041 0.025 -0.061
@@ -783,7 +783,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation -0.0575 -0.154 -0.061
@@ -810,7 +810,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation 0.0409 -0.154 -0.061
@@ -837,7 +837,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                         ]
                                         name "right_foot [foot]"
@@ -1229,7 +1229,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation 0.057 0.025 -0.061
@@ -1256,7 +1256,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation 0.057 -0.154 -0.061
@@ -1283,7 +1283,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                           TouchSensor {
                                             translation -0.041 -0.154 -0.061
@@ -1310,7 +1310,7 @@ PROTO NUgus [
                                               density -1
                                               mass 0.02
                                             }
-                                            type "force-3d"
+                                            type "bumper"
                                           }
                                         ]
                                         name "left_foot [foot]"
