@@ -1304,25 +1304,6 @@ PROTO NUgus [
                         fieldOfView 1.5707
                         width 640
                         height 480
-                        spherical FALSE
-                        noise 0.000000001
-                        motionBlur 32
-                        lens Lens {
-                          center 0.5 0.5   # [0, 1] [0, 1]
-                          radialCoefficients 0 0       # any vector
-                          tangentialCoefficients 0 0       # any vector
-                        }
-                        focus Focus {
-                          focalDistance    0.0
-                          focalLength      0.00198
-                          maxFocalDistance 4.5   # [0, inf)
-                          minFocalDistance 0.1   # [0, inf)
-                        }
-                        recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
-                          segmentation TRUE
-                        }
                       }
                       Camera {
                         name "left_camera"
@@ -1331,25 +1312,6 @@ PROTO NUgus [
                         fieldOfView 1.5707
                         width 640
                         height 480
-                        spherical FALSE
-                        noise 0.000000001
-                        motionBlur 32
-                        lens Lens {
-                          center 0.5 0.5   # [0, 1] [0, 1]
-                          radialCoefficients 0 0       # any vector
-                          tangentialCoefficients 0 0       # any vector
-                        }
-                        focus Focus {
-                          focalDistance    0.0   # [0, inf)
-                          focalLength      0.00198   # [0, inf)
-                          maxFocalDistance 4.5   # [0, inf)
-                          minFocalDistance 0.1   # [0, inf)
-                        }
-                        recognition Recognition {
-                          frameColor 0 0 1
-                          frameThickness 3
-                          segmentation TRUE
-                        }
                       }
                     ]
                   }
