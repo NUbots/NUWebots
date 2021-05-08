@@ -1352,18 +1352,6 @@ PROTO NUgus [
             zAxis TRUE
             resolution 0.002
             lookupTable [ 
-              # MODDELING LUT OF ISS331dlh
-              # Accel (m/s/s) Return Value (RV: -32768 to 32767 (16 bit 2s-compliment))
-              # Noise(% of RV -> ~218ug/root(400(Hz))) 
-              # Noise values calculated such that RV value deviates 35.717
-              # CALCULATION:
-              # 218e-6 * root(400) = 4.36e-3 g of noise
-              # For g = 4, 4.36e-3 is approx 0.109%
-              # Assuming RV worst case Deviation (35.171 or 0.109% of 32768) is equilivant throughout:
-              # Noise in percent = 35.171/RV (% of RV)
-              # NOTE: 
-              # This model assumes noise is equilivant for all values not in saturation
-              # This model assumes that the accelerometer is sampled at 400Hz
               -4.0625	0	0
               -4		0	0
               -3.9375	512	0.06976
@@ -1503,18 +1491,6 @@ PROTO NUgus [
             zAxis TRUE
             resolution 0.0175
             lookupTable [ 
-              # MODDELING LUT OF L3G4200D
-              # Gyro (degrees/s) Return Value (RV: -32768 to 32767 (16 bit 2s-compliment))
-              # Noise(% of RV -> ~30mdps/root(400(Hz)))
-              # Noise values calculated such that RV value deviates 0.6dps 0.12%
-              #	CALCULATION:
-              #	30e-3 * root(400) = 0.6 dps of noise
-              #	For dps = 500, 0.6 is approx 0.12%
-              #	Assuming RV worst case Deviation (39.3216 or 0.12% of 32768) is equilivant throughout:
-              # Noise in percent = 39.3216/RV (% of RV)
-              # NOTE: 
-              # This model assumes noise is equilivant for all values not in saturation
-              # This model assumes that the Gyroscope is sampled at 400Hz
               -507.8125	0	0
               -500	0	0
               -492.1875	512	0.076804688
