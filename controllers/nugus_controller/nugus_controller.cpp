@@ -138,11 +138,21 @@ public:
                 const MotorPID motorPID = actuatorRequests.motor_pids(i);
                 webots::Motor* motor    = this->getMotor(motorPID.name());
                 if (motor != nullptr) {
-                    motor->setPosition(actuatorRequests.motor_positions(i).position());
-                    motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
-                    motor->setForce(actuatorRequests.motor_forces(i).force());
-                    motor->setTorque(actuatorRequests.motor_torques(i).torque());
-                    motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
+                    if (i < actuatorRequests.motor_positions_size()) {
+                        motor->setPosition(actuatorRequests.motor_positions(i).position());
+                    }
+                    if (i < actuatorRequests.motor_velocities_size()) {
+                        motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
+                    }
+                    if (i < actuatorRequests.motor_forces_size()) {
+                        motor->setForce(actuatorRequests.motor_forces(i).force());
+                    }
+                    if (i < actuatorRequests.motor_torques_size()) {
+                        motor->setTorque(actuatorRequests.motor_torques(i).torque());
+                    }
+                    if (i < actuatorRequests.motor_pids_size()) {
+                        motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
+                    }
                 }
 
                 // For each camera in the message, set the exposure
