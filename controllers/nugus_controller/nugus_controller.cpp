@@ -81,7 +81,7 @@ public:
 
             // Send data from the simulated robot hardware to the robot control software
             sendData(controller_time);
-            
+
             // Check if we have received a message and deal with it if we have
             try {
                 handleReceived();
@@ -90,7 +90,6 @@ public:
                 std::cout << "didn't work" << std::endl;
                 continue;
             }
-            
         }
     }
 
@@ -126,20 +125,19 @@ public:
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 throw;
             }
-            
+
             // Parse message data
             ActuatorRequests actuatorRequests;
             if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
                 throw;
             }
-            std::cout << "got a message actuator requests" << std::endl;
             //------PARSE ACTUATOR REQUESTS MESSAGE-----------
             // For each motor in the message, get the motor and set the values for it
             for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
                 const MotorPID motorPID = actuatorRequests.motor_pids(i);
-                std::unique_ptr<webots::Motor> motor(this->getMotor(motorPID.name()));
-                if (motor) {
+                webots::Motor* motor    = this->getMotor(motorPID.name());
+                if (motor != nullptr) {
                     motor->setPosition(actuatorRequests.motor_positions(i).position());
                     motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
                     motor->setForce(actuatorRequests.motor_forces(i).force());
@@ -150,16 +148,17 @@ public:
                 // For each camera in the message, set the exposure
                 for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
                     const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
-                    std::unique_ptr<webots::Camera> camera(this->getCamera(cameraExposure.name()));
-                    if (camera) {
+                    webots::Camera* camera              = this->getCamera(cameraExposure.name());
+                    if (camera != nullptr) {
                         camera->setExposure(cameraExposure.exposure());
                     }
                 }
+
                 // For each time step message sent, we enable that device if the value exists
                 for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
                     const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
-                    std::shared_ptr<webots::Device> device(this->getDevice(sensorTimeStep.name()));
-                    if (device) {
+                    webots::Device* device              = this->getDevice(sensorTimeStep.name());
+                    if (device != nullptr) {
                         const int sensor_time_step = sensorTimeStep.timestep();
                         // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
                         // remove it
@@ -222,12 +221,11 @@ public:
         sensorMeasurements->set_real_time(real_time);
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
-        for (std::set<std::shared_ptr<webots::Device>>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
+        for (std::set<webots::Device*>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
             // Try to cast to an accelerometer and if it works, add the accelerometer values to the SensorMeasurement
             // message
-            std::shared_ptr<webots::Accelerometer> accelerometer =
-                std::dynamic_pointer_cast<webots::Accelerometer>(*it);
-            if (accelerometer) {
+            webots::Accelerometer* accelerometer = reinterpret_cast<webots::Accelerometer*>(*it);
+            if (accelerometer != nullptr) {
                 if (time_step % accelerometer->getSamplingPeriod()) {
                     continue;
                 }
@@ -241,8 +239,8 @@ public:
                 continue;
             }
             // Try to cast to a camera and if it works, add the camera values to the SensorMeasurement message
-            std::shared_ptr<webots::Camera> camera = std::dynamic_pointer_cast<webots::Camera>(*it);
-            if (camera) {
+            webots::Camera* camera = reinterpret_cast<webots::Camera*>(*it);
+            if (camera != nullptr) {
                 if (time_step % camera->getSamplingPeriod()) {
                     continue;
                 }
@@ -255,8 +253,8 @@ public:
                 continue;
             }
             // Try to cast to a gyroscope and if it works, add the gyroscope values to the SensorMeasurement message
-            std::shared_ptr<webots::Gyro> gyro = std::dynamic_pointer_cast<webots::Gyro>(*it);
-            if (gyro) {
+            webots::Gyro* gyro = reinterpret_cast<webots::Gyro*>(*it);
+            if (gyro != nullptr) {
                 if (time_step % gyro->getSamplingPeriod()) {
                     continue;
                 }
@@ -271,9 +269,8 @@ public:
             }
             // Try to cast to a position sensor and if it works, add the position sensor values to the SensorMeasurement
             // message
-            std::shared_ptr<webots::PositionSensor> position_sensor =
-                std::dynamic_pointer_cast<webots::PositionSensor>(*it);
-            if (position_sensor) {
+            webots::PositionSensor* position_sensor = reinterpret_cast<webots::PositionSensor*>(*it);
+            if (position_sensor != nullptr) {
                 if (time_step % position_sensor->getSamplingPeriod()) {
                     continue;
                 }
@@ -284,8 +281,8 @@ public:
             }
             // Try to cast to a touch sensor and if it works, add the touch sensor values to the SensorMeasurement
             // message
-            std::shared_ptr<webots::TouchSensor> touch_sensor = std::dynamic_pointer_cast<webots::TouchSensor>(*it);
-            if (touch_sensor) {
+            webots::TouchSensor* touch_sensor = reinterpret_cast<webots::TouchSensor*>(*it);
+            if (touch_sensor != nullptr) {
                 if (time_step % touch_sensor->getSamplingPeriod()) {
                     continue;
                 }
@@ -342,7 +339,7 @@ private:
     /// File descriptor to use for the TCP connection
     int tcp_fd;
     /// Set of robot sensors
-    std::set<std::shared_ptr<webots::Device>> sensors;
+    std::set<webots::Device*> sensors;
 };
 
 
