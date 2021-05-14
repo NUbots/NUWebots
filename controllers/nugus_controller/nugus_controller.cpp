@@ -154,64 +154,64 @@ public:
                         motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
                     }
                 }
+            }
 
-                // For each camera in the message, set the exposure
-                for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
-                    const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
-                    webots::Camera* camera              = this->getCamera(cameraExposure.name());
-                    if (camera != nullptr) {
-                        camera->setExposure(cameraExposure.exposure());
-                    }
+            // For each camera in the message, set the exposure
+            for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
+                const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
+                webots::Camera* camera              = this->getCamera(cameraExposure.name());
+                if (camera != nullptr) {
+                    camera->setExposure(cameraExposure.exposure());
                 }
+            }
 
-                // For each time step message sent, we enable that device if the value exists
-                for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
-                    const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
-                    webots::Device* device              = this->getDevice(sensorTimeStep.name());
-                    if (device != nullptr) {
-                        const int sensor_time_step = sensorTimeStep.timestep();
-                        // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
-                        // remove it
-                        if (sensor_time_step) {
-                            sensors.insert(device);
-                        }
-                        else {
-                            sensors.erase(device);
-                        }
-                        // Check if the time step is value
-                        bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < this->getBasicTimeStep())
-                                               || (sensor_time_step % int(this->getBasicTimeStep()) != 0);
-                        if (valid_time_step) {
-                            // Given a valid time step, enable the corresponding device
-                            switch (device->getNodeType()) {
-                                case webots::Node::ACCELEROMETER: {
-                                    std::unique_ptr<webots::Accelerometer> accelerometer(
-                                        this->getAccelerometer(sensorTimeStep.name()));
-                                    accelerometer->enable(sensor_time_step);
-                                    break;
-                                }
-                                case webots::Node::CAMERA: {
-                                    std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
-                                    camera->enable(sensor_time_step);
-                                    break;
-                                }
-                                case webots::Node::GYRO: {
-                                    std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
-                                    gyro->enable(sensor_time_step);
-                                    break;
-                                }
-                                case webots::Node::POSITION_SENSOR: {
-                                    std::unique_ptr<webots::PositionSensor> positionSensor(
-                                        this->getPositionSensor(sensorTimeStep.name()));
-                                    positionSensor->enable(sensor_time_step);
-                                    break;
-                                }
-                                case webots::Node::TOUCH_SENSOR: {
-                                    std::unique_ptr<webots::TouchSensor> touchSensor(
-                                        this->getTouchSensor(sensorTimeStep.name()));
-                                    touchSensor->enable(sensor_time_step);
-                                    break;
-                                }
+            // For each time step message sent, we enable that device if the value exists
+            for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
+                const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
+                webots::Device* device              = this->getDevice(sensorTimeStep.name());
+                if (device != nullptr) {
+                    const int sensor_time_step = sensorTimeStep.timestep();
+                    // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
+                    // remove it
+                    if (sensor_time_step) {
+                        sensors.insert(device);
+                    }
+                    else {
+                        sensors.erase(device);
+                    }
+                    // Check if the time step is value
+                    bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < this->getBasicTimeStep())
+                                           || (sensor_time_step % int(this->getBasicTimeStep()) != 0);
+                    if (valid_time_step) {
+                        // Given a valid time step, enable the corresponding device
+                        switch (device->getNodeType()) {
+                            case webots::Node::ACCELEROMETER: {
+                                std::unique_ptr<webots::Accelerometer> accelerometer(
+                                    this->getAccelerometer(sensorTimeStep.name()));
+                                accelerometer->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::CAMERA: {
+                                std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
+                                camera->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::GYRO: {
+                                std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
+                                gyro->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::POSITION_SENSOR: {
+                                std::unique_ptr<webots::PositionSensor> positionSensor(
+                                    this->getPositionSensor(sensorTimeStep.name()));
+                                positionSensor->enable(sensor_time_step);
+                                break;
+                            }
+                            case webots::Node::TOUCH_SENSOR: {
+                                std::unique_ptr<webots::TouchSensor> touchSensor(
+                                    this->getTouchSensor(sensorTimeStep.name()));
+                                touchSensor->enable(sensor_time_step);
+                                break;
                             }
                         }
                     }
