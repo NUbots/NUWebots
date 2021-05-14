@@ -91,6 +91,15 @@ int main(int argc, char** argv) {
     right_camera->enableRecognitionSegmentation();
     left_camera->enableRecognitionSegmentation();
 
+    int camera_width = left_camera->getWidth();
+    int camera_height = left_camera->getHeight();
+    double horizontal_fov = left_camera->getFov();
+    double vertical_fov = 2 * std::atan(std::tan(horizontal_fov * 0.5) * ((double) camera_height / camera_width));
+
+    double focal_length_px = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
+
+    std::cout << "focal_length_px: " << focal_length_px << std::endl;
+
     // Create directories for saving data
     std::filesystem::create_directories("./data/data_mono");
     std::filesystem::create_directories("./data/data_stereo");
@@ -238,7 +247,7 @@ int main(int argc, char** argv) {
             YAML::Emitter lensYaml;  // create the node
             lensYaml << YAML::BeginMap;
             lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            lensYaml << YAML::Key << "focal_length" << YAML::Value << 420;
+            lensYaml << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
             lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
             lensYaml << YAML::Key << "fov" << YAML::Value << left_camera->getFov();
