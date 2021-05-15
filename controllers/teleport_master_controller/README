@@ -1,0 +1,17 @@
+To use this controller, first assign a unique DEF name for each of the robots
+    that you want to control. Also set the supervisor field to TRUE.
+
+Next, add a new Robot Node to the webots world
+(Right click, Add New, Base Nodes, Robot)
+
+Set this new Robot arguments as follows
+    - DEF = "control" 
+    - controller = teleport_master_controller
+    - controllerArgs[0] = "control"
+    - supervisor = TRUE
+    
+You should also add controllerArgs arguments following argument 0 such that they
+    match the DEF names of the robots that you want to control with this
+    particular master controller.
+
+
