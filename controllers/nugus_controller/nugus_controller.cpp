@@ -28,6 +28,7 @@
 #include <vector>
 #include <webots/Accelerometer.hpp>
 #include <webots/Camera.hpp>
+#include <webots/Device.hpp>
 #include <webots/Gyro.hpp>
 #include <webots/Motor.hpp>
 #include <webots/Node.hpp>
@@ -179,10 +180,25 @@ public:
                     else {
                         sensors.erase(device);
                     }
-                    // Check if the time step is value
-                    bool valid_time_step = (sensor_time_step != 0 && sensor_time_step < this->getBasicTimeStep())
-                                           || (sensor_time_step % int(this->getBasicTimeStep()) != 0);
-                    if (valid_time_step) {
+                    // Warn if the time step is non-zero and smaller than the basic time step
+                    // which shouldn't happen because smaller steps indicate the basic time step
+                    // is not "basic"
+                    const int basic_time_step = this->getBasicTimeStep();
+                    if (sensor_time_step != 0 && sensor_time_step < basic_time_step) {
+                        std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be greater or equal to "
+                                         + std::to_string(basic_time_step) + ", ignoring "
+                                         + std::to_string(sensor_time_step) + " value."
+                                  << std::endl;
+                    }
+                    // Warn if the time step is not a multiple of the basic time step
+                    // The time step should be some multiple of the basic time step
+                    else if (sensor_time_step % basic_time_step != 0) {
+                        std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be a multiple of "
+                                         + std::to_string(basic_time_step) + ", ignoring "
+                                         + std::to_string(sensor_time_step) + " value."
+                                  << std::endl;
+                    }
+                    else {
                         // Given a valid time step, enable the corresponding device
                         switch (device->getNodeType()) {
                             case webots::Node::ACCELEROMETER: {
@@ -232,96 +248,101 @@ public:
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
         for (std::set<webots::Device*>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
-            // Try to cast to an accelerometer and if it works, add the accelerometer values to the SensorMeasurement
-            // message
-            webots::Accelerometer* accelerometer = reinterpret_cast<webots::Accelerometer*>(*it);
-            if (accelerometer != nullptr) {
-                if (time_step % accelerometer->getSamplingPeriod()) {
-                    continue;
-                }
-                AccelerometerMeasurement measurement = *sensorMeasurements->add_accelerometers();
-                measurement.set_name(accelerometer->getName());
-                const double* values = accelerometer->getValues();
-                Vector3 vector3      = *measurement.mutable_value();
-                vector3.set_x(values[0]);
-                vector3.set_y(values[1]);
-                vector3.set_z(values[2]);
-                continue;
-            }
-            // Try to cast to a camera and if it works, add the camera values to the SensorMeasurement message
-            webots::Camera* camera = reinterpret_cast<webots::Camera*>(*it);
-            if (camera != nullptr) {
-                if (time_step % camera->getSamplingPeriod()) {
-                    continue;
-                }
-                CameraMeasurement measurement = *sensorMeasurements->add_cameras();
-                measurement.set_name(camera->getName());
-                measurement.set_width(camera->getWidth());
-                measurement.set_height(camera->getHeight());
-                measurement.set_quality(-1);  // raw image (JPEG compression not yet supported)
-                measurement.set_image((const char*) camera->getImage());
-                continue;
-            }
-            // Try to cast to a gyroscope and if it works, add the gyroscope values to the SensorMeasurement message
-            webots::Gyro* gyro = reinterpret_cast<webots::Gyro*>(*it);
-            if (gyro != nullptr) {
-                if (time_step % gyro->getSamplingPeriod()) {
-                    continue;
-                }
-                GyroMeasurement measurement = *sensorMeasurements->add_gyros();
-                measurement.set_name(gyro->getName());
-                const double* values = gyro->getValues();
-                Vector3 vector3      = *measurement.mutable_value();
-                vector3.set_x(values[0]);
-                vector3.set_y(values[1]);
-                vector3.set_z(values[2]);
-                continue;
-            }
-            // Try to cast to a position sensor and if it works, add the position sensor values to the SensorMeasurement
-            // message
-            webots::PositionSensor* position_sensor = reinterpret_cast<webots::PositionSensor*>(*it);
-            if (position_sensor != nullptr) {
-                if (time_step % position_sensor->getSamplingPeriod()) {
-                    continue;
-                }
-                PositionSensorMeasurement measurement = *sensorMeasurements->add_position_sensors();
-                measurement.set_name(position_sensor->getName());
-                measurement.set_value(position_sensor->getValue());
-                continue;
-            }
-            // Try to cast to a touch sensor and if it works, add the touch sensor values to the SensorMeasurement
-            // message
-            webots::TouchSensor* touch_sensor = reinterpret_cast<webots::TouchSensor*>(*it);
-            if (touch_sensor != nullptr) {
-                if (time_step % touch_sensor->getSamplingPeriod()) {
-                    continue;
-                }
-                webots::TouchSensor::Type type = touch_sensor->getType();
-                // Find what type of touch sensor we have and set the right values for that type of touch sensor
-                switch (type) {
-                    case webots::TouchSensor::BUMPER: {
-                        BumperMeasurement measurement = *sensorMeasurements->add_bumpers();
-                        measurement.set_name(touch_sensor->getName());
-                        measurement.set_value(touch_sensor->getValue() == 1.0);
+
+            webots::Device* device = *it;
+            switch (device->getNodeType()) {
+                case webots::Node::ACCELEROMETER: {
+                    auto accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
+                    std::cout << "It's an accelerometer" << std::endl;
+                    if (time_step % accelerometer->getSamplingPeriod()) {
                         continue;
                     }
-                    case webots::TouchSensor::FORCE: {
-                        ForceMeasurement measurement = *sensorMeasurements->add_forces();
-                        measurement.set_name(touch_sensor->getName());
-                        measurement.set_value(touch_sensor->getValue());
+                    AccelerometerMeasurement measurement = *sensorMeasurements->add_accelerometers();
+                    measurement.set_name(accelerometer->getName());
+                    const double* values = accelerometer->getValues();
+                    Vector3 vector3      = *measurement.mutable_value();
+                    vector3.set_x(values[0]);
+                    vector3.set_y(values[1]);
+                    vector3.set_z(values[2]);
+                    continue;
+                }
+                case webots::Node::CAMERA: {
+                    auto camera = reinterpret_cast<webots::Camera*>(device);
+                    std::cout << "It's a camera" << std::endl;
+                    if (time_step % camera->getSamplingPeriod()) {
                         continue;
                     }
-                    case webots::TouchSensor::FORCE3D: {
-                        Force3DMeasurement measurement = *sensorMeasurements->add_force3ds();
-                        measurement.set_name(touch_sensor->getName());
-                        const double* values = touch_sensor->getValues();
-                        Vector3 vector3      = *measurement.mutable_value();
-                        vector3.set_x(values[0]);
-                        vector3.set_y(values[1]);
-                        vector3.set_z(values[2]);
+                    CameraMeasurement measurement = *sensorMeasurements->add_cameras();
+                    measurement.set_name(camera->getName());
+                    measurement.set_width(camera->getWidth());
+                    measurement.set_height(camera->getHeight());
+                    measurement.set_quality(-1);  // raw image (JPEG compression not yet supported)
+                    measurement.set_image((const char*) camera->getImage());
+                    continue;
+                }
+                case webots::Node::GYRO: {
+                    auto gyro = reinterpret_cast<webots::Gyro*>(device);
+                    std::cout << "It's a gyro" << std::endl;
+                    if (time_step % gyro->getSamplingPeriod()) {
                         continue;
+                    }
+                    GyroMeasurement measurement = *sensorMeasurements->add_gyros();
+                    measurement.set_name(gyro->getName());
+                    const double* values = gyro->getValues();
+                    Vector3 vector3      = *measurement.mutable_value();
+                    vector3.set_x(values[0]);
+                    vector3.set_y(values[1]);
+                    vector3.set_z(values[2]);
+                    continue;
+                }
+                case webots::Node::POSITION_SENSOR: {
+                    auto position_sensor = reinterpret_cast<webots::PositionSensor*>(device);
+                    std::cout << "It's a position sensor = " << position_sensor << std::endl;
+                    std::cout << "sampling period = " << position_sensor->getSamplingPeriod() << std::endl;
+                    if (time_step % position_sensor->getSamplingPeriod()) {
+                        continue;
+                    }
+                    std::cout << "It's not a zero mod" << std::endl;
+                    PositionSensorMeasurement measurement = *sensorMeasurements->add_position_sensors();
+                    measurement.set_name(position_sensor->getName());
+                    measurement.set_value(position_sensor->getValue());
+                    continue;
+                    break;
+                }
+                case webots::Node::TOUCH_SENSOR: {
+                    auto touch_sensor = reinterpret_cast<webots::TouchSensor*>(device);
+                    std::cout << "it's a touch sensor" << std::endl;
+                    if (time_step % touch_sensor->getSamplingPeriod()) {
+                        continue;
+                    }
+                    webots::TouchSensor::Type type = touch_sensor->getType();
+                    // Find what type of touch sensor we have and set the right values for that type of touch sensor
+                    switch (type) {
+                        case webots::TouchSensor::BUMPER: {
+                            BumperMeasurement measurement = *sensorMeasurements->add_bumpers();
+                            measurement.set_name(touch_sensor->getName());
+                            measurement.set_value(touch_sensor->getValue() == 1.0);
+                            continue;
+                        }
+                        case webots::TouchSensor::FORCE: {
+                            ForceMeasurement measurement = *sensorMeasurements->add_forces();
+                            measurement.set_name(touch_sensor->getName());
+                            measurement.set_value(touch_sensor->getValue());
+                            continue;
+                        }
+                        case webots::TouchSensor::FORCE3D: {
+                            Force3DMeasurement measurement = *sensorMeasurements->add_force3ds();
+                            measurement.set_name(touch_sensor->getName());
+                            const double* values = touch_sensor->getValues();
+                            Vector3 vector3      = *measurement.mutable_value();
+                            vector3.set_x(values[0]);
+                            vector3.set_y(values[1]);
+                            vector3.set_z(values[2]);
+                            continue;
+                        }
                     }
                 }
+                default: std::cout << "Switch had no case, enum val = " << device->getName() << std::endl;
             }
         }
 
