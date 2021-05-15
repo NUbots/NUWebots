@@ -16,8 +16,8 @@ PROTO NUgus [
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
   field SFFloat      fieldOfView          1.5707
-  field SFFloat      cameraWidth          640
-  field SFFloat      cameraHeight         480
+  field SFInt32      cameraWidth          640
+  field SFInt32      cameraHeight         480
   field SFFloat      cameraLensFocalLength 1.98
   field SFFloat      cameraNoise          0.000000001
   field SFFloat      cameraMotionBlur     10
