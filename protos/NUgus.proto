@@ -152,7 +152,9 @@ PROTO NUgus [
                 creaseAngle 1
               }
             }
-            HingeJoint {
+            HingeJointWithBacklash {
+              backlash IS backlash
+              gearMass IS gearMass
               jointParameters HingeJointParameters {
                 axis 0.000000 -1.000000 0
                 anchor -0.015000 0.000000 0.005000
@@ -1412,7 +1414,9 @@ PROTO NUgus [
           }
         }
       }
-      HingeJoint {
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
         jointParameters HingeJointParameters {
           axis 0.000000 0.000000 1.000000
           anchor 0.000000 0.000000 0.260000
