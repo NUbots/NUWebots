@@ -202,33 +202,33 @@ public:
                         // Given a valid time step, enable the corresponding device
                         switch (device->getNodeType()) {
                             case webots::Node::ACCELEROMETER: {
-                                std::unique_ptr<webots::Accelerometer> accelerometer(
-                                    this->getAccelerometer(sensorTimeStep.name()));
+                                auto* accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
                                 accelerometer->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::CAMERA: {
-                                std::unique_ptr<webots::Camera> camera(this->getCamera(sensorTimeStep.name()));
+                                auto* camera = reinterpret_cast<webots::Camera*>(device);
                                 camera->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::GYRO: {
-                                std::unique_ptr<webots::Gyro> gyro(this->getGyro(sensorTimeStep.name()));
+                                auto* gyro = reinterpret_cast<webots::Gyro*>(device);
                                 gyro->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::POSITION_SENSOR: {
-                                std::unique_ptr<webots::PositionSensor> positionSensor(
-                                    this->getPositionSensor(sensorTimeStep.name()));
+                                auto* positionSensor = reinterpret_cast<webots::PositionSensor*>(device);
                                 positionSensor->enable(sensor_time_step);
                                 break;
                             }
                             case webots::Node::TOUCH_SENSOR: {
-                                std::unique_ptr<webots::TouchSensor> touchSensor(
-                                    this->getTouchSensor(sensorTimeStep.name()));
+                                auto* touchSensor = reinterpret_cast<webots::TouchSensor*>(device);
                                 touchSensor->enable(sensor_time_step);
                                 break;
                             }
+                            default:
+                                std::cerr << "Unable to enable unknown device WbNodeType: " << device->getNodeType()
+                                          << std::endl;
                         }
                     }
                 }
@@ -247,13 +247,10 @@ public:
         sensorMeasurements->set_real_time(real_time);
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
-        for (std::set<webots::Device*>::iterator it = sensors.begin(); it != sensors.end(); ++it) {
-
-            webots::Device* device = *it;
+        for (auto* device : sensors) {
             switch (device->getNodeType()) {
                 case webots::Node::ACCELEROMETER: {
                     auto accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
-                    std::cout << "It's an accelerometer" << std::endl;
                     if (time_step % accelerometer->getSamplingPeriod()) {
                         continue;
                     }
@@ -268,7 +265,6 @@ public:
                 }
                 case webots::Node::CAMERA: {
                     auto camera = reinterpret_cast<webots::Camera*>(device);
-                    std::cout << "It's a camera" << std::endl;
                     if (time_step % camera->getSamplingPeriod()) {
                         continue;
                     }
@@ -282,7 +278,6 @@ public:
                 }
                 case webots::Node::GYRO: {
                     auto gyro = reinterpret_cast<webots::Gyro*>(device);
-                    std::cout << "It's a gyro" << std::endl;
                     if (time_step % gyro->getSamplingPeriod()) {
                         continue;
                     }
@@ -297,12 +292,9 @@ public:
                 }
                 case webots::Node::POSITION_SENSOR: {
                     auto position_sensor = reinterpret_cast<webots::PositionSensor*>(device);
-                    std::cout << "It's a position sensor = " << position_sensor << std::endl;
-                    std::cout << "sampling period = " << position_sensor->getSamplingPeriod() << std::endl;
                     if (time_step % position_sensor->getSamplingPeriod()) {
                         continue;
                     }
-                    std::cout << "It's not a zero mod" << std::endl;
                     PositionSensorMeasurement measurement = *sensorMeasurements->add_position_sensors();
                     measurement.set_name(position_sensor->getName());
                     measurement.set_value(position_sensor->getValue());
@@ -311,7 +303,6 @@ public:
                 }
                 case webots::Node::TOUCH_SENSOR: {
                     auto touch_sensor = reinterpret_cast<webots::TouchSensor*>(device);
-                    std::cout << "it's a touch sensor" << std::endl;
                     if (time_step % touch_sensor->getSamplingPeriod()) {
                         continue;
                     }
@@ -342,7 +333,8 @@ public:
                         }
                     }
                 }
-                default: std::cout << "Switch had no case, enum val = " << device->getName() << std::endl;
+                default:
+                    std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
             }
         }
 
