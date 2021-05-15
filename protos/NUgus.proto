@@ -27,12 +27,6 @@ PROTO NUgus [
   field  SFFloat     gearMass             0.001
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
   field  MFString    robotTexture         "textures/NUgus_base_color.jpg"
-  field SFFloat      fieldOfView          1.5707
-  field SFFloat      cameraWidth          640
-  field SFFloat      cameraHeight         480
-  field SFFloat      cameraLensFocalLength 0.00198
-  field SFFloat      cameraNoise          0.000000001
-  field SFFloat      cameraMotionBlur     10
 ]
 {
   Robot {
