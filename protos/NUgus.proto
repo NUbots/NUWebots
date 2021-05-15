@@ -5,23 +5,25 @@
 # Extracted from: NUgus.urdf
 
 PROTO NUgus [
-  field  SFVec3f     translation     0 0 0
-  field  SFRotation  rotation        0 1 0 0
-  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
-  field  SFString    name            "NUgus"  # Is `Robot.name`.
-  field  SFString    controller      "void"             # Is `Robot.controller`.
-  field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
-  field  SFString    customData      ""                 # Is `Robot.customData`.
-  field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
-  field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
-  field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
-  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015        # Resolution of the encoder for DYNAMIXEL servo (See section 2.0.3 of docs/Robot_Model_RoboCup_2021)
-  field SFFloat      fieldOfView          1.5707
-  field SFInt32      cameraWidth          640
-  field SFInt32      cameraHeight         480
-  field SFFloat      cameraLensFocalLength 1.98
-  field SFFloat      cameraNoise          0.000000001
-  field SFFloat      cameraMotionBlur     10
+  field  SFVec3f     translation            0 0 0
+  field  SFRotation  rotation               0 1 0 0
+  field  MFString    robotTexture           "textures/NUgus_base_color.jpg"
+  field  SFString    name                   "NUgus"                           # Is `Robot.name`.
+  field  SFString    controller             "void"                            # Is `Robot.controller`.
+  field  MFString    controllerArgs         []                                # Is `Robot.controllerArgs`.
+  field  SFString    customData             ""                                # Is `Robot.customData`.
+  field  SFBool      supervisor             FALSE                             # Is `Robot.supervisor`.
+  field  SFBool      synchronization        TRUE                              # Is `Robot.synchronization`.
+  field  SFBool      selfCollision          FALSE                             # Is `Robot.selfCollision`.
+  # CAMERA PARAMETERS: See docs for more information
+  field SFFloat      fieldOfView            1.5707                            # Approximates PI/2 radians
+  field SFInt32      cameraWidth            640                               # 640 pixels
+  field SFInt32      cameraHeight           480                               # 480 pixels
+  field SFFloat      cameraLensFocalLength  1.98                              # 1.98mm, as from the real cameras
+  field SFFloat      cameraNoise            0.000000001                       # 
+  field SFFloat      cameraMotionBlur       10                                # With over 100fps, real cameras do not have much motion blur
+  # MOTOR PARAMETER: See section 2.0.3 of docs/Robot_Model_RoboCup_2021 for more information
+  field SFFloat     DYNAMIXEL-RESOLUTION    0.0015                            # Resolution of the encoder for DYNAMIXEL servo 
 ]
 {
   Robot {
