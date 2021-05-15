@@ -252,89 +252,198 @@ public:
                 case webots::Node::ACCELEROMETER: {
                     auto accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
                     if (time_step % accelerometer->getSamplingPeriod()) {
-                        continue;
+                        break;
                     }
-                    AccelerometerMeasurement measurement = *sensorMeasurements->add_accelerometers();
-                    measurement.set_name(accelerometer->getName());
+                    AccelerometerMeasurement* measurement = sensorMeasurements->add_accelerometers();
+                    measurement->set_name(accelerometer->getName());
                     const double* values = accelerometer->getValues();
-                    Vector3 vector3      = *measurement.mutable_value();
-                    vector3.set_x(values[0]);
-                    vector3.set_y(values[1]);
-                    vector3.set_z(values[2]);
-                    continue;
+                    Vector3* vector3      = measurement->mutable_value();
+                    vector3->set_x(values[0]);
+                    vector3->set_y(values[1]);
+                    vector3->set_z(values[2]);
+                    break;
                 }
                 case webots::Node::CAMERA: {
                     auto camera = reinterpret_cast<webots::Camera*>(device);
                     if (time_step % camera->getSamplingPeriod()) {
-                        continue;
+                        break;
                     }
-                    CameraMeasurement measurement = *sensorMeasurements->add_cameras();
-                    measurement.set_name(camera->getName());
-                    measurement.set_width(camera->getWidth());
-                    measurement.set_height(camera->getHeight());
-                    measurement.set_quality(-1);  // raw image (JPEG compression not yet supported)
-                    measurement.set_image((const char*) camera->getImage());
-                    continue;
+                    CameraMeasurement* measurement = sensorMeasurements->add_cameras();
+                    measurement->set_name(camera->getName());
+                    measurement->set_width(camera->getWidth());
+                    measurement->set_height(camera->getHeight());
+                    measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
+                    measurement->set_image((const char*) camera->getImage());
+                    break;
                 }
                 case webots::Node::GYRO: {
                     auto gyro = reinterpret_cast<webots::Gyro*>(device);
                     if (time_step % gyro->getSamplingPeriod()) {
-                        continue;
+                        break;
                     }
-                    GyroMeasurement measurement = *sensorMeasurements->add_gyros();
-                    measurement.set_name(gyro->getName());
+                    GyroMeasurement* measurement = sensorMeasurements->add_gyros();
+                    measurement->set_name(gyro->getName());
                     const double* values = gyro->getValues();
-                    Vector3 vector3      = *measurement.mutable_value();
-                    vector3.set_x(values[0]);
-                    vector3.set_y(values[1]);
-                    vector3.set_z(values[2]);
-                    continue;
+                    Vector3* vector3      = measurement->mutable_value();
+                    vector3->set_x(values[0]);
+                    vector3->set_y(values[1]);
+                    vector3->set_z(values[2]);
+                    break;
                 }
                 case webots::Node::POSITION_SENSOR: {
                     auto position_sensor = reinterpret_cast<webots::PositionSensor*>(device);
                     if (time_step % position_sensor->getSamplingPeriod()) {
-                        continue;
+                        break;
                     }
-                    PositionSensorMeasurement measurement = *sensorMeasurements->add_position_sensors();
-                    measurement.set_name(position_sensor->getName());
-                    measurement.set_value(position_sensor->getValue());
-                    continue;
+                    PositionSensorMeasurement* measurement = sensorMeasurements->add_position_sensors();
+                    measurement->set_name(position_sensor->getName());
+                    measurement->set_value(position_sensor->getValue());
                     break;
                 }
                 case webots::Node::TOUCH_SENSOR: {
                     auto touch_sensor = reinterpret_cast<webots::TouchSensor*>(device);
                     if (time_step % touch_sensor->getSamplingPeriod()) {
-                        continue;
+                        break;
                     }
                     webots::TouchSensor::Type type = touch_sensor->getType();
                     // Find what type of touch sensor we have and set the right values for that type of touch sensor
                     switch (type) {
                         case webots::TouchSensor::BUMPER: {
-                            BumperMeasurement measurement = *sensorMeasurements->add_bumpers();
-                            measurement.set_name(touch_sensor->getName());
-                            measurement.set_value(touch_sensor->getValue() == 1.0);
-                            continue;
+                            BumperMeasurement* measurement = sensorMeasurements->add_bumpers();
+                            measurement->set_name(touch_sensor->getName());
+                            measurement->set_value(touch_sensor->getValue() == 1.0);
+                            break;
                         }
                         case webots::TouchSensor::FORCE: {
-                            ForceMeasurement measurement = *sensorMeasurements->add_forces();
-                            measurement.set_name(touch_sensor->getName());
-                            measurement.set_value(touch_sensor->getValue());
-                            continue;
+                            ForceMeasurement* measurement = sensorMeasurements->add_forces();
+                            measurement->set_name(touch_sensor->getName());
+                            measurement->set_value(touch_sensor->getValue());
+                            break;
                         }
                         case webots::TouchSensor::FORCE3D: {
-                            Force3DMeasurement measurement = *sensorMeasurements->add_force3ds();
-                            measurement.set_name(touch_sensor->getName());
+                            Force3DMeasurement* measurement = sensorMeasurements->add_force3ds();
+                            measurement->set_name(touch_sensor->getName());
                             const double* values = touch_sensor->getValues();
-                            Vector3 vector3      = *measurement.mutable_value();
-                            vector3.set_x(values[0]);
-                            vector3.set_y(values[1]);
-                            vector3.set_z(values[2]);
-                            continue;
+                            Vector3* vector3      = measurement->mutable_value();
+                            vector3->set_x(values[0]);
+                            vector3->set_y(values[1]);
+                            vector3->set_z(values[2]);
+                            break;
                         }
                     }
                 }
                 default:
                     std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
+            }
+        }
+
+        if (false) { // set to true to print the created SensorMeasurements message for debugging
+            std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
+            std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
+            std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
+
+            {
+                std::cout << "  sm.messages: " << std::endl;
+                int i = 0;
+                for (auto message : sensorMeasurements->messages()) {
+                    std::cout << "    sm.messages[" << i << "]" << std::endl;
+                    std::cout << "      message_type: " << message.message_type() << std::endl;
+                    std::cout << "      text: " << message.text() << std::endl;
+                    i++;
+                }
+            }
+
+                    
+            {
+                std::cout << "  sm.accelerometers: " << std::endl;
+                int i = 0;
+                for (auto acc : sensorMeasurements->accelerometers()) {
+                    std::cout << "    sm.accelerometers[" << i << "]" << std::endl;
+                    std::cout << "      name: " << acc.name() << std::endl;
+                    std::cout << "      value: [" << acc.value().x() << ", " << acc.value().y() << ", " << acc.value().z() << "]" << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.bumpers: " << std::endl;
+                int i = 0;
+                for (auto bumper : sensorMeasurements->bumpers()) {
+                    std::cout << "    sm.bumpers[" << i << "]" << std::endl;
+                    std::cout << "      name: " << bumper.name() << std::endl;
+                    std::cout << "      value: " << bumper.value() << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.cameras: " << std::endl;
+                int i = 0;
+                for (auto camera : sensorMeasurements->cameras()) {
+                    std::cout << "    sm.cameras[" << i << "]" << std::endl;
+                    std::cout << "      name: " << camera.name() << std::endl;
+                    std::cout << "      width: " << camera.width() << std::endl;
+                    std::cout << "      height: " << camera.height() << std::endl;
+                    std::cout << "      quality: " << camera.quality() << std::endl;
+                    std::cout << "      image (size): " << camera.image().size() << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.forces: " << std::endl;
+                int i = 0;
+                for (auto force : sensorMeasurements->forces()) {
+                    std::cout << "    sm.forces[" << i << "]" << std::endl;
+                    std::cout << "      name: " << force.name() << std::endl;
+                    std::cout << "      value: " << force.value() << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.force3ds: " << std::endl;
+                int i = 0;
+                for (auto force : sensorMeasurements->force3ds()) {
+                    std::cout << "    sm.force3ds[" << i << "]" << std::endl;
+                    std::cout << "      name: " << force.name() << std::endl;
+                    std::cout << "      value: [" << force.value().x() << ", " << force.value().y() << ", " << force.value().z() << "]" << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.force6ds: " << std::endl;
+                int i = 0;
+                for (auto force : sensorMeasurements->force6ds()) {
+                    std::cout << "    sm.force6ds[" << i << "]" << std::endl;
+                    std::cout << "      name: " << force.name() << std::endl;
+                    std::cout << "      force: [" << force.force().x() << ", " << force.force().y() << ", " << force.force().z() << "]" << std::endl;
+                    std::cout << "      torque: [" << force.torque().x() << ", " << force.force().y() << ", " << force.force().z() << "]" << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.gyros: " << std::endl;
+                int i = 0;
+                for (auto gyro : sensorMeasurements->gyros()) {
+                    std::cout << "    sm.gyros[" << i << "]" << std::endl;
+                    std::cout << "      name: " << gyro.name() << std::endl;
+                    std::cout << "      value: [" << gyro.value().x() << ", " << gyro.value().y() << ", " << gyro.value().z() << "]" << std::endl;
+                    i++;
+                }
+            }
+
+            {
+                std::cout << "  sm.position_sensors: " << std::endl;
+                int i = 0;
+                for (auto sensor : sensorMeasurements->position_sensors()) {
+                    std::cout << "    sm.position_sensors[" << i << "]" << std::endl;
+                    std::cout << "      name: " << sensor.name() << std::endl;
+                    std::cout << "      value: " << sensor.value() << std::endl;
+                    i++;
+                }
             }
         }
 
