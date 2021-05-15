@@ -1305,56 +1305,55 @@ PROTO NUgus [
                     translation 0.000000 0.000000 0.000000
                     rotation 0.000000 0.000000 1.000000 -1.570790
                     children [
-                      Camera {
+                      DEF RIGHT_CAMERA Camera {
                         name "right_camera"
-                        translation 0.069952 -0.033795 0.06488
-                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        translation 0.069952 -0.033795 0.06488          # right side of the face
+                        rotation -0.570515 0.570516 0.590782 -2.07437   # rotated up in y by 2 degrees
+                        
+                        # Set parameters from fields
                         fieldOfView IS fieldOfView
                         width IS cameraWidth
                         height IS cameraHeight
-                        spherical FALSE
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        lens Lens {
-                          center 0.5 0.5   # [0, 1] [0, 1]
-                          radialCoefficients 0 0       # any vector
-                          tangentialCoefficients 0 0       # any vector
+                        
+                        # We are using a rectilinear lens because there is no true spherical lens
+                        spherical FALSE
+                        lens DEF LENS Lens {
+                          # Parameters are set to default
+                          center 0.5 0.5
+                          radialCoefficients 0 0
+                          tangentialCoefficients 0 0
                         }
-                        focus Focus {
+                        focus DEF FOCUS Focus {
                           focalDistance    0.0
                           focalLength      IS cameraLensFocalLength
-                          maxFocalDistance 0.0   # [0, inf)
-                          minFocalDistance 0.0   # [0, inf)
+                          maxFocalDistance 0.0   # 
+                          minFocalDistance 0.0   # 
                         }
-                        recognition Recognition {
-                          frameThickness 0
-                          segmentation TRUE
+                        # Allows the robot to detect objects in the world
+                        recognition DEF RECOGNITION Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
                         }
                       }
-                      Camera {
+                      DEF LEFT_CAMERA Camera {
                         name "left_camera"
-                        translation 0.069952 0.033795 0.06488
-                        rotation -0.570515 0.570516 0.590782 -2.07437
+                        translation 0.069952 0.033795 0.06488         # Left side of the face
+                        rotation -0.570515 0.570516 0.590782 -2.07437 # rotated up in y by 2 degrees
+                        
+                        # Set parameters from fields
                         fieldOfView IS fieldOfView
                         width IS cameraWidth
                         height IS cameraHeight
-                        spherical FALSE
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        lens Lens {
-                          center 0.5 0.5   # [0, 1] [0, 1]
-                          radialCoefficients 0 0       # any vector
-                          tangentialCoefficients 0 0       # any vector
-                        }
-                        focus Focus {
-                          focalDistance    0.0   # [0, inf)
-                          focalLength      IS cameraLensFocalLength   # [0, inf)
-                          maxFocalDistance 0.0   # [0, inf)
-                          minFocalDistance 0.0   # [0, inf)
-                        }
-                        recognition Recognition {
-                          frameThickness 0
-                          segmentation TRUE
+
+                        # Set from right camera parameters
+                        spherical FALSE
+                        lens USE LENS
+                        focus USE FOCUS
+                        recognition USE RECOGNITION
                         }
                       }
                     ]
