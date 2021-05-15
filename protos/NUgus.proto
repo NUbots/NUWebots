@@ -15,7 +15,7 @@ PROTO NUgus [
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
-  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015        # Resolution of the encoder for DYNAMIXEL servo (See section 2.0.3 of docs/Robot_Model_RoboCup_2021)
 ]
 {
   Robot {
@@ -1344,8 +1344,11 @@ PROTO NUgus [
         }
       }
       Transform {
+        # Accelerometer and Gyro are positioned 0.2m above torso base
         translation 0.000000 0.000000 0.2
         children [
+          # lis331dlh Accelerometer (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on parameters)
+          # Axis: x forward, y left, z up
           Accelerometer {
             xAxis TRUE
             yAxis TRUE
@@ -1485,6 +1488,8 @@ PROTO NUgus [
               4.0625	65536	0
             ]
           }
+          # L3G4200D Gyro (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on parameters)
+          # Axis: x forward, y left, z up
           Gyro {
             xAxis TRUE
             yAxis TRUE
