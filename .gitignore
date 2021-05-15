@@ -9,3 +9,6 @@ data/
 
 /nugus_controller_test*log.txt
 *.log
+worlds/textures/NUgus_upper_arm_red.jpg
+
+worlds/textures/NUgus_lower_leg_red.jpg

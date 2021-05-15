@@ -39,6 +39,11 @@ std::string padLeft(int number, int width) {
 
 const int QUALITY = 100;
 
+struct Location {
+    Eigen::AngleAxisd rotation;     // (const Scalar& angle, const MatrixBase<Derived>& axis)
+    Eigen::Vector3d translation;
+};
+
 int main(int argc, char** argv) {
     // ---------ARGUMENTS------------//
     // Make sure we have the command line arguments we need
@@ -54,9 +59,14 @@ int main(int argc, char** argv) {
     std::vector<std::array<double, 4>> rotations;
 
     // Load config file
+    // TODO(MoosaHassan) have files read both rotation and translation. use config_REFERENCE.yaml to test    
+    // https://github.com/jbeder/yaml-cpp/wiki/How-To-Parse-A-Document-(Old-API)#a-complete-example
     try {
-        YAML::Node config = YAML::LoadFile("config.yaml");
-        rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
+        YAML::Node config = YAML::LoadFile("config_REFERENCE.yaml");
+        // rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
+
+        // get locations listed by config.yaml file
+        //const YAML::Node& locations = node["locations"];
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -273,6 +283,14 @@ int main(int argc, char** argv) {
             count++;
             supervisor.step(time_step);
         }
+
+        /*
+        // ---------LOOP OVER LOCATIONS --------//
+        for(auto location : locations)
+        {
+            std::cout << location;
+        }
+        */
     }
     return 0;
 }
