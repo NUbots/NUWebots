@@ -1354,7 +1354,6 @@ PROTO NUgus [
                         lens USE LENS
                         focus USE FOCUS
                         recognition USE RECOGNITION
-                        }
                       }
                     ]
                   }
