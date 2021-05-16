@@ -31,17 +31,24 @@
 
 #include "utility/tcp.hpp"
 
-using namespace utility::tcp;
+using utility::tcp::close_socket;
+using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
     NUgus(const int& time_step, const int& server_port)
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
-            send(tcp_fd, "Welcome", 8, 0);
+        send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() override {
         close_socket(tcp_fd);
     }
+    // We want to prevent multiple NUguses connecting with the same port
+    NUgus(NUgus& other) = delete;
+    NUgus& operator=(NUgus& other) = delete;
+    // Disable moving NUgus objects until we have tested that doing it doesn't break things
+    NUgus(NUgus&& other) = delete;
+    NUgus& operator=(NUgus&& other) = delete;
 
     void run() {
         // Message counter
@@ -73,7 +80,7 @@ public:
                 // Wire format
                 // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
                 // uint8_t * Nn  the message
-                uint32_t Nn;
+                uint32_t Nn = 0;
                 if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                     std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
                               << std::endl;

@@ -17,16 +17,14 @@
  * Copyright 2021 NUbots <nubots@nubots.net>
  */
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <webots/Supervisor.hpp>
-#include <array>
 
 #include "yaml-cpp/yaml.h"
 
-// AxisAngle rotations will be read from a config file and saved here
-std::vector<std::array<double, 4>> rotations;
 
 int main(int argc, char** argv) {
 
@@ -37,7 +35,9 @@ int main(int argc, char** argv) {
     }
     // Load def argument which will be used to identify the robot using the webots getFromDef function
     std::string def = argv[1];
-    
+
+    // AxisAngle rotations will be read from a config file and saved here
+    std::vector<std::array<double, 4>> rotations;
 
     // Load config file
     try {
@@ -52,13 +52,12 @@ int main(int argc, char** argv) {
         std::cerr << e.msg << std::endl;
         return 2;
     }
-    
+
     // Open the existing log file and immediately close it to overwrite it for a new instance of
     // the program
     std::ofstream log;
     log.open("teleport_controller.log");
     log.close();
-    
 
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
@@ -83,9 +82,8 @@ int main(int argc, char** argv) {
         // Output current location
         std::ofstream log;
         log.open("teleport_controller.log", std::fstream::app);
-        if (!log.good())
-        {
-          std::cout << "Error writing to log file" << std::endl;
+        if (!log.good()) {
+            std::cout << "Error writing to log file" << std::endl;
         }
         log << "\n" << supervisor.getTime() << "s - ";
         log << "Location: ";
@@ -93,7 +91,7 @@ int main(int argc, char** argv) {
         log << " Y: " << target_translation_vec[1];
         log << " Z: " << target_translation_vec[2] << std::endl;
         log.close();
-        
+
         // Prepare new location
 
         // 0, 0, 0 is centre of the playing field.
@@ -106,8 +104,8 @@ int main(int argc, char** argv) {
 
 
         std::array<double, 3> newPos{};
-        newPos[0] = 3.8 - xDistrib(gen) / 100;
-        newPos[1] = 5.4 - yDistrib(gen) / 100;
+        newPos[0] = 3.8 - xDistrib(gen) / 100.0;
+        newPos[1] = 5.4 - yDistrib(gen) / 100.0;
         newPos[2] = 0.51;
 
         // Set new location
@@ -117,16 +115,15 @@ int main(int argc, char** argv) {
         webots::Field& target_rotation_field = *(target.getField("rotation"));
         // Convert the field to a vector to output to console
         const double* target_rotation_vec = target_rotation_field.getSFRotation();
-        
+
         // Loop once for each rotation
         for (const std::array<double, 4>& rotation : rotations) {
             // Output current rotation
-            
+
             std::ofstream log;
             log.open("teleport_controller.log", std::fstream::app);
-            if (!log.good())
-            {
-              std::cout << "Error writing to log file" << std::endl;
+            if (!log.good()) {
+                std::cout << "Error writing to log file" << std::endl;
             }
             log << supervisor.getTime() << "s - ";
             log << "Rotation: ";
@@ -135,13 +132,13 @@ int main(int argc, char** argv) {
             log << " Z: " << target_rotation_vec[2];
             log << " alpha: " << target_rotation_vec[3] << std::endl;
             log.close();
-          
+
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
 
             // Apply new rotation and reset physics to avoid robot tearing itself apart
             target_rotation_field.setSFRotation(rotation.data());
-            target.resetPhysics();                             
+            target.resetPhysics();
         }
     };
     return 0;
