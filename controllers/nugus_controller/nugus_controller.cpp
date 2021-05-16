@@ -39,7 +39,7 @@ public:
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
             send(tcp_fd, "Welcome", 8, 0);
     }
-    ~NUgus() {
+    ~NUgus() override {
         close_socket(tcp_fd);
     }
 
@@ -69,7 +69,7 @@ public:
                 std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
                 continue;
             }
-            else if (num_ready > 0) {
+            if (num_ready > 0) {
                 // Wire format
                 // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
                 // uint8_t * Nn  the message
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the TCP port number from the command line and convert to an int
-    int server_port;
+    int server_port = 0;
     try {
         server_port = std::stoi(argv[1]);
     }
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the simulation timestep from the command line and convert to an int
-    int time_step;
+    int time_step = 0;
     try {
         time_step = std::stoi(argv[2]);
     }

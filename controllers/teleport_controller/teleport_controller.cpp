@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
         // image only, after resetPhysics is should return to a regular state
 
 
-        std::array<double, 3> newPos;
+        std::array<double, 3> newPos{};
         newPos[0] = 3.8 - xDistrib(gen) / 100;
         newPos[1] = 5.4 - yDistrib(gen) / 100;
         newPos[2] = 0.51;
