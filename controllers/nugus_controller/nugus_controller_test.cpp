@@ -60,16 +60,17 @@ int connect(const std::string& server_address, const int& port) {
     }
 
     // fill in the socket address
-    sockaddr_in address;
+    sockaddr_in address{};
     std::memset(&address, 0, sizeof(sockaddr_in));
     address.sin_family = AF_INET;
     address.sin_port   = htons(port);
     hostent* server    = gethostbyname(server_address.data());
 
-    if (server)
+    if (server != nullptr) {
         std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr),
                     reinterpret_cast<char*>(server->h_addr),
                     server->h_length);
+    }
     else {
         std::cerr << "Cannot resolve server name: " << server_address << std::endl;
 #ifdef _WIN32
@@ -90,9 +91,8 @@ int connect(const std::string& server_address, const int& port) {
 #endif
         return -1;
     }
-    else {
-        std::cerr << "Successfully connected to server" << std::endl;
-    }
+    std::cerr << "Successfully connected to server" << std::endl;
+
 
     return fd;
 }
