@@ -111,8 +111,8 @@ int main(int argc, char** argv) {
     }
 
     // Do nothing with the welcome message sent
-    char welcome_message[8];
-    recv(tcp_fd, welcome_message, sizeof(welcome_message), 0);
+    std::array<char, 8> welcome_message;
+    recv(tcp_fd, welcome_message.data(), sizeof(welcome_message), 0);
 
     // Current message counter
     uint32_t current_num = 1;
