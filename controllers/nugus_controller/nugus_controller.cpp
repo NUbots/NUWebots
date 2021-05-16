@@ -116,7 +116,8 @@ public:
                 Nn = htonl(Nh);
 
                 if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                    std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno)
+                              << std::endl;
                 }
                 else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
                     std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
