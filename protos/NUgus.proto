@@ -1299,7 +1299,6 @@ PROTO NUgus [
                     children [
                       Camera {
                         name "right_camera"
-
                         translation 0.069952 -0.033795 0.06488
                         rotation -0.570515 0.570516 0.590782 -2.07437
                         fieldOfView 1.5707
