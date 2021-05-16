@@ -13,8 +13,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Default not to run the clang-tidy checks, default to whatever our CI_BUILD is
-option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." ON)
-if(ENABLE_CLANG_TIDY OR CI_BUILD)
+option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." OFF)
+if(ENABLE_CLANG_TIDY)
   find_package(PythonInterp 3 REQUIRED)
   set(CMAKE_CXX_CLANG_TIDY "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/clang-tidy.py"
                            "${PROJECT_BINARY_DIR}/clang-tidy-fixes" clang-tidy
