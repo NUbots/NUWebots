@@ -68,12 +68,6 @@ int main(int argc, char** argv) {
         std::cerr << e.msg << std::endl;
         return 2;
     }
-
-    // Open the existing log file and immediately close it to overwrite it for a new instance of
-    // the program
-    std::ofstream log;
-    log.open("teleport_controller.log");
-    log.close();
     
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
@@ -124,48 +118,23 @@ int main(int argc, char** argv) {
           positions.push_back(newPos);
         }
 
-
         // Loop through every robot
         for (long unsigned int i = 0; i < otherRobotsNodes.size(); i++)
         {
            // Grab translation field of the robot to modify
            webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
-           // Convert the field to a vector to output to console
-           const double* target_translation_vec = target_translation_field.getSFVec3f();
            
            // Grab the current rotation field of the robot to modify
            webots::Field& target_rotation_field = *(otherRobotsNodes[i])->getField("rotation");
-          // Convert the field to a vector to output to console
-          const double* target_rotation_vec = target_rotation_field.getSFRotation();
           
-          // Output current location/rotation
-          std::ofstream log;
-          log.open("teleport_controller.log", std::fstream::app);
-          if (!log.good())
-          {
-            std::cout << "Error writing to log file" << std::endl;
-          }
-          log << supervisor.getTime() << "s - ";
-          log << "Location: ";
-          log << "X: " << target_translation_vec[0];
-          log << " Y: " << target_translation_vec[1];
-          log << " Z: " << target_translation_vec[2] << std::endl;
-          log << "         Rotation: ";
-          log << "X: " << target_rotation_vec[0];
-          log << " Y: " << target_rotation_vec[1];
-          log << " Z: " << target_rotation_vec[2];
-          log << " alpha: " << target_rotation_vec[3] << "\n" << std::endl;
-          log.close();
-
           //There will be a position for every robot in the positions vector
           target_translation_field.setSFVec3f(positions[i].data());
-          
           // Apply new rotation
           target_rotation_field.setSFRotation(rotations[rotDistrib(gen)].data());
+          
           // Reset physics to avoid robot tearing itself apart
           otherRobotsNodes[i]->resetPhysics();
         }
-        
     };
     return 0;
 }
