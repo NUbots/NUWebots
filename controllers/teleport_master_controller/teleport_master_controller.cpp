@@ -17,7 +17,7 @@
  * Copyright 2021 NUbots <nubots@nubots.net>
  */
  
-// Special thanks to ideas for this controller from Hamburg Bit-Bots
+// Special thanks to Hamburg Bit-Bots for ideas for this controller
 // https://github.com/bit-bots/wolfgang_robot/blob/feature/recognition/wolfgang_webots_sim/src/wolfgang_webots_sim/webots_camera_controller.py
 
 #include <array>
