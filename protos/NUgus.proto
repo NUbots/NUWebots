@@ -4,6 +4,11 @@
 # This is a proto file for Webots for the NUgus
 # Extracted from: NUgus.urdf
 
+#TODO:
+# Add name field to sensors
+# Remove unessassary elements
+# Fix accelerometer scale
+
 PROTO NUgus [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 1 0 0
