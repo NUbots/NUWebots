@@ -32,6 +32,7 @@ WorldInfo {
       bounce 0.76
     }
   ]
+  coordinateSystem "ENU"
 }
 Viewpoint {
   orientation 0.666323907513393 -0.4492665154085371 -0.5951235572624849 1.7676856826387335
@@ -72,7 +73,6 @@ DEF RED_1 Darwin-opHinge2Seg {
 
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
-  rotation 0.83 -0.48 -0.266 0.0489
   name "red player 2"
   supervisor TRUE
   controller "teleport_controller"
@@ -107,7 +107,6 @@ DEF RED_4 Wolfgang {
 DEF BLUE_1 NUgus {
   name "blue player 1"
   translation 2.688 -0.3985 0.5249
-  rotation -0.0367 -0.0048 0.999 -2.9116
   supervisor TRUE
   controller "collect_vision_data"
   controllerArgs [
