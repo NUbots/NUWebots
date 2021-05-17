@@ -15,14 +15,14 @@
  * along with the NUbots Codebase.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2021 NUbots <nubots@nubots.net>
- */ 
+ */
 
+#include <array>
 #include <fstream>
 #include <iostream>
+#include <math.h>
 #include <random>
 #include <webots/Supervisor.hpp>
-#include <array>
-#include <math.h>
 
 #include "yaml-cpp/yaml.h"
 
@@ -44,25 +44,24 @@ int main(int argc, char** argv) {
     }
     // Load self-def argument which will be used to identify the robot using the webots getFromDef function
     std::string def = argv[1];
-    
+
     // Load def arguments of other robots in the field into a vector
     std::vector<webots::Node*> otherRobotsNodes;
     // Only one supervisor instance can exist in a single controller. As such the same one will be used
     // every time
     webots::Supervisor supervisor = webots::Supervisor();
-    for (int i = 2; i < argc; i++)
-      {
+    for (int i = 2; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
         webots::Node* tempNode = supervisor.getFromDef(argv[i]);
         otherRobotsNodes.push_back(tempNode);
-      }
-    
+    }
+
     // Load config file
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
-        minDistance = config["minDistance"].as<double>();
-        zHeight = config["zHeight"].as<double>();
+        minDistance       = config["minDistance"].as<double>();
+        zHeight           = config["zHeight"].as<double>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -72,75 +71,70 @@ int main(int argc, char** argv) {
         std::cerr << e.msg << std::endl;
         return 2;
     }
-    
+
     webots::Node* tempNode = supervisor.getFromDef("test");
-    xSize = tempNode->getField("xSize")->getSFFloat();
-    ySize = tempNode->getField("ySize")->getSFFloat();
-    
+    xSize                  = tempNode->getField("xSize")->getSFFloat();
+    ySize                  = tempNode->getField("ySize")->getSFFloat();
+
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
-    
+
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
-    
+
     // Generate distributions for random number systems in the following loop
-    std::uniform_int_distribution<> xDistrib(0, xSize*100);
-    std::uniform_int_distribution<> yDistrib(0, ySize*100);
+    std::uniform_int_distribution<> xDistrib(0, xSize * 100);
+    std::uniform_int_distribution<> yDistrib(0, ySize * 100);
     std::uniform_int_distribution<> rotDistrib(0, rotations.size() - 1);
 
     while (supervisor.step(timeStep) != -1) {
-        
+
         // Declare a vector of positions that will be saved as they are randomly generated, to be later
         // applied to each robot
         std::vector<std::array<double, 3>> positions = std::vector<std::array<double, 3>>();
         // Loop through every robot
-        for (size_t i = 0; i < otherRobotsNodes.size(); i++)
-        {
-          // Assume there is no collision
-          bool collision = false;
-          // newPos will be a "Proposed location" for a robot to teleport to
-          std::array<double, 3> newPos;
-          do
-          {
-            collision = false;
-            // Generate a new random location
-            newPos[0] = xSize / 2 - xDistrib(gen) / 100;
-            newPos[1] = ySize / 2 - yDistrib(gen) / 100;
-            newPos[2] = 0.51;
-            
-            // Loop through the vector of existing proposed locations and see if the new one is going to
-            // collide with any of them
-            for (std::array<double, 3> testPos : positions)
-            {
-              double distance = sqrt(pow((newPos[1] - testPos[1]), 2) + pow((newPos[0] - testPos[0]), 2));
-              if (distance < minDistance)
-              {
-                collision = true;
-              } 
+        for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
+            // Assume there is no collision
+            bool collision = false;
+            // newPos will be a "Proposed location" for a robot to teleport to
+            std::array<double, 3> newPos;
+            do {
+                collision = false;
+                // Generate a new random location
+                newPos[0] = xSize / 2 - xDistrib(gen) / 100;
+                newPos[1] = ySize / 2 - yDistrib(gen) / 100;
+                newPos[2] = 0.51;
+
+                // Loop through the vector of existing proposed locations and see if the new one is going to
+                // collide with any of them
+                for (std::array<double, 3> testPos : positions) {
+                    double distance = sqrt(pow((newPos[1] - testPos[1]), 2) + pow((newPos[0] - testPos[0]), 2));
+                    if (distance < minDistance) {
+                        collision = true;
+                    }
+                }
             }
-          }
-          // Loop until a proposed location has been found that doesn't clash with the existing ones
-          while (collision); 
-          // Finally add the proposed location in as a confirmed position
-          positions.push_back(newPos);
+            // Loop until a proposed location has been found that doesn't clash with the existing ones
+            while (collision);
+            // Finally add the proposed location in as a confirmed position
+            positions.push_back(newPos);
         }
 
         // Loop through every robot
-        for (long unsigned int i = 0; i < otherRobotsNodes.size(); i++)
-        {
-           // Grab translation field of the robot to modify
-           webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
-           // Grab the current rotation field of the robot to modify
-           webots::Field& target_rotation_field = *(otherRobotsNodes[i])->getField("rotation");
-          
-          //There will be a position for every robot in the positions vector
-          target_translation_field.setSFVec3f(positions[i].data());
-          // Apply new rotation
-          target_rotation_field.setSFRotation(rotations[rotDistrib(gen)].data());
-          
-          // Reset physics to avoid robot tearing itself apart
-          otherRobotsNodes[i]->resetPhysics();
+        for (long unsigned int i = 0; i < otherRobotsNodes.size(); i++) {
+            // Grab translation field of the robot to modify
+            webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
+            // Grab the current rotation field of the robot to modify
+            webots::Field& target_rotation_field = *(otherRobotsNodes[i])->getField("rotation");
+
+            // There will be a position for every robot in the positions vector
+            target_translation_field.setSFVec3f(positions[i].data());
+            // Apply new rotation
+            target_rotation_field.setSFRotation(rotations[rotDistrib(gen)].data());
+
+            // Reset physics to avoid robot tearing itself apart
+            otherRobotsNodes[i]->resetPhysics();
         }
     };
     return 0;
