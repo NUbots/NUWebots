@@ -28,6 +28,7 @@
 
 // AxisAngle rotations will be read from a config file and saved here
 std::vector<std::array<double, 4>> rotations;
+double minDistance;
 
 int main(int argc, char** argv) {
 
@@ -57,6 +58,7 @@ int main(int argc, char** argv) {
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
+        minDistance = config["minDistance"].as<double>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -110,7 +112,7 @@ int main(int argc, char** argv) {
             for (std::array<double, 3> testPos : positions)
             {
               double distance = sqrt(pow((newPos[1] - testPos[1]), 2) + pow((newPos[0] - testPos[0]), 2));
-              if (distance < 0.1)
+              if (distance < minDistance)
               {
                 collision = true;
               } 
