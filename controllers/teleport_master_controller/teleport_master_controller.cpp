@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
         // applied to each robot
         std::vector<std::array<double, 3>> positions = std::vector<std::array<double, 3>>();
         // Loop through every robot
-        for (long unsigned int i = 0; i < otherRobotsNodes.size(); i++)
+        for (size_t i = 0; i < otherRobotsNodes.size(); i++)
         {
           // Assume there is no collision
           bool collision = false;
