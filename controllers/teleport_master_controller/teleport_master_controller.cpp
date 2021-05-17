@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
                 // Generate a new random location
                 newPos[0] = xSize / 2 - xDistrib(gen) / 100;
                 newPos[1] = ySize / 2 - yDistrib(gen) / 100;
-                newPos[2] = 0.51;
+                newPos[2] = zHeight;
 
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
