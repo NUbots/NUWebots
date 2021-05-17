@@ -29,6 +29,8 @@
 // AxisAngle rotations will be read from a config file and saved here
 std::vector<std::array<double, 4>> rotations;
 double minDistance;
+double xSize;
+double ySize;
 
 int main(int argc, char** argv) {
 
@@ -69,6 +71,10 @@ int main(int argc, char** argv) {
         return 2;
     }
     
+    webots::Node* tempNode = supervisor.getFromDef("test");
+    xSize = tempNode->getField("xSize")->getSFFloat();
+    ySize = tempNode->getField("ySize")->getSFFloat();
+    
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
     
@@ -77,8 +83,8 @@ int main(int argc, char** argv) {
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
     
     // Generate distributions for random number systems in the following loop
-    std::uniform_int_distribution<> xDistrib(0, 860);
-    std::uniform_int_distribution<> yDistrib(0, 580);
+    std::uniform_int_distribution<> xDistrib(0, xSize*100);
+    std::uniform_int_distribution<> yDistrib(0, ySize*100);
     std::uniform_int_distribution<> rotDistrib(0, rotations.size() - 1);
 
     while (supervisor.step(timeStep) != -1) {
@@ -97,8 +103,8 @@ int main(int argc, char** argv) {
           {
             collision = false;
             // Generate a new random location
-            newPos[0] = 4.3 - xDistrib(gen) / 100;
-            newPos[1] = 2.9 - yDistrib(gen) / 100;
+            newPos[0] = xSize / 2 - xDistrib(gen) / 100;
+            newPos[1] = ySize / 2 - yDistrib(gen) / 100;
             newPos[2] = 0.51;
             
             // Loop through the vector of existing proposed locations and see if the new one is going to
@@ -123,7 +129,6 @@ int main(int argc, char** argv) {
         {
            // Grab translation field of the robot to modify
            webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
-           
            // Grab the current rotation field of the robot to modify
            webots::Field& target_rotation_field = *(otherRobotsNodes[i])->getField("rotation");
           
