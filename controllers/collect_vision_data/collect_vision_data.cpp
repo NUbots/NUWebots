@@ -150,9 +150,6 @@ int main(int argc, char** argv) {
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
 
-            // Set random positions for the head and neck servos
-            neck_yaw->setPosition(servoDistrib(gen));
-            head_pitch->setPosition(servoDistrib(gen));
 
             //-----------SET ROTATION----------//
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
@@ -165,6 +162,12 @@ int main(int argc, char** argv) {
             if (robot->step(time_step) == -1) {
                 break;
             }
+
+            // Set random positions for the head and neck servos
+            const double neck_yaw_position   = servoDistrib(gen);
+            const double head_pitch_position = servoDistrib(gen);
+            neck_yaw->setPosition(neck_yaw_position);
+            head_pitch->setPosition(head_pitch_position);
 
             /**************************************************************
              * From the NUbots repo                                       *
@@ -241,7 +244,6 @@ int main(int argc, char** argv) {
             left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
             right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
                                                            QUALITY);
-
 
             // Prepare the mono lens data
             YAML::Emitter mono_lens;
