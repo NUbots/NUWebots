@@ -27,7 +27,9 @@
 #include <random>
 #include <sstream>
 #include <webots/Camera.hpp>
+#include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
+#include <webots/Robot.hpp>
 #include <webots/Supervisor.hpp>
 
 #include "yaml-cpp/yaml.h"
@@ -73,15 +75,15 @@ int main(int argc, char** argv) {
 
     //---------GET ROBOT, CAMERAS AND SUPERVISOR----------//
     // create the Supervisor instance and assign it to a robot
-    webots::Supervisor supervisor = webots::Supervisor();
-    webots::Node* robot           = supervisor.getFromDef(def);
+    std::unique_ptr<webots::Supervisor> robot = std::make_unique<webots::Supervisor>();
+    webots::Node* robot_def                   = robot->getFromDef(argv[1]);
 
     // Get the time step of the current world.
-    int time_step = int(supervisor.getBasicTimeStep());
+    int time_step = int(robot->getBasicTimeStep());
 
     // Get the cameras
-    std::unique_ptr<webots::Camera> right_camera = std::make_unique<webots::Camera>("right_camera");
-    std::unique_ptr<webots::Camera> left_camera  = std::make_unique<webots::Camera>("left_camera");
+    webots::Camera* left_camera  = robot->getCamera("left_camera");
+    webots::Camera* right_camera = robot->getCamera("right_camera");
     right_camera->enable(time_step);
     left_camera->enable(time_step);
     right_camera->recognitionEnable(time_step);
@@ -106,51 +108,63 @@ int main(int argc, char** argv) {
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> xDistrib(0, 1080);
-    std::uniform_int_distribution<> yDistrib(0, 760);
-    std::uniform_int_distribution<> zDistrib(-5, 5);
+
+    // 0, 0, 0 is centre of the playing field.
+    // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
+    // from red
+    // Y ranges from -3.8 - 3.8, the positive value on the red goal side
+    // Z should be set to 0.51 to be on the ground (and add a bit of noise)
+    std::uniform_real_distribution<> xDistrib(-5.4, 5.4);
+    std::uniform_real_distribution<> yDistrib(-3.8, 3.8);
+    std::uniform_real_distribution<> zDistrib(0.46, 0.56);
+
+    // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> servoDistrib(-M_PI * 0.5, M_PI * 0.5);
 
-    //--------MAIN CONTROL LOOP------------//
-    while (supervisor.step(time_step) != -1) {
-        //----------SET TRANSLATION OF ROBOT------------//
-        // Grab the current translation field of the robot to modify
-        webots::Field* robot_translation_field = robot->getField("translation");
-        // Convert the field to a vector to output to console
-        const double* robot_translation_vec = robot_translation_field->getSFVec3f();
+    //-----------GET HANDLES TO NODES AND SERVOS-----------//
+    // Grab the current translation field of the robot to modify
+    webots::Field* robot_translation_field = robot_def->getField("translation");
 
-        // 0, 0, 0 is centre of the playing field.
-        // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
-        // from red
-        // Y ranges from -3.8 - 3.8, the positive value on the red goal side
-        // Z should be set to 0.51 to be on the ground (and add a bit of noise)
+    // Grab the current rotation field of the robot to modify
+    webots::Field* robot_rotation_field = robot_def->getField("rotation");
+
+    // Get a handle to our head and neck motors
+    webots::Motor* neck_yaw                   = robot->getMotor("neck_yaw");
+    webots::Motor* head_pitch                 = robot->getMotor("head_pitch");
+    webots::PositionSensor* neck_yaw_sensor   = robot->getPositionSensor("neck_yaw_sensor");
+    webots::PositionSensor* head_pitch_sensor = robot->getPositionSensor("head_pitch_sensor");
+    neck_yaw_sensor->enable(time_step);
+    head_pitch_sensor->enable(time_step);
+
+    //--------MAIN CONTROL LOOP------------//
+    while (robot->step(time_step) != -1) {
+        //----------SET TRANSLATION OF ROBOT------------//
+
         // If the robot teleports into an existing object it may run into issues for that
         // image only, after resetPhysics is should return to a regular state
-        std::array<double, 3> newPos;
-        newPos[0] = 0.0;   // 5.4 - xDistrib(gen) / 100;
-        newPos[1] = 0.0;   // 3.8 - yDistrib(gen) / 100;
-        newPos[2] = 0.51;  // - zDistrib(gen) / 100;
+        const std::array<double, 3> robot_position = {xDistrib(gen), yDistrib(gen), zDistrib(gen)};
 
         // Set new location
-        robot_translation_field->setSFVec3f(newPos.data());
-        supervisor.step(time_step);
-
-        // Grab the current rotation field of the robot to modify
-        webots::Field* robot_rotation_field = robot->getField("rotation");
-        // Convert the field to a vector to output to console
-        const double* robot_rotation_vec = robot_rotation_field->getSFRotation();
+        robot_translation_field->setSFVec3f(robot_position.data());
 
         // ---------LOOP OVER ROTATIONS--------//
         for (const std::array<double, 4>& rotation : rotations) {
-            const std::array<double, 4> rotationX = rotation;  // { 1.000000, 0.000000, 0.0, 0 };
+
+            // Set random positions for the head and neck servos
+            neck_yaw->setPosition(servoDistrib(gen));
+            head_pitch->setPosition(servoDistrib(gen));
 
             //-----------SET ROTATION----------//
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
             // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field->setSFRotation(rotationX.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
-            robot->resetPhysics();
-            supervisor.step(time_step);
+            robot_rotation_field->setSFRotation(rotation.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
+            robot_def->resetPhysics();
+
+            // The step is needed to make the position and rotation changes take effect
+            if (robot->step(time_step) == -1) {
+                break;
+            }
 
             /**************************************************************
              * From the NUbots repo                                       *
@@ -168,8 +182,7 @@ int main(int argc, char** argv) {
             // Rotate to face out of base of neck
             Htx = Htx.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitY()));
             // Rotate head in yaw axis
-            Htx = Htx.rotate(Eigen::AngleAxisd(robot->getFromProtoDef("neck_yaw")->getField("position")->getSFFloat(),
-                                               Eigen::Vector3d::UnitX()));
+            Htx = Htx.rotate(Eigen::AngleAxisd(neck_yaw_sensor->getValue(), Eigen::Vector3d::UnitX()));
             // Translate to top of neck (i.e. next motor axle)
             Htx = Htx.translate(Eigen::Vector3d(NECK_LENGTH, 0.0, 0.0));
 
@@ -180,8 +193,7 @@ int main(int argc, char** argv) {
             // Rotate to face forward direction of neck
             Htx = Htx.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitY()));
             // Rotate pitch
-            Htx = Htx.rotate(Eigen::AngleAxisd(robot->getFromProtoDef("head_pitch")->getField("position")->getSFFloat(),
-                                               Eigen::Vector3d::UnitY()));
+            Htx = Htx.rotate(Eigen::AngleAxisd(head_pitch_sensor->getValue(), Eigen::Vector3d::UnitY()));
             // PITCH
             // Return basis pointing along camera vector (ie x is camera vector, z out of top of head). Pos at
             // camera position
@@ -206,10 +218,11 @@ int main(int argc, char** argv) {
 
             // Htw
             Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
-            Htw.linear() = Eigen::AngleAxisd(rotationX[3], Eigen::Vector3d(rotationX[0], rotationX[1], rotationX[2]))
+            Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
                                .toRotationMatrix()
                                .transpose();
-            Htw.translation() = -Htw.linear() * Eigen::Vector3d(newPos[0], newPos[1], newPos[2]);
+            Htw.translation() =
+                -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
             // Calculate the left and right camera to world transformation matrices
             Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
@@ -265,7 +278,6 @@ int main(int argc, char** argv) {
             monoLensFile.close();
 
             count++;
-            supervisor.step(time_step);
         }
     }
     return 0;
