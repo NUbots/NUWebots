@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
         }
 
         // Loop through every robot
-        for (long unsigned int i = 0; i < otherRobotsNodes.size(); i++) {
+        for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
             // Grab translation field of the robot to modify
             webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
             // Grab the current rotation field of the robot to modify
