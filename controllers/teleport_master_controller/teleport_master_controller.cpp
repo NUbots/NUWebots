@@ -29,6 +29,7 @@
 // AxisAngle rotations will be read from a config file and saved here
 std::vector<std::array<double, 4>> rotations;
 double minDistance;
+double zHeight;
 double xSize;
 double ySize;
 
@@ -61,6 +62,7 @@ int main(int argc, char** argv) {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
         minDistance = config["minDistance"].as<double>();
+        zHeight = config["zHeight"].as<double>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;

@@ -43,4 +43,5 @@ rotations:
     - 0.767201
 
 minDistance: 0.1
+zHeight: 0.1
 
