@@ -6,3 +6,4 @@ build/
 /controllers/teleport_controller/teleport_controller
 /nugus_controller_test*log.txt
 *.log
+/controllers/teleport_master_controller/teleport_master_controller
