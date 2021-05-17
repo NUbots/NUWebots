@@ -231,51 +231,82 @@ int main(int argc, char** argv) {
             //-----------SAVE DATA-----------//
             std::string count_padded = padLeft(count, 7);
 
-            // Save stereo images
-            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
-            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_L_mask.png",
-                                                          QUALITY);
-            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/image" + count_padded + "_R_mask.png",
-                                                           QUALITY);
-
             // Save mono images
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
                                                           QUALITY);
+            // Save stereo images
+            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
+            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
+            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
+            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
+                                                           QUALITY);
 
-            // For some reason the first iteration has the robot in the wrong position
-            if (count == 0) {
-                count++;
-                continue;
-            }
 
-            // Prepare the lens data
-            YAML::Emitter lensYaml;  // create the node
-            lensYaml << YAML::BeginMap;
-            lensYaml << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            lensYaml << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
-            lensYaml << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            lensYaml << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            lensYaml << YAML::Key << "fov" << YAML::Value << diagonal_fov;
-            lensYaml << YAML::Key << "Hoc" << YAML::Value;
-            lensYaml << YAML::BeginSeq;
-            lensYaml << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
-            lensYaml << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
-            lensYaml << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
-            lensYaml << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
-            lensYaml << YAML::EndSeq;
-            lensYaml << YAML::EndMap;
-
-            // Write the stereo lens data
-            std::ofstream stereoLensFile("./data/data_stereo/lens" + count_padded + ".yaml");
-            stereoLensFile << lensYaml.c_str();
-            stereoLensFile.close();
+            // Prepare the mono lens data
+            YAML::Emitter mono_lens;
+            mono_lens << YAML::BeginMap;
+            mono_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            mono_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            mono_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            mono_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            mono_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            mono_lens << YAML::Key << "Hoc" << YAML::Value;
+            mono_lens << YAML::BeginSeq;
+            mono_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+            mono_lens << YAML::EndSeq;
+            mono_lens << YAML::EndMap;
 
             // Write the mono lens data
-            std::ofstream monoLensFile("./data/data_mono/lens" + count_padded + ".yaml");
-            monoLensFile << lensYaml.c_str();
-            monoLensFile.close();
+            std::ofstream ofs_mono("./data/data_mono/lens" + count_padded + ".yaml");
+            ofs_mono << mono_lens.c_str();
+            ofs_mono.close();
+
+            // Prepare the stereo lens data
+            YAML::Emitter stereo_lens;
+            stereo_lens << YAML::BeginMap;
+
+            stereo_lens << YAML::Key << "left";
+            stereo_lens << YAML::BeginMap;
+            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+            stereo_lens << YAML::BeginSeq;
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+            stereo_lens << YAML::EndSeq;
+            stereo_lens << YAML::EndMap;
+
+            stereo_lens << YAML::Key << "right";
+            stereo_lens << YAML::BeginMap;
+            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+            stereo_lens << YAML::BeginSeq;
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(0, 0), Hwc_r(0, 1), Hwc_r(0, 2), Hwc_r(0, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(1, 0), Hwc_r(1, 1), Hwc_r(1, 2), Hwc_r(1, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(2, 0), Hwc_r(2, 1), Hwc_r(2, 2), Hwc_r(2, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
+            stereo_lens << YAML::EndSeq;
+            stereo_lens << YAML::EndMap;
+
+            stereo_lens << YAML::EndMap;
+
+            // Write the stereo lens data
+            std::ofstream ofs_stereo("./data/data_stereo/lens" + count_padded + ".yaml");
+            ofs_stereo << stereo_lens.c_str();
+            ofs_stereo.close();
 
             count++;
         }
