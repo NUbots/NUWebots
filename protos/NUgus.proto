@@ -61,7 +61,7 @@ PROTO NUgus [
             endPoint IS jerseyBack
           }
           Shape {
-            appearance PBRAppearance {
+            appearance DEF BASE_APPEARANCE PBRAppearance {
               baseColor 0.500000 0.500000 0.500000
               transparency 0.000000
               roughness 1.000000
@@ -744,26 +744,20 @@ PROTO NUgus [
                                               creaseAngle 1
                                             }
                                           }
-                                          # Define four touch sensors for each foot
+                                          # Define four touch sensors for the right foot
+                                          # Back right touch sensor on right foot
                                           TouchSensor {
                                             # Define translation of touch sensor
                                             translation -0.0575 0.025 -0.061
                                             children [
                                               # Define shape for all touch sensors
                                               DEF TOUCH_SHAPE Shape{
-                                                appearance PBRAppearance {
-                                                  baseColor 0.500000 0.500000 0.500000
-                                                  transparency 0.000000
-                                                  roughness 1.000000
-                                                  metalness 0
-                                                  emissiveColor 0.000000 0.000000 0.000000
-                                                }
+                                                appearance BASE_APPEARANCE
                                                 geometry DEF TOUCH_BOX Box {
                                                   size 0.01 0.01 0.005
                                                 }
                                               }
                                             ]
-                                            # Back right touch sensor on right foot
                                             name "right_touch_sensor_br"
                                             # Bounding object uses geometry from TOUCH_SHAPE
                                             boundingObject USE TOUCH_BOX
@@ -776,34 +770,34 @@ PROTO NUgus [
                                             # Bumper returns a 1 when collision is detected
                                             type "bumper"
                                           }
+                                          # Back left touch sensor on right foot
                                           TouchSensor {
                                             translation 0.041 0.025 -0.061
                                             children [
                                                USE TOUCH_SHAPE
                                             ]
-                                            # Back left touch sensor on right foot
                                             name "right_touch_sensor_bl"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
+                                          # Front right touch sensor on right foot
                                           TouchSensor {
                                             translation -0.0575 -0.154 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Front right touch sensor on right foot
                                             name "right_touch_sensor_fr"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
+                                          # Front left touch sensor on right foot
                                           TouchSensor {
                                             translation 0.0409 -0.154 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Front left touch sensor on right foot
                                             name "right_touch_sensor_fl"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
@@ -1180,45 +1174,46 @@ PROTO NUgus [
                                               creaseAngle 1
                                             }
                                           }
+                                          # Define four touch sensors for the left foot
+                                          # Back right touch sensor on left foot
                                           TouchSensor {
                                             translation -0.041 0.025 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Back right touch sensor on left foot
                                             name "left_touch_sensor_br"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
+                                          # Back left touch sensor on left foot
                                           TouchSensor {
                                             translation 0.057 0.025 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Back left touch sensor on left foot
                                             name "left_touch_sensor_bl"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
+                                          # Front left touch sensor on left foot
                                           TouchSensor {
                                             translation 0.057 -0.154 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Front left touch sensor on left foot
                                             name "left_touch_sensor_fl"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
+                                          # Front right touch sensor on left foot
                                           TouchSensor {
                                             translation -0.041 -0.154 -0.061
                                             children [
                                               USE TOUCH_SHAPE
                                             ]
-                                            # Front right touch sensor on left foot
                                             name "left_touch_sensor_fr"
                                             boundingObject USE TOUCH_BOX
                                             physics USE TOUCH_PHYSICS
