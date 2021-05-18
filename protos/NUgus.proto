@@ -253,15 +253,7 @@ PROTO NUgus [
                         }
                       ]
                       name "right_lower_arm [arm]"
-                      boundingObject Transform {
-                        translation 0.005449 -0.096201 0.003036
-                        rotation 0.014447 0.711504 -0.702533 3.098292
-                        children [
-                          Box {
-                             size 0.055750 0.092688 0.255432
-                          }
-                        ]
-                      }
+                      boundingObject USE right_lower_arm
                       physics Physics {
                         density -1
                         mass 0.260000
@@ -275,15 +267,7 @@ PROTO NUgus [
                   }
                 ]
                 name "right_upper_arm [arm]"
-                boundingObject Transform {
-                  translation 0.009816 -0.101303 -0.001043
-                  rotation 0.037370 -0.768622 -0.638611 3.143952
-                  children [
-                    Box {
-                       size 0.094456 0.101360 0.263797
-                    }
-                  ]
-                }
+                boundingObject USE right_upper_arm
                 physics Physics {
                   density -1
                   mass 0.297000
@@ -297,15 +281,7 @@ PROTO NUgus [
             }
           ]
           name "right_shoulder [arm]"
-          boundingObject Transform {
-            translation -0.007694 -0.002411 0.004482
-            rotation 0.999170 -0.026378 0.031049 1.573058
-            children [
-              Box {
-                 size 0.079788 0.084434 0.084839
-              }
-            ]
-          }
+          boundingObject USE right_shoulder
           physics Physics {
             density -1
             mass 0.025434
@@ -473,15 +449,7 @@ PROTO NUgus [
                         }
                       ]
                       name "left_lower_arm [arm]"
-                      boundingObject Transform {
-                        translation -0.005861 -0.096205 0.001593
-                        rotation 0.999972 0.005097 -0.005482 1.562455
-                        children [
-                          Box {
-                             size 0.058128 0.083541 0.254548
-                          }
-                        ]
-                      }
+                      boundingObject USE left_lower_arm
                       physics Physics {
                         density -1
                         mass 0.260000
@@ -495,15 +463,7 @@ PROTO NUgus [
                   }
                 ]
                 name "left_upper_arm [arm]"
-                boundingObject Transform {
-                  translation -0.007618 -0.101796 -0.001161
-                  rotation -0.999714 0.023520 -0.004295 1.757359
-                  children [
-                    Box {
-                       size 0.095452 0.102084 0.266358
-                    }
-                  ]
-                }
+                boundingObject USE left_upper_arm
                 physics Physics {
                   density -1
                   mass 0.297000
@@ -517,15 +477,7 @@ PROTO NUgus [
             }
           ]
           name "left_shoulder [arm]"
-          boundingObject Transform {
-            translation 0.007694 -0.002411 0.004482
-            rotation 0.999170 0.026378 -0.031049 1.573058
-            children [
-              Box {
-                 size 0.079795 0.084443 0.084851
-              }
-            ]
-          }
+          boundingObject USE left_shoulder
           physics Physics {
             density -1
             mass 0.025434
@@ -841,15 +793,7 @@ PROTO NUgus [
                                           }
                                         ]
                                         name "right_foot [foot]"
-                                        boundingObject Transform {
-                                          translation -0.011347 -0.062189 -0.023023
-                                          rotation -0.577994 0.576060 0.577994 2.096332
-                                          children [
-                                            Box {
-                                               size 0.078414 0.135720 0.219532
-                                            }
-                                          ]
-                                        }
+                                        boundingObject USE right_foot
                                         physics Physics {
                                           density -1
                                           mass 0.205000
@@ -863,15 +807,7 @@ PROTO NUgus [
                                     }
                                   ]
                                   name "right_ankle"
-                                  boundingObject Transform {
-                                    translation -0.000077 0.026219 -0.017801
-                                    rotation 0.000000 0.707107 0.707107 3.141593
-                                    children [
-                                      Box {
-                                         size 0.061433 0.066525 0.094015
-                                      }
-                                    ]
-                                  }
+                                  boundingObject USE right_ankle
                                   physics Physics {
                                     density -1
                                     mass 0.306000
@@ -885,15 +821,7 @@ PROTO NUgus [
                               }
                             ]
                             name "right_lower_leg"
-                            boundingObject Transform {
-                              translation -0.001888 0.013813 -0.097688
-                              rotation 0.000225 -0.999002 -0.044657 3.131511
-                              children [
-                                Box {
-                                   size 0.069137 0.081378 0.233796
-                                }
-                              ]
-                            }
+                            boundingObject USE right_lower_leg
                             physics Physics {
                               density -1
                               mass 0.177000
@@ -907,15 +835,7 @@ PROTO NUgus [
                         }
                       ]
                       name "right_upper_leg"
-                      boundingObject Transform {
-                        translation 0.000694 0.006100 -0.101326
-                        rotation 0.000000 -0.068354 -0.997661 3.141593
-                        children [
-                          Box {
-                             size 0.092446 0.096597 0.243083
-                          }
-                        ]
-                      }
+                      boundingObject USE right_upper_leg
                       physics Physics {
                         density -1
                         mass 0.387000
@@ -929,15 +849,7 @@ PROTO NUgus [
                   }
                 ]
                 name "right_hip_roll"
-                boundingObject Transform {
-                  translation -0.000034 0.004316 -0.007293
-                  rotation 0.000000 0.707107 0.707107 3.141593
-                  children [
-                    Box {
-                       size 0.061434 0.066525 0.094015
-                    }
-                  ]
-                }
+                boundingObject USE right_hip_roll
                 physics Physics {
                   density -1
                   mass 0.306000
@@ -951,15 +863,7 @@ PROTO NUgus [
             }
           ]
           name "right_hip_yaw"
-          boundingObject Transform {
-            translation 0.007088 0.000193 -0.034942
-            rotation 0.577762 -0.572669 -0.581585 4.172751
-            children [
-              Box {
-                 size 0.072956 0.093692 0.108128
-              }
-            ]
-          }
+          boundingObject USE right_hip_yaw
           physics Physics {
             density -1
             mass 0.067000
@@ -1278,15 +1182,7 @@ PROTO NUgus [
                                           }
                                         ]
                                         name "left_foot [foot]"
-                                        boundingObject Transform {
-                                          translation 0.011347 -0.062189 -0.023023
-                                          rotation 0.577994 0.576060 -0.577994 2.096332
-                                          children [
-                                            Box {
-                                               size 0.078414 0.135720 0.219532
-                                            }
-                                          ]
-                                        }
+                                        boundingObject USE left_foot
                                         physics Physics {
                                           density -1
                                           mass 0.205000
@@ -1300,15 +1196,7 @@ PROTO NUgus [
                                     }
                                   ]
                                   name "left_ankle"
-                                  boundingObject Transform {
-                                    translation 0.000077 0.026219 -0.017801
-                                    rotation -0.000000 -0.707107 0.707107 3.141593
-                                    children [
-                                      Box {
-                                         size 0.061433 0.066525 0.094015
-                                      }
-                                    ]
-                                  }
+                                  boundingObject USE left_ankle
                                   physics Physics {
                                     density -1
                                     mass 0.306000
@@ -1322,15 +1210,7 @@ PROTO NUgus [
                               }
                             ]
                             name "left_lower_leg"
-                            boundingObject Transform {
-                              translation 0.001888 0.013813 -0.097688
-                              rotation 0.993677 -0.112167 -0.005014 0.089911
-                              children [
-                                Box {
-                                   size 0.069137 0.081378 0.233796
-                                }
-                              ]
-                            }
+                            boundingObject USE left_lower_leg
                             physics Physics {
                               density -1
                               mass 0.177000
@@ -1344,15 +1224,7 @@ PROTO NUgus [
                         }
                       ]
                       name "left_upper_leg"
-                      boundingObject Transform {
-                        translation -0.000694 0.006100 -0.101326
-                        rotation 1.000000 0.000000 -0.000000 3.004779
-                        children [
-                          Box {
-                             size 0.092446 0.096597 0.243083
-                          }
-                        ]
-                      }
+                      boundingObject USE left_upper_leg
                       physics Physics {
                         density -1
                         mass 0.387000
@@ -1366,15 +1238,7 @@ PROTO NUgus [
                   }
                 ]
                 name "left_hip_roll"
-                boundingObject Transform {
-                  translation 0.000034 0.004316 -0.007293
-                  rotation -1.000000 0.000000 -0.000000 1.570796
-                  children [
-                    Box {
-                       size 0.061434 0.066525 0.094015
-                    }
-                  ]
-                }
+                boundingObject USE left_hip_roll
                 physics Physics {
                   density -1
                   mass 0.306000
@@ -1388,15 +1252,7 @@ PROTO NUgus [
             }
           ]
           name "left_hip_yaw"
-          boundingObject Transform {
-            translation -0.006922 0.000263 -0.034947
-            rotation 0.581640 0.561666 0.588410 4.153285
-            children [
-              Box {
-                 size 0.073451 0.096899 0.110830
-              }
-            ]
-          }
+          boundingObject USE left_hip_yaw
           physics Physics {
             density -1
             mass 0.067000
@@ -1531,15 +1387,7 @@ PROTO NUgus [
                   }
                 ]
                 name "head"
-                boundingObject Transform {
-                  translation -0.002953 -0.002320 0.064834
-                  rotation 0.025107 0.057446 -0.998033 2.293012
-                  children [
-                    Box {
-                       size 0.156379 0.156754 0.157874
-                    }
-                  ]
-                }
+                boundingObject USE head
                 physics Physics {
                   density -1
                   mass 0.419000
@@ -1553,15 +1401,7 @@ PROTO NUgus [
             }
           ]
           name "neck"
-          boundingObject Transform {
-            translation -0.002854 -0.000008 -0.017064
-            rotation -0.000000 -0.000000 -1.000000 1.570796
-            children [
-              Box {
-                 size 0.040829 0.050604 0.062673
-              }
-            ]
-          }
+          boundingObject USE neck
           physics Physics {
             density -1
             mass 0.135000
@@ -1864,12 +1704,10 @@ PROTO NUgus [
     ]
     name IS name
     boundingObject Transform {
-      translation -0.001241 0.000021 0.115538
-      rotation 0.010690 0.999943 0.000078 3.127061
+      translation 0.000000 0.000000 0.000000
+      rotation 0.000000 0.000000 1.000000 1.570790
       children [
-        Box {
-           size 0.140936 0.189870 0.259693
-        }
+        USE torso
       ]
     }
     physics Physics {
