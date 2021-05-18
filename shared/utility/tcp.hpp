@@ -30,9 +30,8 @@
     #include <netdb.h>      /* definition of gethostbyname */
     #include <netinet/in.h> /* definition of struct sockaddr_in */
     #include <poll.h>       /* definition of poll and pollfd */
-    #include <sys/socket.h>
-    #include <sys/time.h>
-    #include <unistd.h> /* definition of close */
+    #include <sys/socket.h> /* definition of socket, accept, listen, and bind */
+    #include <unistd.h>     /* definition of close */
 #endif
 
 namespace utility::tcp {
