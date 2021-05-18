@@ -46,12 +46,12 @@ PROTO NUgus [
       }%
       DEF jerseyFront JerseyFront {
         jerseyFrontTexture [
-          %{='"./robot/textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+          %{='"./robot/NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
       DEF jerseyBack JerseyBack {
         jerseyBackTexture [
-          %{='"./robot/textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+          %{='"./robot/NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
 
@@ -125,7 +125,7 @@ PROTO NUgus [
                 children [
                   DEF right_upper_arm NUgus_right_upper_armMesh {
                     robotTexture [
-                      %{='"./robot/textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                      %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                     ]
                   }
                   HingeJoint {
@@ -154,7 +154,7 @@ PROTO NUgus [
                       children [
                         DEF right_lower_arm NUgus_right_lower_armMesh {
                           robotTexture [
-                            %{='"./robot/textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                            %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                           ]
                         }
                       ]
@@ -252,7 +252,7 @@ PROTO NUgus [
                 children [
                   DEF left_upper_arm NUgus_left_upper_armMesh {
                     robotTexture [
-                      %{='"./robot/textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                      %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                     ]
                   }
                   HingeJoint {
@@ -281,7 +281,7 @@ PROTO NUgus [
                       children [
                         DEF left_lower_arm NUgus_left_lower_armMesh {
                           robotTexture [
-                            %{='"./robot/textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                            %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                           ]
                         }
                       ]
@@ -433,7 +433,7 @@ PROTO NUgus [
                             children [
                               DEF right_lower_leg NUgus_right_lower_legMesh {
                                 robotTexture [
-                                  %{='"./robot/textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                  %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                 ]
                               }
                               HingeJoint {
@@ -681,7 +681,7 @@ PROTO NUgus [
                             children [
                               DEF left_lower_leg NUgus_left_lower_legMesh {
                                 robotTexture [
-                                  %{='"./robot/textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                  %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                 ]
                                 %{ end }%
                               }
