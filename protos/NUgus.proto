@@ -1307,8 +1307,8 @@ PROTO NUgus [
                     children [
                       DEF left_camera Camera {
                         name "left_camera"
-                        translation 0.069952 0.033795 0.06488         # Left side of the face
-                        rotation -0.570515 0.570516 0.590782 -2.07437 # rotated up in y by 2 degrees
+                        translation 0.0889361 0.0352991 0.0713675
+                        rotation 0.577322 -0.595552 -0.558585 2.06587
                         
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
@@ -1326,8 +1326,8 @@ PROTO NUgus [
                       }
                       DEF right_camera Camera {
                         name "right_camera"
-                        translation 0.069952 -0.033795 0.06488          # right side of the face
-                        rotation -0.570515 0.570516 0.590782 -2.07437   # rotated up in y by 2 degrees
+                       translation 0.0889361 -0.0352991 0.0713675
+                        rotation 0.577322 -0.595552 -0.558585 2.06587
                         
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
