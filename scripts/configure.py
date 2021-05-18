@@ -24,11 +24,7 @@ def register(command):
 def run(interactive, args, **kwargs):
 
     # Make sure we have a build directory
-    try:
-        os.makedirs("build")
-    except FileExistsError:
-        # directory already exists
-        pass
+    os.makedirs("build", exist_ok=True)
 
     # If interactive then run ccmake else just run cmake
     os.chdir(os.path.join(b.project_dir, "build"))
@@ -40,6 +36,6 @@ def run(interactive, args, **kwargs):
     if "--" in args:
         args.remove("--")
 
-    command.extend([*args, b.project_dir])
+    command.extend([*args, b.project_dir, "-GNinja"])
 
     exit(subprocess.run(command).returncode)

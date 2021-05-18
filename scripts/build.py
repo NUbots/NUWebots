@@ -22,8 +22,8 @@ def run(j, args, **kwargs):
     os.chdir(os.path.join(b.project_dir, "build"))
 
     # Run cmake if we don't have a ninja build file
-    if not os.path.isfile("Makefile"):
-        exitcode = os.system("cmake {}".format(b.project_dir)) >> 8
+    if not os.path.isfile("build.ninja"):
+        exitcode = os.system("cmake {} -GNinja".format(b.project_dir)) >> 8
 
         # If cmake errors return with its status
         if exitcode != 0:
@@ -33,9 +33,7 @@ def run(j, args, **kwargs):
     if j is None:
         j = cpu_count()
 
-    command = ["make", *args]
-
-    command.insert(1, "-j{}".format(j))
+    command = ["ninja", "-j{}".format(j), *args]
 
     # Return the exit code of make
     exit(subprocess.run(command).returncode)
