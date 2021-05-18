@@ -37,10 +37,9 @@ def _do_format(path):
 
 def register(command):
     command.help = "Format all the code in the codebase using clang-format"
-    print("nice kevin")
+
 
 def run(**kwargs):
-    print("nice one!!")
     # Change into the project directory
     os.chdir    (b.project_dir)
 
