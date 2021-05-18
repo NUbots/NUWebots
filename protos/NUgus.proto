@@ -20,7 +20,7 @@ PROTO NUgus [
   field SFInt32      cameraWidth            640                               # 640 pixels
   field SFInt32      cameraHeight           480                               # 480 pixels
   field SFFloat      cameraLensFocalLength  1.98                              # 1.98mm, as from the real cameras
-  field SFFloat      cameraNoise            0.000000001                       # 
+  field SFFloat      cameraNoise            0.000000001                       # Not much noise on real cameras
   field SFFloat      cameraMotionBlur       10                                # With over 100fps, real cameras do not have much motion blur
   # MOTOR PARAMETER: See section 2.0.3 of docs/Robot_Model_RoboCup_2021 for more information
   field SFFloat     DYNAMIXEL-RESOLUTION    0.0015                            # Resolution of the encoder for DYNAMIXEL servo 
