@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
-                for (std::array<double, 3> testPos : positions) {
+                for (const auto& testPos : positions) {
                     const double distance =
                         std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
                     if (distance < minDistance) {
