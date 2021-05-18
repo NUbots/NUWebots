@@ -1326,7 +1326,7 @@ PROTO NUgus [
                       }
                       DEF right_camera Camera {
                         name "right_camera"
-                       translation 0.0889361 -0.0352991 0.0713675
+                        translation 0.0889361 -0.0352991 0.0713675
                         rotation 0.577322 -0.595552 -0.558585 2.06587
                         
                         # Set parameters from fields
