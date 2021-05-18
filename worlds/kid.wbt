@@ -68,7 +68,7 @@ DEF RED_1 Darwin-opHinge2 {
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
   rotation 0.83 -0.48 -0.266 0.0489
-  name "player red 2"
+  name "red player 2"
 }
 
 DEF RED_3 RobotisOp3 {
@@ -85,12 +85,11 @@ DEF RED_4 Wolfgang {
   name "player red 4"
 }
 DEF BLUE_1 NUgus {
-  name "player blue 1"
+  name "blue player 1"
   translation 2.688 -0.3985 0.5249
   rotation -0.0367 -0.0048 0.999 -2.9116
   controller "nugus_controller"
   controllerArgs [
     "32"
   ]
-  name "red player 1"
 }
