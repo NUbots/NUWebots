@@ -1319,7 +1319,7 @@ PROTO NUgus [
                         spherical FALSE
 
                         # Allows the robot to detect objects in the world
-                        recognition DEF RECOGNITION Recognition {
+                        recognition DEF recognition Recognition {
                           frameThickness 0       # Remove bounding boxes
                           segmentation TRUE      # Add segmentation
                         }              
@@ -1340,7 +1340,7 @@ PROTO NUgus [
                         spherical FALSE
                         
                         # Set the recognition parameters from the left camera
-                        recognition USE RECOGNITION
+                        recognition USE recognition
                       }
                     ]
                   }
