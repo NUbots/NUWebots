@@ -130,9 +130,9 @@ int main(int argc, char** argv) {
             webots::Field* target_rotation_field = otherRobotsNodes[i]->getField("rotation");
 
             // There will be a position for every robot in the positions vector
-            target_translation_field.setSFVec3f(positions[i].data());
+            target_translation_field->setSFVec3f(positions[i].data());
             // Apply new rotation
-            target_rotation_field.setSFRotation(rotations[rotDistrib(gen)].data());
+            target_rotation_field->setSFRotation(rotations[rotDistrib(gen)].data());
 
             // Reset physics to avoid robot tearing itself apart
             otherRobotsNodes[i]->resetPhysics();
