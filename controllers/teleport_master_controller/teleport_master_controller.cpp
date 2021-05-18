@@ -23,11 +23,11 @@
 #include <array>
 #include <fstream>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include <random>
 #include <webots/Supervisor.hpp>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 // AxisAngle rotations will be read from a config file and saved here
 std::vector<std::array<double, 4>> rotations;
@@ -55,8 +55,7 @@ int main(int argc, char** argv) {
     webots::Supervisor supervisor = webots::Supervisor();
     for (int i = 2; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
-        webots::Node* tempNode = supervisor.getFromDef(argv[i]);
-        otherRobotsNodes.push_back(tempNode);
+        otherRobotsNodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
 
     // Load config file
@@ -76,8 +75,8 @@ int main(int argc, char** argv) {
     }
 
     webots::Node* tempNode = supervisor.getFromDef("test");
-    xSize                  = tempNode->getField("xSize")->getSFFloat();
-    ySize                  = tempNode->getField("ySize")->getSFFloat();
+    const double xSize                  = tempNode->getField("xSize")->getSFFloat();
+    const double ySize                  = tempNode->getField("ySize")->getSFFloat();
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
@@ -87,9 +86,9 @@ int main(int argc, char** argv) {
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 
     // Generate distributions for random number systems in the following loop
-    std::uniform_int_distribution<> xDistrib(0, xSize * 100);
-    std::uniform_int_distribution<> yDistrib(0, ySize * 100);
-    std::uniform_int_distribution<> rotDistrib(0, rotations.size() - 1);
+    std::uniform_real_distribution<> xDistrib(-xSize * 0.5, xSize * 0.5);
+    std::uniform_real_distribution<> yDistrib(-ySize * 0.5, ySize * 0.5);
+    std::uniform_real_distribution<> rotDistrib(0.0, rotations.size() - 1.0);
 
     while (supervisor.step(timeStep) != -1) {
 
@@ -105,21 +104,20 @@ int main(int argc, char** argv) {
             do {
                 collision = false;
                 // Generate a new random location
-                newPos[0] = xSize / 2 - xDistrib(gen) / 100;
-                newPos[1] = ySize / 2 - yDistrib(gen) / 100;
+                newPos[0] = xDistrib(gen);
+                newPos[1] = yDistrib(gen);
                 newPos[2] = zHeight;
 
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
                 for (std::array<double, 3> testPos : positions) {
-                    double distance = sqrt(pow((newPos[1] - testPos[1]), 2) + pow((newPos[0] - testPos[0]), 2));
+                    double distance = std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
                     if (distance < minDistance) {
                         collision = true;
                     }
                 }
-            }
             // Loop until a proposed location has been found that doesn't clash with the existing ones
-            while (collision);
+            } while (collision);
             // Finally add the proposed location in as a confirmed position
             positions.push_back(newPos);
         }
@@ -127,9 +125,9 @@ int main(int argc, char** argv) {
         // Loop through every robot
         for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
             // Grab translation field of the robot to modify
-            webots::Field& target_translation_field = *(otherRobotsNodes[i])->getField("translation");
+            webots::Field* target_translation_field = otherRobotsNodes[i]->getField("translation");
             // Grab the current rotation field of the robot to modify
-            webots::Field& target_rotation_field = *(otherRobotsNodes[i])->getField("rotation");
+            webots::Field* target_rotation_field = otherRobotsNodes[i]->getField("rotation");
 
             // There will be a position for every robot in the positions vector
             target_translation_field.setSFVec3f(positions[i].data());
