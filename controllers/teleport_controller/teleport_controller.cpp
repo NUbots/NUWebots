@@ -25,8 +25,6 @@
 
 #include "yaml-cpp/yaml.h"
 
-// AxisAngle rotations will be read from a config file and saved here
-std::vector<std::array<double, 4>> rotations;
 
 int main(int argc, char** argv) {
 
@@ -38,6 +36,8 @@ int main(int argc, char** argv) {
     // Load def argument which will be used to identify the robot using the webots getFromDef function
     std::string def = argv[1];
 
+    // AxisAngle rotations will be read from a config file and saved here
+    std::vector<std::array<double, 4>> rotations;
 
     // Load config file
     try {
@@ -104,10 +104,7 @@ int main(int argc, char** argv) {
         // image only, after resetPhysics is should return to a regular state
 
 
-        std::array<double, 3> newPos;
-        newPos[0] = 3.8 - xDistrib(gen) / 100;
-        newPos[1] = 5.4 - yDistrib(gen) / 100;
-        newPos[2] = 0.51;
+        std::array<double, 3> newPos = {3.8 - xDistrib(gen) / 100.0, 5.4 - yDistrib(gen) / 100.0, 0.51};
 
         // Set new location
         target_translation_field.setSFVec3f(newPos.data());

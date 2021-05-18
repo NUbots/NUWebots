@@ -66,7 +66,7 @@ namespace utility::tcp {
         }
 
         // fill in socket address
-        sockaddr_in address;
+        sockaddr_in address{};
         std::memset(&address, 0, sizeof(sockaddr_in));
         address.sin_family      = AF_INET;
         address.sin_port        = htons((unsigned short) port);
@@ -93,7 +93,7 @@ namespace utility::tcp {
         socklen_t asize = sizeof(sockaddr_in);
 #endif
 
-        sockaddr_in client;
+        sockaddr_in client{};
         const int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
 
         if (cfd == -1) {
