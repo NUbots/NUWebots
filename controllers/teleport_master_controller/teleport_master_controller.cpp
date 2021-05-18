@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 
         // Declare a vector of positions that will be saved as they are randomly generated, to be later
         // applied to each robot
-        std::vector<std::array<double, 3>> positions = std::vector<std::array<double, 3>>();
+        std::vector<std::array<double, 3>> positions;
         // Loop through every robot
         for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
             // Assume there is no collision
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
                 for (std::array<double, 3> testPos : positions) {
-                    double distance =
+                    const double distance =
                         std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
                     if (distance < minDistance) {
                         collision = true;
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
                 // Loop until a proposed location has been found that doesn't clash with the existing ones
             } while (collision);
             // Finally add the proposed location in as a confirmed position
-            positions.push_back(newPos);
+            positions.emplace_back(newPos);
         }
 
         // Loop through every robot
