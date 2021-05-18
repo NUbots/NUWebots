@@ -22,7 +22,7 @@ except FileNotFoundError:
     pass
 
 for d in dirs:
-    if os.path.isfile(os.path.join(project_dir, d, "CMakeCache.txt")):
+    if os.path.isfile(os.path.join(d, "CMakeCache.txt")):
         with open(os.path.join(project_dir, d, "CMakeCache.txt"), "r") as f:
             cmake_cache_text = f.readlines()
             break
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # In this case we need to look through all the tools so we can register them all.
     # This will provide a complete help for the function call so the user can try again
     tools = {}
-    for importer, modname, ispkg in pkgutil.walk_packages([user_tools_path, nuclear_tools_path]):
+    for importer, modname, ispkg in pkgutil.walk_packages([scripts_dir]):
         # Tools aren't in packages
         if not ispkg:
 
