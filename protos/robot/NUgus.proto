@@ -6,7 +6,7 @@
 
 PROTO NUgus [
   field  SFVec3f     translation     0 0 0
-  field  SFRotation  rotation        1 0 0 0                         # Make up be the positive Z axis
+  field  SFRotation  rotation        1 0 0 0 
   field  MFString    robotTexture    "./robot/NUgus_textures/NUgus_base_color.jpg"
   field  SFString    name            "NUgus"                         # Is `Robot.name`.
   field  SFString    controller      "void"                          # Is `Robot.controller`.
