@@ -16,14 +16,14 @@
  *
  * Copyright 2021 NUbots <nubots@nubots.net>
  */
- 
+
 // Special thanks to Hamburg Bit-Bots for ideas for this controller
 // https://github.com/bit-bots/wolfgang_robot/blob/feature/recognition/wolfgang_webots_sim/src/wolfgang_webots_sim/webots_camera_controller.py
 
 #include <array>
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <cmath>
 #include <random>
 #include <webots/Supervisor.hpp>
 #include <yaml-cpp/yaml.h>
@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
         // Load the Node of the robot by def argument and add to vector
         otherRobotsNodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
-    
+
     // AxisAngle rotations will be read from a config file and saved here
     std::vector<std::array<double, 4>> rotations;
     double minDistance;
@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
     }
 
     webots::Node* tempNode = supervisor.getFromDef("test");
-    const double xSize = tempNode->getField("xSize")->getSFFloat();
-    const double ySize = tempNode->getField("ySize")->getSFFloat();
+    const double xSize     = tempNode->getField("xSize")->getSFFloat();
+    const double ySize     = tempNode->getField("ySize")->getSFFloat();
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
@@ -107,12 +107,13 @@ int main(int argc, char** argv) {
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
                 for (std::array<double, 3> testPos : positions) {
-                    double distance = std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
+                    double distance =
+                        std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
                     if (distance < minDistance) {
                         collision = true;
                     }
                 }
-            // Loop until a proposed location has been found that doesn't clash with the existing ones
+                // Loop until a proposed location has been found that doesn't clash with the existing ones
             } while (collision);
             // Finally add the proposed location in as a confirmed position
             positions.push_back(newPos);
