@@ -122,14 +122,10 @@ int main(int argc, char** argv) {
         // Loop through every robot
         for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
             // Grab translation field of the robot to modify
-            webots::Field* target_translation_field = otherRobotsNodes[i]->getField("translation");
-            // Grab the current rotation field of the robot to modify
-            webots::Field* target_rotation_field = otherRobotsNodes[i]->getField("rotation");
-
             // There will be a position for every robot in the positions vector
-            target_translation_field->setSFVec3f(positions[i].data());
+            otherRobotsNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
             // Apply new rotation
-            target_rotation_field->setSFRotation(rotations[rotDistrib(gen)].data());
+            otherRobotsNodes[i]->getField("rotation")->setSFRotation(rotations[rotDistrib(gen)].data());
 
             // Reset physics to avoid robot tearing itself apart
             otherRobotsNodes[i]->resetPhysics();
