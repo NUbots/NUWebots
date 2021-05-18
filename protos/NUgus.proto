@@ -1318,8 +1318,11 @@ PROTO NUgus [
                         motionBlur IS cameraMotionBlur
                         spherical FALSE
 
-                        # Set the recognition parameters from the right camera
-                        recognition USE RECOGNITION
+                        # Allows the robot to detect objects in the world
+                        recognition DEF RECOGNITION Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
+                        }              
                       }
                       DEF right_camera Camera {
                         name "right_camera"
@@ -1336,11 +1339,8 @@ PROTO NUgus [
                         # We are using a rectilinear lens because there is no true spherical lens
                         spherical FALSE
                         
-                        # Allows the robot to detect objects in the world
-                        recognition DEF RECOGNITION Recognition {
-                          frameThickness 0       # Remove bounding boxes
-                          segmentation TRUE      # Add segmentation
-                        }
+                        # Set the recognition parameters from the left camera
+                        recognition USE RECOGNITION
                       }
                     ]
                   }
