@@ -29,6 +29,7 @@
     #include <arpa/inet.h>  /* definition of inet_ntoa */
     #include <netdb.h>      /* definition of gethostbyname */
     #include <netinet/in.h> /* definition of struct sockaddr_in */
+    #include <poll.h>       /* definition of poll and pollfd */
     #include <sys/socket.h>
     #include <sys/time.h>
     #include <unistd.h> /* definition of close */
@@ -59,8 +60,8 @@ inline int create_socket_server(const int& port) {
     }
 #endif
     // create the socket
-    const int sfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sfd == -1) {
+    const int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd == -1) {
         std::cerr << "Cannot create socket" << std::endl;
         return -1;
     }
@@ -73,39 +74,72 @@ inline int create_socket_server(const int& port) {
     address.sin_addr.s_addr = INADDR_ANY;
 
     // bind to port
-    if (bind(sfd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr)) == -1) {
+    if (bind(server_fd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr)) == -1) {
         std::cerr << "Cannot bind port " << port << std::endl;
-        close_socket(sfd);
+        close_socket(server_fd);
         return -1;
     }
 
     // listen for connections
-    if (listen(sfd, 1) == -1) {
+    if (listen(server_fd, 1) == -1) {
         std::cerr << "Cannot listen for connections" << std::endl;
-        close_socket(sfd);
+        close_socket(server_fd);
         return -1;
     }
     std::cerr << "Waiting for a connection on port " << port << " ..." << std::endl;
 
+    return server_fd;
+}
+
+inline int check_for_connection(const int& server_fd, const int& port) {
+
+    // Setup the polling data
+    pollfd fds;
+    fds.fd      = server_fd;
+    fds.events  = POLLIN | POLLPRI;  // Check for data to read and urgent data to read
+    fds.revents = 0;
+
+    // Poll the server fd to see if there is any data to read
+    const int num_ready = poll(&fds, 1, 0);
+
+    // Polling failed
+    if (num_ready < 0) {
+        std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
+        return -1;
+    }
+
+    // We have an incoming connection
+    else if (num_ready > 0) {
 #ifdef _WIN32
-    int asize = sizeof(sockaddr_in);
+        int asize = sizeof(sockaddr_in);
 #else
-    socklen_t asize = sizeof(sockaddr_in);
+        socklen_t asize = sizeof(sockaddr_in);
 #endif
 
-    sockaddr_in client;
-    const int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
+        // Accept the connection
+        sockaddr_in client;
+        const int client_fd = accept(server_fd, reinterpret_cast<sockaddr*>(&client), &asize);
 
-    if (cfd == -1) {
-        std::cerr << "Cannot accept client" << std::endl;
-        close_socket(sfd);
-    }
-    else {
+        // Failed to accept the connection
+        if (client_fd == -1) {
+            std::cerr << "Error: Cannot accept client connection on port " << port << ": " << strerror(errno)
+                      << std::endl;
+            close_socket(server_fd);
+            return -1;
+        }
+
+        // Get client information
         const hostent* client_info = gethostbyname(inet_ntoa(client.sin_addr));
-        std::cerr << "Accepted connection from: " << client_info->h_name << std::endl;
+        std::cerr << "Accepted connection on port " << port << " from: " << client_info->h_name << std::endl;
+
+        // Return the client fd
+        return client_fd;
     }
 
-    return cfd;
+    std::cerr << "Waiting for a connection on port " << port << " ..." << std::endl;
+
+    // Nothing yet
+    return 0;
 }
 
 }  // namespace utility::tcp
