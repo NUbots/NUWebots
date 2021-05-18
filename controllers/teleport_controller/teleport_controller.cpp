@@ -59,6 +59,7 @@ int main(int argc, char** argv) {
     log.open("teleport_controller.log");
     log.close();
 
+
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
     webots::Node& target          = *supervisor.getFromDef(def);

@@ -79,8 +79,8 @@ list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}/lib/controller")
 
 # Mac OSX RPATHs work differently
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_MACOSX_RPATH ON)
-    list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
+  set(CMAKE_MACOSX_RPATH ON)
+  list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
 endif()
 
 add_subdirectory(controllers)
