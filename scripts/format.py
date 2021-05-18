@@ -30,7 +30,10 @@ def _do_format(path):
     except CalledProcessError as e:
         text = text + e.output.decode("utf-8")
     except:
-        cprint("You don't have one of the formatters installed.\nRun `sudo -H pip3 install -r requirements.txt`", color='red')
+        cprint(
+            "You don't have one of the formatters installed.\nRun `sudo -H pip3 install -r requirements.txt`",
+            color="red",
+        )
 
     return text
 
@@ -41,13 +44,11 @@ def register(command):
 
 def run(**kwargs):
     # Change into the project directory
-    os.chdir    (b.project_dir)
+    os.chdir(b.project_dir)
 
     # Use git to get all of the files that are committed to the repository
     files = check_output(["git", "ls-files"]).decode("utf-8")
 
     with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-        for r in pool.imap_unordered(
-            partial(_do_format), files.splitlines()
-        ):
+        for r in pool.imap_unordered(partial(_do_format), files.splitlines()):
             sys.stdout.write(r)
