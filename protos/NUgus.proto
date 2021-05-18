@@ -61,7 +61,7 @@ PROTO NUgus [
             endPoint IS jerseyBack
           }
           Shape {
-            appearance DEF BASE_APPEARANCE PBRAppearance {
+            appearance DEF base_appearance PBRAppearance {
               baseColor 0.500000 0.500000 0.500000
               transparency 0.000000
               roughness 1.000000
@@ -752,15 +752,15 @@ PROTO NUgus [
                                             children [
                                               # Define shape for all touch sensors
                                               DEF TOUCH_SHAPE Shape{
-                                                appearance BASE_APPEARANCE
-                                                geometry DEF TOUCH_BOX Box {
+                                                appearance USE base_appearance
+                                                geometry DEF touch_box Box {
                                                   size 0.01 0.01 0.005
                                                 }
                                               }
                                             ]
                                             name "right_touch_sensor_br"
                                             # Bounding object uses geometry from TOUCH_SHAPE
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             # Define physics for all touch sensors
                                             physics DEF TOUCH_PHYSICS Physics{
                                               density -1
@@ -777,7 +777,7 @@ PROTO NUgus [
                                                USE TOUCH_SHAPE
                                             ]
                                             name "right_touch_sensor_bl"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -788,7 +788,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "right_touch_sensor_fr"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -799,7 +799,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "right_touch_sensor_fl"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -1182,7 +1182,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "left_touch_sensor_br"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -1193,7 +1193,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "left_touch_sensor_bl"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -1204,7 +1204,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "left_touch_sensor_fl"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
@@ -1215,7 +1215,7 @@ PROTO NUgus [
                                               USE TOUCH_SHAPE
                                             ]
                                             name "left_touch_sensor_fr"
-                                            boundingObject USE TOUCH_BOX
+                                            boundingObject USE touch_box
                                             physics USE TOUCH_PHYSICS
                                             type "bumper"
                                           }
