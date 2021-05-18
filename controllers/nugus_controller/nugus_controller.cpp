@@ -17,12 +17,10 @@
  * Copyright 2021 NUbots <nubots@newcastle.edu.au>
  */
 
-// You may need to add webots include files such as
-// <webots/DistanceSensor.hpp>, <webots/Motor.hpp>, etc.
-// and/or add some other includes
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <poll.h> /* definition of poll and pollfd */
 #include <string>
 #include <vector>
 #include <webots/Robot.hpp>
@@ -36,11 +34,10 @@ using namespace utility::tcp;
 class NUgus : public webots::Robot {
 public:
     NUgus(const int& time_step, const int& server_port)
-        : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
-            send(tcp_fd, "Welcome", 8, 0);
-    }
+        : time_step(time_step), server_port(server_port), server_fd(create_socket_server(server_port)), client_fd(-1) {}
     ~NUgus() {
-        close_socket(tcp_fd);
+        close_socket(client_fd);
+        close_socket(server_fd);
     }
 
     void run() {
@@ -48,71 +45,98 @@ public:
         uint32_t current_num = 1;
 
         while (step(time_step) != -1) {
-            // Don't bother doing anything unless we have an active TCP connection
-            if (tcp_fd == -1) {
-                std::cerr << "Error: Failed to start TCP server, retrying ..." << std::endl;
-                tcp_fd = create_socket_server(server_port);
-                send(tcp_fd, "Welcome", 8, 0);
-                continue;
+            // Make sure we have a server
+            if (server_fd == -1) {
+                std::cerr << "Error: Lost TCP server, retrying ..." << std::endl;
+                server_fd = create_socket_server(server_port);
+
+                // If we had to recreate the server then the client is no longer valid
+                if (client_fd != -1) {
+                    close_socket(client_fd);
+                    client_fd = -1;
+                }
             }
 
-            // Setup arguments for select call
-            fd_set rfds;
-            FD_ZERO(&rfds);
-            FD_SET(tcp_fd, &rfds);
-            timeval timeout = {0, 0};
+            // Make sure we have an active TCP connection
+            if (server_fd != -1 && client_fd == -1) {
+                std::cerr << "Warning: No active TCP connection, retrying ..." << std::endl;
+                client_fd = check_for_connection(server_fd, server_port);
 
-            // Watch TCP file descriptor to see when it has input.
-            // No wait - polling as fast as possible
-            int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
-            if (num_ready < 0) {
-                std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
-                continue;
+                // There was an error accepting the new connection, our server is no longer valid
+                if (client_fd < 0) {
+                    server_fd = -1;
+                }
+                // No new connection came in, we are still waiting
+                else if (client_fd == 0) {
+                    client_fd = -1;
+                }
+                // Send our welcome message
+                else {
+                    send(client_fd, "Welcome", 8, 0);
+                }
             }
-            else if (num_ready > 0) {
-                // Wire format
-                // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
-                // uint8_t * Nn  the message
-                uint32_t Nn;
-                if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                    std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
-                              << std::endl;
+
+            // Server is good and client is good
+            if (server_fd != -1 && client_fd != -1) {
+                // Setup arguments for poll call
+                pollfd fds;
+                fds.fd      = client_fd;
+                fds.events  = POLLIN | POLLPRI;  // Check for data to read and urgent data to read
+                fds.revents = 0;
+
+                // Watch TCP file descriptor to see when it has input.
+                // No wait - polling as fast as possible
+                int num_ready = poll(&fds, 1, 0);
+                if (num_ready < 0) {
+                    std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
                     continue;
                 }
+                else if (num_ready > 0) {
+                    // Wire format
+                    // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
+                    // uint8_t * Nn  the message
+                    uint32_t Nn;
+                    if (recv(client_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
+                        std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
+                                  << std::endl;
+                        continue;
+                    }
 
-                // Covert to host endianness, which might be different to network endianness
-                uint32_t Nh = ntohl(Nn);
+                    // Covert to host endianness, which might be different to network endianness
+                    uint32_t Nh = ntohl(Nn);
 
-                std::vector<uint8_t> data(Nh, 0);
-                if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
-                    std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
-                    continue;
-                }
+                    std::vector<uint8_t> data(Nh, 0);
+                    if (recv(client_fd, data.data(), Nh, 0) != Nh) {
+                        std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno)
+                                  << std::endl;
+                        continue;
+                    }
 
-                // Parse message data
-                controller::nugus::RobotControl msg;
-                if (!msg.ParseFromArray(data.data(), Nh)) {
-                    std::cerr << "Error: Failed to parse serialised message" << std::endl;
-                    continue;
-                }
+                    // Parse message data
+                    controller::nugus::RobotControl msg;
+                    if (!msg.ParseFromArray(data.data(), Nh)) {
+                        std::cerr << "Error: Failed to parse serialised message" << std::endl;
+                        continue;
+                    }
 
-                // Read out the current message counter from the message
-                current_num = msg.num();
+                    // Read out the current message counter from the message
+                    current_num = msg.num();
 
-                // Send a message to the client
-                msg.set_num(current_num);
+                    // Send a message to the client
+                    msg.set_num(current_num);
 
-                Nh = msg.ByteSizeLong();
-                data.resize(Nh);
-                msg.SerializeToArray(data.data(), Nh);
+                    Nh = msg.ByteSizeLong();
+                    data.resize(Nh);
+                    msg.SerializeToArray(data.data(), Nh);
 
-                Nn = htonl(Nh);
+                    Nn = htonl(Nh);
 
-                if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
-                }
-                else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                    if (send(client_fd, &Nn, sizeof(Nn), 0) < 0) {
+                        std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                    }
+                    else if (send(client_fd, data.data(), data.size(), 0) < 0) {
+                        std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                    }
                 }
             }
         }
@@ -123,8 +147,10 @@ private:
     const int time_step;
     /// TCP server port
     const int server_port;
+    /// File descriptor to use for the TCP server
+    int server_fd;
     /// File descriptor to use for the TCP connection
-    int tcp_fd;
+    int client_fd;
 };
 
 
