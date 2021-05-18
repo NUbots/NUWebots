@@ -26,15 +26,7 @@
 #include <cmath>
 #include <random>
 #include <webots/Supervisor.hpp>
-
 #include <yaml-cpp/yaml.h>
-
-// AxisAngle rotations will be read from a config file and saved here
-std::vector<std::array<double, 4>> rotations;
-double minDistance;
-double zHeight;
-double xSize;
-double ySize;
 
 int main(int argc, char** argv) {
 
@@ -57,7 +49,11 @@ int main(int argc, char** argv) {
         // Load the Node of the robot by def argument and add to vector
         otherRobotsNodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
-
+    
+    // AxisAngle rotations will be read from a config file and saved here
+    std::vector<std::array<double, 4>> rotations;
+    double minDistance;
+    double zHeight;
     // Load config file
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
@@ -75,8 +71,8 @@ int main(int argc, char** argv) {
     }
 
     webots::Node* tempNode = supervisor.getFromDef("test");
-    const double xSize                  = tempNode->getField("xSize")->getSFFloat();
-    const double ySize                  = tempNode->getField("ySize")->getSFFloat();
+    const double xSize = tempNode->getField("xSize")->getSFFloat();
+    const double ySize = tempNode->getField("ySize")->getSFFloat();
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
