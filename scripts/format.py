@@ -17,7 +17,7 @@ def _do_format(path):
         # Use the absolute path to file
         abs_path = os.path.abspath(path)
 
-        if path.endswith((".h", ".c", ".cc", ".cxx", ".cpp", ".hpp", ".ipp")):
+        if path.endswith((".h", ".c", ".cc", ".cxx", ".cpp", ".hpp", ".ipp", ".proto")) and "protos" not in path:
             text = "Formatting {} with clang-format\n".format(path)
             text = text + check_output(["clang-format", "-i", "-style=file", abs_path], stderr=STDOUT).decode("utf-8")
         elif path.endswith(("CMakeLists.txt", ".cmake")):
