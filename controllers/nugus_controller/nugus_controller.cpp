@@ -37,7 +37,7 @@ class NUgus : public webots::Robot {
 public:
     NUgus(const int& time_step, const int& server_port)
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
-            send(tcp_fd, "Welcome", 8, 0);
+        send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() {
         close_socket(tcp_fd);

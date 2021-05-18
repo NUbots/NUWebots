@@ -36,77 +36,77 @@
 
 namespace utility::tcp {
 
-inline void close_socket(const int& tcp_fd) {
-    if (tcp_fd > -1) {
+    inline void close_socket(const int& tcp_fd) {
+        if (tcp_fd > -1) {
 #ifdef _WIN32
-        closesocket(tcp_fd);
-        WSACleanup();
+            closesocket(tcp_fd);
+            WSACleanup();
 #else
-        close(tcp_fd);
+            close(tcp_fd);
 #endif
+        }
     }
-}
 
-inline int create_socket_server(const int& port) {
+    inline int create_socket_server(const int& port) {
 #ifdef _WIN32
-    // initialize the socket api
-    WSADATA info;
+        // initialize the socket api
+        WSADATA info;
 
-    // Winsock 1.1
-    if (WSAStartup(MAKEWORD(1, 1), &info) != 0) {
-        std::cerr << "Cannot initialize Winsock" << std::endl;
-        return -1;
-    }
+        // Winsock 1.1
+        if (WSAStartup(MAKEWORD(1, 1), &info) != 0) {
+            std::cerr << "Cannot initialize Winsock" << std::endl;
+            return -1;
+        }
 #endif
-    // create the socket
-    const int sfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sfd == -1) {
-        std::cerr << "Cannot create socket" << std::endl;
-        return -1;
-    }
+        // create the socket
+        const int sfd = socket(AF_INET, SOCK_STREAM, 0);
+        if (sfd == -1) {
+            std::cerr << "Cannot create socket" << std::endl;
+            return -1;
+        }
 
-    // fill in socket address
-    sockaddr_in address;
-    std::memset(&address, 0, sizeof(sockaddr_in));
-    address.sin_family      = AF_INET;
-    address.sin_port        = htons((unsigned short) port);
-    address.sin_addr.s_addr = INADDR_ANY;
+        // fill in socket address
+        sockaddr_in address;
+        std::memset(&address, 0, sizeof(sockaddr_in));
+        address.sin_family      = AF_INET;
+        address.sin_port        = htons((unsigned short) port);
+        address.sin_addr.s_addr = INADDR_ANY;
 
-    // bind to port
-    if (bind(sfd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr)) == -1) {
-        std::cerr << "Cannot bind port " << port << std::endl;
-        close_socket(sfd);
-        return -1;
-    }
+        // bind to port
+        if (bind(sfd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr)) == -1) {
+            std::cerr << "Cannot bind port " << port << std::endl;
+            close_socket(sfd);
+            return -1;
+        }
 
-    // listen for connections
-    if (listen(sfd, 1) == -1) {
-        std::cerr << "Cannot listen for connections" << std::endl;
-        close_socket(sfd);
-        return -1;
-    }
-    std::cerr << "Waiting for a connection on port " << port << " ..." << std::endl;
+        // listen for connections
+        if (listen(sfd, 1) == -1) {
+            std::cerr << "Cannot listen for connections" << std::endl;
+            close_socket(sfd);
+            return -1;
+        }
+        std::cerr << "Waiting for a connection on port " << port << " ..." << std::endl;
 
 #ifdef _WIN32
-    int asize = sizeof(sockaddr_in);
+        int asize = sizeof(sockaddr_in);
 #else
-    socklen_t asize = sizeof(sockaddr_in);
+        socklen_t asize = sizeof(sockaddr_in);
 #endif
 
-    sockaddr_in client;
-    const int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
+        sockaddr_in client;
+        const int cfd = accept(sfd, reinterpret_cast<sockaddr*>(&client), &asize);
 
-    if (cfd == -1) {
-        std::cerr << "Cannot accept client" << std::endl;
-        close_socket(sfd);
-    }
-    else {
-        const hostent* client_info = gethostbyname(inet_ntoa(client.sin_addr));
-        std::cerr << "Accepted connection from: " << client_info->h_name << std::endl;
-    }
+        if (cfd == -1) {
+            std::cerr << "Cannot accept client" << std::endl;
+            close_socket(sfd);
+        }
+        else {
+            const hostent* client_info = gethostbyname(inet_ntoa(client.sin_addr));
+            std::cerr << "Accepted connection from: " << client_info->h_name << std::endl;
+        }
 
-    return cfd;
-}
+        return cfd;
+    }
 
 }  // namespace utility::tcp
 
