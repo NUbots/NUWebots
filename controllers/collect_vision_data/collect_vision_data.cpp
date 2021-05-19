@@ -40,6 +40,7 @@ std::string padLeft(int number, int width) {
     return ss.str();
 }
 
+// Quality of the images we are saving
 const int QUALITY = 100;
 
 int main(int argc, char** argv) {
