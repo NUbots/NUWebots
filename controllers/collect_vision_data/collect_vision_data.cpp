@@ -32,7 +32,7 @@
 #include <webots/Robot.hpp>
 #include <webots/Supervisor.hpp>
 
-#include "yaml-cpp/yaml.h"
+#include <yaml-cpp/yaml.h>
 
 std::string padLeft(int number, int width) {
     std::stringstream ss;
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<> zDistrib(0.46, 0.56);
 
     // Move servos in the range [-PI/2, PI/2]
-    std::uniform_real_distribution<> servoDistrib(-M_PI * 0.5, M_PI * 0.5);
+    std::uniform_real_distribution<> servoDistrib(-M_PI_2, M_PI_2);
 
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
     // Grab the current translation field of the robot to modify
