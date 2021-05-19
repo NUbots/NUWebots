@@ -60,16 +60,17 @@ int connect(const std::string& server_address, const int& port) {
     }
 
     // fill in the socket address
-    sockaddr_in address;
+    sockaddr_in address{};
     std::memset(&address, 0, sizeof(sockaddr_in));
     address.sin_family = AF_INET;
     address.sin_port   = htons(port);
     hostent* server    = gethostbyname(server_address.data());
 
-    if (server)
+    if (server != nullptr) {
         std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr),
                     reinterpret_cast<char*>(server->h_addr),
                     server->h_length);
+    }
     else {
         std::cerr << "Cannot resolve server name: " << server_address << std::endl;
 #ifdef _WIN32
@@ -90,9 +91,8 @@ int connect(const std::string& server_address, const int& port) {
 #endif
         return -1;
     }
-    else {
-        std::cerr << "Successfully connected to server" << std::endl;
-    }
+    std::cerr << "Successfully connected to server" << std::endl;
+
 
     return fd;
 }
@@ -111,8 +111,8 @@ int main(int argc, char** argv) {
     }
 
     // Do nothing with the welcome message sent
-    char welcome_message[8];
-    recv(tcp_fd, welcome_message, sizeof(welcome_message), 0);
+    std::array<char, 8> welcome_message{};
+    recv(tcp_fd, welcome_message.data(), sizeof(welcome_message), 0);
 
     // Current message counter
     uint32_t current_num = 1;
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
     std::vector<uint8_t> data(Nh, 0);
     msg.SerializeToArray(data.data(), Nh);
 
-	uint32_t Nn = htonl(Nh);
+    uint32_t Nn = htonl(Nh);
 
     if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
         std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
         }
         else if (num_ready > 0) {
             // Wire format
-                // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
+            // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
             // uint8_t * Nn  the message
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                 std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
