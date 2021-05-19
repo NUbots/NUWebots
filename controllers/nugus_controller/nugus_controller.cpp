@@ -29,6 +29,7 @@
 
 #include "utility/tcp.hpp"
 
+using utility::tcp::check_for_connection;
 using utility::tcp::close_socket;
 using utility::tcp::create_socket_server;
 
