@@ -1346,8 +1346,6 @@ PROTO NUgus [
         # Accelerometer and Gyro are positioned 0.2m above torso base
         translation 0.000000 0.000000 0.2
         children [
-          # lis331dlh Accelerometer (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise parameters)
-          # 'lis331dlh' Accelerometer 
           #(See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise)
           # Axis: x forward, y left, z up
           # Units are [m/s^2]
