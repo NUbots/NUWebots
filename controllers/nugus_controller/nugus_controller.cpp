@@ -29,7 +29,8 @@
 
 #include "utility/tcp.hpp"
 
-using namespace utility::tcp;
+using utility::tcp::close_socket;
+using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
@@ -39,6 +40,12 @@ public:
         close_socket(client_fd);
         close_socket(server_fd);
     }
+    // We want to prevent multiple NUguses connecting with the same port
+    NUgus(NUgus& other) = delete;
+    NUgus& operator=(NUgus& other) = delete;
+    // Disable moving NUgus objects until we have tested that doing it doesn't break things
+    NUgus(NUgus&& other) = delete;
+    NUgus& operator=(NUgus&& other) = delete;
 
     void run() {
         // Message counter
@@ -167,7 +174,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the TCP port number from the command line and convert to an int
-    int server_port;
+    int server_port = 0;
     try {
         server_port = std::stoi(argv[1]);
     }
@@ -177,7 +184,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the simulation timestep from the command line and convert to an int
-    int time_step;
+    int time_step = 0;
     try {
         time_step = std::stoi(argv[2]);
     }

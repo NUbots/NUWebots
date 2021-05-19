@@ -36,21 +36,21 @@
 
 namespace utility::tcp {
 
-inline void close_socket(const int& tcp_fd) {
-    if (tcp_fd > -1) {
+    inline void close_socket(const int& tcp_fd) {
+        if (tcp_fd > -1) {
 #ifdef _WIN32
-        closesocket(tcp_fd);
-        WSACleanup();
+            closesocket(tcp_fd);
+            WSACleanup();
 #else
-        close(tcp_fd);
+            close(tcp_fd);
 #endif
+        }
     }
-}
 
-inline int create_socket_server(const int& port) {
+    inline int create_socket_server(const int& port) {
 #ifdef _WIN32
-    // initialize the socket api
-    WSADATA info;
+        // initialize the socket api
+        WSADATA info;
 
     // Winsock 1.1
     int err = WSAStartup(MAKEWORD(1, 1), &info);
@@ -80,12 +80,12 @@ inline int create_socket_server(const int& port) {
         return -1;
     }
 
-    // fill in socket address
-    sockaddr_in address;
-    std::memset(&address, 0, sizeof(sockaddr_in));
-    address.sin_family      = AF_INET;
-    address.sin_port        = htons((unsigned short) port);
-    address.sin_addr.s_addr = INADDR_ANY;
+        // fill in socket address
+        sockaddr_in address{};
+        std::memset(&address, 0, sizeof(sockaddr_in));
+        address.sin_family      = AF_INET;
+        address.sin_port        = htons((unsigned short) port);
+        address.sin_addr.s_addr = INADDR_ANY;
 
     // bind to port
     if (bind(server_fd, reinterpret_cast<sockaddr*>(&address), sizeof(sockaddr)) == -1) {

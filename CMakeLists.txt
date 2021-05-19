@@ -32,6 +32,21 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS
 # We use nested namespaces which are not available before C++17
 set(CMAKE_CXX_STANDARD 17)
 
+# Enable address sanitizer
+option(USE_ASAN "Enable address sanitization" OFF)
+if(USE_ASAN)
+  add_compile_options(-fsanitize=address -fno-omit-frame-pointer -U_FORTIFY_SOURCE -fno-common)
+  add_link_options(-fsanitize=address)
+  link_libraries(asan)
+endif()
+
+option(USE_UBSAN "Enable undefined behaviour sanitization" OFF)
+if(USE_UBSAN)
+  add_compile_options(-fsanitize=undefined -fno-sanitize-recover=all)
+  add_link_options(-fsanitize=undefined)
+  link_libraries(ubsan)
+endif()
+
 # If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable. If the environment
 # variable is not defined, then choose some sort of sane default
 if(NOT DEFINED WEBOTS_HOME)
@@ -64,8 +79,8 @@ list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}/lib/controller")
 
 # Mac OSX RPATHs work differently
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_MACOSX_RPATH ON)
-    list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
+  set(CMAKE_MACOSX_RPATH ON)
+  list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
 endif()
 
 add_subdirectory(controllers)
