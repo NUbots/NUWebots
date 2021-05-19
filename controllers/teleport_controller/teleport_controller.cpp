@@ -17,16 +17,14 @@
  * Copyright 2021 NUbots <nubots@nubots.net>
  */
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <random>
 #include <webots/Supervisor.hpp>
-#include <array>
 
 #include "yaml-cpp/yaml.h"
 
-// AxisAngle rotations will be read from a config file and saved here
-std::vector<std::array<double, 4>> rotations;
 
 int main(int argc, char** argv) {
 
@@ -37,7 +35,9 @@ int main(int argc, char** argv) {
     }
     // Load def argument which will be used to identify the robot using the webots getFromDef function
     std::string def = argv[1];
-    
+
+    // AxisAngle rotations will be read from a config file and saved here
+    std::vector<std::array<double, 4>> rotations;
 
     // Load config file
     try {
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
         webots::Field& target_rotation_field = *(target.getField("rotation"));
         // Convert the field to a vector to output to console
         const double* target_rotation_vec = target_rotation_field.getSFRotation();
-        
+
         // Loop once for each rotation
         for (const std::array<double, 4>& rotation : rotations) {      
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
