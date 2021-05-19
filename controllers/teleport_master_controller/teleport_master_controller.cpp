@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
         std::cerr << "Usage: " << argv[0] << " <DEF>" << std::endl;
         return EXIT_FAILURE;
     }
-    // Load self-def argument which will be used to identify the robot using the webots getFromDef function
-    std::string def = argv[1];
+    // Load def argument which will be used to identify the soccer field using the webots getFromDef function
+    std::string fieldDef = argv[1];
 
     // Load def arguments of other robots in the field into a vector
     std::vector<webots::Node*> otherRobotsNodes;
@@ -70,9 +70,9 @@ int main(int argc, char** argv) {
         return 2;
     }
 
-    webots::Node* tempNode = supervisor.getFromDef("test");
-    const double xSize     = tempNode->getField("xSize")->getSFFloat();
-    const double ySize     = tempNode->getField("ySize")->getSFFloat();
+    webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
+    const double xSize     = fieldNode->getField("xSize")->getSFFloat();
+    const double ySize     = fieldNode->getField("ySize")->getSFFloat();
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
