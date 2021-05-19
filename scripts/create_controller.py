@@ -64,11 +64,14 @@ if __name__ == "__main__":
         // and/or add some other includes
         #include <cstdlib>
         #include <memory>
+        #include <poll.h>  // definition of poll and pollfd
         #include <webots/Robot.hpp>
 
         #include "utility/tcp.hpp"
 
-        using namespace utility::tcp;
+        using utility::tcp::check_for_connection;
+        using utility::tcp::close_socket;
+        using utility::tcp::create_socket_server;
 
         // This is the main program of your controller.
         // It creates an instance of your Robot instance, launches its
@@ -85,7 +88,7 @@ if __name__ == "__main__":
             }
 
             // Load in the TCP port number from the command line and convert to an int
-            int server_port;
+            int server_port = 0;
             try {
                 server_port = std::stoi(argv[1]);
             }
@@ -95,7 +98,7 @@ if __name__ == "__main__":
             }
 
             // Load in the simulation timestep from the command line and convert to an int
-            int time_step;
+            int time_step = 0;
             try {
                 time_step = std::stoi(argv[2]);
             }
@@ -105,25 +108,67 @@ if __name__ == "__main__":
             }
 
             // Start the TCP server
-            int tcp_fd = create_socket_server(server_port);
+            int server_fd = create_socket_server(server_port);
+            int client_fd = -1;
 
             // Create the Robot instance
             std::unique_ptr<webots::Robot> robot = std::make_unique<webots::Robot>();
 
             // Run the robot controller
             while (robot->step(time_step) != -1) {
-                // Don't bother doing anything unless we have an active TCP connection
-                if (tcp_fd == -1) {
-                    std::cerr << "Error: Failed to start TCP server, retrying ..." << std::endl;
-                    tcp_fd = create_socket_server(server_port);
-                    continue;
+                // Make sure we have a server
+                if (server_fd == -1) {
+                    std::cerr << "Error: Lost TCP server, retrying ..." << std::endl;
+                    server_fd = create_socket_server(server_port);
+
+                    // If we had to recreate the server then the client is no longer valid
+                    close_socket(client_fd);
+                    client_fd = -1;
                 }
 
-                // TODO: Do things ....
+                // Make sure we have an active TCP connection
+                if (server_fd != -1 && client_fd == -1) {
+                    std::cerr << "Warning: No active TCP connection, retrying ..." << std::endl;
+                    client_fd = check_for_connection(server_fd, server_port);
+
+                    // There was an error accepting the new connection, our server is no longer valid
+                    if (client_fd < 0) {
+                        server_fd = -1;
+                    }
+                    // No new connection came in, we are still waiting
+                    else if (client_fd == 0) {
+                        client_fd = -1;
+                    }
+                    // We just accepted a new connection, send our welcome message
+                    else {
+                        send(client_fd, "Welcome", 8, 0);
+                    }
+                }
+
+                // Server is good and client is good
+                if (server_fd != -1 && client_fd != -1) {
+                    // Setup arguments for poll call
+                    pollfd fds;
+                    fds.fd      = client_fd;
+                    fds.events  = POLLIN | POLLPRI;  // Check for data to read and urgent data to read
+                    fds.revents = 0;
+
+                    // Watch TCP file descriptor to see when it has input.
+                    // No wait - polling as fast as possible
+                    int num_ready = poll(&fds, 1, 0);
+                    if (num_ready < 0) {
+                        std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
+                        continue;
+                    }
+                    else if (num_ready > 0) {
+                        // TODO: Do things ....
+                    }
+                }
             }
 
             // Stop the TCP server
-            close_socket(tcp_fd);
+            close_socket(client_fd);
+            close_socket(server_fd);
 
             return EXIT_SUCCESS;
         }
