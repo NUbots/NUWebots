@@ -20,7 +20,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
-#include <poll.h> /* definition of poll and pollfd */
+#include <poll.h>  // definition of poll and pollfd
 #include <string>
 #include <vector>
 #include <webots/Robot.hpp>
@@ -51,10 +51,8 @@ public:
                 server_fd = create_socket_server(server_port);
 
                 // If we had to recreate the server then the client is no longer valid
-                if (client_fd != -1) {
-                    close_socket(client_fd);
-                    client_fd = -1;
-                }
+                close_socket(client_fd);
+                client_fd = -1;
             }
 
             // Make sure we have an active TCP connection
@@ -70,7 +68,7 @@ public:
                 else if (client_fd == 0) {
                     client_fd = -1;
                 }
-                // Send our welcome message
+                // We just accepted a new connection, send our welcome message
                 else {
                     send(client_fd, "Welcome", 8, 0);
                 }
