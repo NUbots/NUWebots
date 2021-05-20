@@ -53,31 +53,13 @@ int main(int argc, char** argv) {
     // Load def argument which will be used to identify the robot using the webots getFromDef function
     std::string def = argv[1];
 
-    //---------READ CONFIG-----------//
-    // AxisAngle rotations will be read from a config file and saved here
-    std::vector<std::array<double, 4>> rotations;
-
-    // Load config file
-    try {
-        YAML::Node config = YAML::LoadFile("config.yaml");
-        rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
-    }
-    catch (const YAML::BadFile& e) {
-        std::cerr << e.msg << std::endl;
-        return 1;
-    }
-    catch (const YAML::ParserException& e) {
-        std::cerr << e.msg << std::endl;
-        return 2;
-    }
-
     // Counter for saving images
     int count = 0;
 
     //---------GET ROBOT, CAMERAS AND SUPERVISOR----------//
     // create the Supervisor instance and assign it to a robot
     std::unique_ptr<webots::Supervisor> robot = std::make_unique<webots::Supervisor>();
-    webots::Node* robot_def                   = robot->getFromDef(argv[1]);
+    webots::Node* robot_def                   = robot->getFromDef(def);
 
     // Get the time step of the current world.
     int time_step = int(robot->getBasicTimeStep());
@@ -110,25 +92,10 @@ int main(int argc, char** argv) {
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 
-    // 0, 0, 0 is centre of the playing field.
-    // X ranges from -5.4 - 5.4, the positive value on the left hand side when looking
-    // from red
-    // Y ranges from -3.8 - 3.8, the positive value on the red goal side
-    // Z should be set to 0.51 to be on the ground (and add a bit of noise)
-    std::uniform_real_distribution<> xDistrib(-5.4, 5.4);
-    std::uniform_real_distribution<> yDistrib(-3.8, 3.8);
-    std::uniform_real_distribution<> zDistrib(0.46, 0.56);
-
     // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> servoDistrib(-M_PI_2, M_PI_2);
 
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
-    // Grab the current translation field of the robot to modify
-    webots::Field* robot_translation_field = robot_def->getField("translation");
-
-    // Grab the current rotation field of the robot to modify
-    webots::Field* robot_rotation_field = robot_def->getField("rotation");
-
     // Get a handle to our head and neck motors
     webots::Motor* neck_yaw                   = robot->getMotor("neck_yaw");
     webots::Motor* head_pitch                 = robot->getMotor("head_pitch");
@@ -139,180 +106,162 @@ int main(int argc, char** argv) {
 
     //--------MAIN CONTROL LOOP------------//
     while (robot->step(time_step) != -1) {
-        //----------SET TRANSLATION OF ROBOT------------//
+        //----------GET TRANSLATION OF ROBOT------------//
+        webots::Field* robotTranslationField = robot_def->getField("translation");
+        const double* robot_position = robotTranslationField->getSFVec3f();
 
-        // If the robot teleports into an existing object it may run into issues for that
-        // image only, after resetPhysics is should return to a regular state
-        const std::array<double, 3> robot_position = {xDistrib(gen), yDistrib(gen), zDistrib(gen)};
+        // ---------GET ROTATION OF ROBOT--------//
+        webots::Field* robotRotationField = robot_def->getField("rotation");
+        const double* rotation = robotRotationField->getSFRotation();
 
-        // Set new location
-        robot_translation_field->setSFVec3f(robot_position.data());
+        // Set random positions for the head and neck servos
+        const double neck_yaw_position   = servoDistrib(gen);
+        const double head_pitch_position = servoDistrib(gen);
+        neck_yaw->setPosition(neck_yaw_position);
+        head_pitch->setPosition(head_pitch_position);
 
-        // ---------LOOP OVER ROTATIONS--------//
-        for (const std::array<double, 4>& rotation : rotations) {
+        /**************************************************************
+         * From the NUbots repo                                       *
+         * File: ForwardKinematics.hpp                                *
+         * Function: calculateHeadJointPosition                       *
+         **************************************************************/
+        Eigen::Affine3d Htx = Eigen::Affine3d::Identity();
 
+        // From Kinematics Configuration
+        const Eigen::Vector3d NECK_POS(-0.007, 0.0, 0.21);
+        const double NECK_LENGTH = 0.048;
 
-            //-----------SET ROTATION----------//
-            // Prepare new rotation. These are saved in rotations vector as the axis-angle
-            // calculation is rough to calculate on the fly
-            // Apply new rotation and reset physics to avoid robot tearing itself apart
-            robot_rotation_field->setSFRotation(rotation.data());  // Rotation is interpreted as [rx, ry, rz, \alpha]
-            robot_def->resetPhysics();
+        // Translate to base of neck from origin
+        Htx = Htx.translate(NECK_POS);
+        // Rotate to face out of base of neck
+        Htx = Htx.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitY()));
+        // Rotate head in yaw axis
+        Htx = Htx.rotate(Eigen::AngleAxisd(neck_yaw_sensor->getValue(), Eigen::Vector3d::UnitX()));
+        // Translate to top of neck (i.e. next motor axle)
+        Htx = Htx.translate(Eigen::Vector3d(NECK_LENGTH, 0.0, 0.0));
 
-            // The step is needed to make the position and rotation changes take effect
-            if (robot->step(time_step) == -1) {
-                break;
-            }
+        // YAW
+        // Return the basis pointing out of the top of the torso with z pointing out the back of the neck. Pos
+        // is top of neck (at hip pitch motor)
 
-            // Set random positions for the head and neck servos
-            const double neck_yaw_position   = servoDistrib(gen);
-            const double head_pitch_position = servoDistrib(gen);
-            neck_yaw->setPosition(neck_yaw_position);
-            head_pitch->setPosition(head_pitch_position);
+        // Rotate to face forward direction of neck
+        Htx = Htx.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitY()));
+        // Rotate pitch
+        Htx = Htx.rotate(Eigen::AngleAxisd(head_pitch_sensor->getValue(), Eigen::Vector3d::UnitY()));
+        // PITCH
+        // Return basis pointing along camera vector (ie x is camera vector, z out of top of head). Pos at
+        // camera position
 
-            /**************************************************************
-             * From the NUbots repo                                       *
-             * File: ForwardKinematics.hpp                                *
-             * Function: calculateHeadJointPosition                       *
-             **************************************************************/
-            Eigen::Affine3d Htx = Eigen::Affine3d::Identity();
+        /**************************************************************
+         * From the NUbots repo                                       *
+         * Module: input/Camera                                       *
+         * Files: Left.yaml and Right.yaml                            *
+         **************************************************************/
+        // clang-format off
+        Eigen::Affine3d Hxl;
+        Hxl.matrix() << 0.9997403694613228,   -0.016551656784825577, -0.01566002262642871,  0.08893612063588988,
+                        0.01728764296000275,   0.9986932814319833,    0.04809227613146373,  0.03529909622045881,
+                        0.014843552535558163, -0.04835051478781678,   0.9987201292902445,   0.0713674563254241,
+                        0.0,                   0.0,                   0.0,                  1.0;
+        Eigen::Affine3d Hxr;
+        Hxr.matrix() << 0.9997403694613228,   -0.016551656784825577, -0.01566002262642871,  0.08893612063588988,
+                        0.01728764296000275,   0.9986932814319833,    0.04809227613146373, -0.03529909622045881,
+                        0.014843552535558163, -0.04835051478781678,   0.9987201292902445,   0.0713674563254241,
+                        0.0,                   0.0,                   0.0,                  1.0;
+        // clang-format on
 
-            // From Kinematics Configuration
-            const Eigen::Vector3d NECK_POS(-0.007, 0.0, 0.21);
-            const double NECK_LENGTH = 0.048;
+        // Htw
+        Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
+        Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
+                            .toRotationMatrix()
+                            .transpose();
+        Htw.translation() =
+            -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
-            // Translate to base of neck from origin
-            Htx = Htx.translate(NECK_POS);
-            // Rotate to face out of base of neck
-            Htx = Htx.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitY()));
-            // Rotate head in yaw axis
-            Htx = Htx.rotate(Eigen::AngleAxisd(neck_yaw_sensor->getValue(), Eigen::Vector3d::UnitX()));
-            // Translate to top of neck (i.e. next motor axle)
-            Htx = Htx.translate(Eigen::Vector3d(NECK_LENGTH, 0.0, 0.0));
+        // Calculate the left and right camera to world transformation matrices
+        Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
+        Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
 
-            // YAW
-            // Return the basis pointing out of the top of the torso with z pointing out the back of the neck. Pos
-            // is top of neck (at hip pitch motor)
+        //-----------SAVE DATA-----------//
+        std::string count_padded = padLeft(count, 7);
 
-            // Rotate to face forward direction of neck
-            Htx = Htx.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitY()));
-            // Rotate pitch
-            Htx = Htx.rotate(Eigen::AngleAxisd(head_pitch_sensor->getValue(), Eigen::Vector3d::UnitY()));
-            // PITCH
-            // Return basis pointing along camera vector (ie x is camera vector, z out of top of head). Pos at
-            // camera position
+        // Save mono images
+        left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
+        left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
+                                                    QUALITY);
+        // Save stereo images
+        left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
+        right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
+        left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
+        right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
+                                                        QUALITY);
 
-            /**************************************************************
-             * From the NUbots repo                                       *
-             * Module: input/Camera                                       *
-             * Files: Left.yaml and Right.yaml                            *
-             **************************************************************/
-            // clang-format off
-            Eigen::Affine3d Hxl;
-            Hxl.matrix() << 0.9997403694613228,   -0.016551656784825577, -0.01566002262642871,  0.08893612063588988,
-                            0.01728764296000275,   0.9986932814319833,    0.04809227613146373,  0.03529909622045881,
-                            0.014843552535558163, -0.04835051478781678,   0.9987201292902445,   0.0713674563254241,
-                            0.0,                   0.0,                   0.0,                  1.0;
-            Eigen::Affine3d Hxr;
-            Hxr.matrix() << 0.9997403694613228,   -0.016551656784825577, -0.01566002262642871,  0.08893612063588988,
-                            0.01728764296000275,   0.9986932814319833,    0.04809227613146373, -0.03529909622045881,
-                            0.014843552535558163, -0.04835051478781678,   0.9987201292902445,   0.0713674563254241,
-                            0.0,                   0.0,                   0.0,                  1.0;
-            // clang-format on
+        // Prepare the mono lens data
+        YAML::Emitter mono_lens;
+        mono_lens << YAML::BeginMap;
+        mono_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+        mono_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+        mono_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        mono_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        mono_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+        mono_lens << YAML::Key << "Hoc" << YAML::Value;
+        mono_lens << YAML::BeginSeq;
+        mono_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+        mono_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+        mono_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+        mono_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+        mono_lens << YAML::EndSeq;
+        mono_lens << YAML::EndMap;
 
-            // Htw
-            Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
-            Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
-                               .toRotationMatrix()
-                               .transpose();
-            Htw.translation() =
-                -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
+        // Write the mono lens data
+        std::ofstream ofs_mono("./data/data_mono/lens" + count_padded + ".yaml");
+        ofs_mono << mono_lens.c_str();
+        ofs_mono.close();
 
-            // Calculate the left and right camera to world transformation matrices
-            Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
-            Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
+        // Prepare the stereo lens data
+        YAML::Emitter stereo_lens;
+        stereo_lens << YAML::BeginMap;
 
-            //-----------SAVE DATA-----------//
-            std::string count_padded = padLeft(count, 7);
+        stereo_lens << YAML::Key << "left";
+        stereo_lens << YAML::BeginMap;
+        stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+        stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+        stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+        stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+        stereo_lens << YAML::BeginSeq;
+        stereo_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+        stereo_lens << YAML::EndSeq;
+        stereo_lens << YAML::EndMap;
 
-            // Save mono images
-            left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
-                                                          QUALITY);
-            // Save stereo images
-            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
-            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
-            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
-            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
-                                                           QUALITY);
+        stereo_lens << YAML::Key << "right";
+        stereo_lens << YAML::BeginMap;
+        stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+        stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+        stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+        stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+        stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+        stereo_lens << YAML::BeginSeq;
+        stereo_lens << YAML::Flow << std::vector({Hwc_r(0, 0), Hwc_r(0, 1), Hwc_r(0, 2), Hwc_r(0, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_r(1, 0), Hwc_r(1, 1), Hwc_r(1, 2), Hwc_r(1, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_r(2, 0), Hwc_r(2, 1), Hwc_r(2, 2), Hwc_r(2, 3)});
+        stereo_lens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
+        stereo_lens << YAML::EndSeq;
+        stereo_lens << YAML::EndMap;
 
-            // Prepare the mono lens data
-            YAML::Emitter mono_lens;
-            mono_lens << YAML::BeginMap;
-            mono_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            mono_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
-            mono_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            mono_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            mono_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
-            mono_lens << YAML::Key << "Hoc" << YAML::Value;
-            mono_lens << YAML::BeginSeq;
-            mono_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
-            mono_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
-            mono_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
-            mono_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
-            mono_lens << YAML::EndSeq;
-            mono_lens << YAML::EndMap;
+        stereo_lens << YAML::EndMap;
 
-            // Write the mono lens data
-            std::ofstream ofs_mono("./data/data_mono/lens" + count_padded + ".yaml");
-            ofs_mono << mono_lens.c_str();
-            ofs_mono.close();
+        // Write the stereo lens data
+        std::ofstream ofs_stereo("./data/data_stereo/lens" + count_padded + ".yaml");
+        ofs_stereo << stereo_lens.c_str();
+        ofs_stereo.close();
 
-            // Prepare the stereo lens data
-            YAML::Emitter stereo_lens;
-            stereo_lens << YAML::BeginMap;
-
-            stereo_lens << YAML::Key << "left";
-            stereo_lens << YAML::BeginMap;
-            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
-            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
-            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
-            stereo_lens << YAML::BeginSeq;
-            stereo_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
-            stereo_lens << YAML::EndSeq;
-            stereo_lens << YAML::EndMap;
-
-            stereo_lens << YAML::Key << "right";
-            stereo_lens << YAML::BeginMap;
-            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
-            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
-            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
-            stereo_lens << YAML::BeginSeq;
-            stereo_lens << YAML::Flow << std::vector({Hwc_r(0, 0), Hwc_r(0, 1), Hwc_r(0, 2), Hwc_r(0, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_r(1, 0), Hwc_r(1, 1), Hwc_r(1, 2), Hwc_r(1, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_r(2, 0), Hwc_r(2, 1), Hwc_r(2, 2), Hwc_r(2, 3)});
-            stereo_lens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
-            stereo_lens << YAML::EndSeq;
-            stereo_lens << YAML::EndMap;
-
-            stereo_lens << YAML::EndMap;
-
-            // Write the stereo lens data
-            std::ofstream ofs_stereo("./data/data_stereo/lens" + count_padded + ".yaml");
-            ofs_stereo << stereo_lens.c_str();
-            ofs_stereo.close();
-
-            count++;
-        }
+        count++;
     }
     return 0;
 }
