@@ -46,7 +46,7 @@ add_executable(nugus_controller ${controller_sources} $<TARGET_OBJECTS:robot_con
 # Make sure we can find the utility folder
 target_include_directories(nugus_controller PRIVATE "${PROJECT_SOURCE_DIR}/shared")
 
-# # Make sure we can find the generated protobuf header files
+# Make sure we can find the generated protobuf header files
 target_include_directories(nugus_controller SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
 # Link against the webots target (this will also add any necessary include directories to our target)
