@@ -71,8 +71,8 @@ int main(int argc, char** argv) {
     }
 
     webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
-    const double xSize     = fieldNode->getField("xSize")->getSFFloat();
-    const double ySize     = fieldNode->getField("ySize")->getSFFloat();
+    const double xSize      = fieldNode->getField("xSize")->getSFFloat();
+    const double ySize      = fieldNode->getField("ySize")->getSFFloat();
 
     // Get the time step of the current world.
     int timeStep = int(supervisor.getBasicTimeStep());
