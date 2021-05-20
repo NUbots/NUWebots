@@ -12,6 +12,12 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# We need to tell cmake where the function for the compiler warnings is
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+include(CompilerWarnings)
+
+set_project_warnings()
+
 # Default not to run the clang-tidy checks, default to whatever our CI_BUILD is
 option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." OFF)
 if(ENABLE_CLANG_TIDY)
