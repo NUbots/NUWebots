@@ -1,8 +1,14 @@
+# Files webots generates
 protos/**/*.cache
 worlds/.*.wbproj
-build/
 
+# Build files and binaries
+build/
 /controllers/nugus_controller/nugus_controller
 /controllers/teleport_controller/teleport_controller
+nugus_controller_test
+
+# Log files
 /nugus_controller_test*log.txt
 *.log
+/controllers/teleport_master_controller/teleport_master_controller
