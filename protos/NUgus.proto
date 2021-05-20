@@ -1352,6 +1352,7 @@ PROTO NUgus [
           # The acelerometer measures the reaction forces over 3 axes in [m/s^2], thus,
           # at rest the accelerometer should read +9.81 [m/s^2] in the z axis.
           Accelerometer {
+            name "accelerometer"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
@@ -1367,6 +1368,7 @@ PROTO NUgus [
           # Axis: x forward, y left, z up
           # Units are [rad/s]  
           Gyro {
+            name "gyro"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
