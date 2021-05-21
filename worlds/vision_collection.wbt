@@ -32,11 +32,10 @@ WorldInfo {
       bounce 0.76
     }
   ]
-  coordinateSystem "ENU"
 }
 Viewpoint {
-  orientation 0.666323907513393 -0.4492665154085371 -0.5951235572624849 1.7676856826387335
-  position -0.6698466842648849 -1.600537990149665 1.480921937217916
+  orientation 0.6457405086939408 -0.4385980234769798 -0.6250207750417401 1.7278551203695756
+  position -1.1879739019707811 -2.005152782349234 1.9421929878503073
 }
 TexturedBackground {
   texture "stadium_dry"
@@ -44,9 +43,8 @@ TexturedBackground {
 TexturedBackgroundLight {
   texture "stadium_dry"
 }
-RobocupSoccerField {
+DEF soccerField RobocupSoccerField {
   size "kid"
-  isRecognition TRUE
 }
 RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
@@ -54,62 +52,74 @@ RobocupSoccerBall {
 }
 DEF RED_1 Darwin-opHinge2Seg {
   translation -4.03 -0.028 0.237
-  rotation 0.578 0.382 0.72 0.136
+  rotation 0.5784606380748865 0.38230443554430216 0.7205738052143914 0.136
   name "player red 1"
-  cameraWidth 320
-  cameraHeight 240
-  supervisor TRUE
-  jersey RobotisJersey {
-    jerseyTexture [
-      "textures/robotis-op2_1_red.png"
-    ]
-  }
-  backlash TRUE
-  controller "teleport_controller"
+  controller ""
   controllerArgs [
     "RED_1"
   ]
+  supervisor TRUE
+  cameraWidth 320
+  cameraHeight 240
+  jersey RobotisJersey {
+  }
+  backlash TRUE
 }
-
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
+  robotTexture [
+    "robot/NUgus_textures/NUgus_base_color.jpg"
+  ]
   name "red player 2"
-  supervisor TRUE
-  controller "teleport_controller"
+  controller "collect_vision_data"
   controllerArgs [
     "RED_2"
   ]
+  supervisor TRUE
 }
-
 DEF RED_3 RobotisOp3 {
   translation -1.358 1.11 0.289
   rotation 0 0 -1 1
   name "player red 3"
-  cameraWidth 320
-  cameraHeight 240
-  supervisor TRUE
-  controller "teleport_controller"
+  controller ""
   controllerArgs [
     "RED_3"
   ]
+  supervisor TRUE
+  cameraWidth 320
+  cameraHeight 240
 }
-
 DEF RED_4 Wolfgang {
   translation -0.9 -0.53 0.43
-  rotation 0.078 0.86 -0.5 0.347
+  rotation 0.07816887083191468 0.8618619091723926 -0.5010825053327864 0.347
   name "player red 4"
-  supervisor TRUE
-  controller "teleport_controller"
+  controller ""
   controllerArgs [
     "RED_4"
   ]
+  supervisor TRUE
 }
 DEF BLUE_1 NUgus {
-  name "blue player 1"
   translation 2.688 -0.3985 0.5249
-  supervisor TRUE
+  robotTexture [
+    "robot/NUgus_textures/NUgus_base_color.jpg"
+  ]
+  name "blue player 1"
   controller "collect_vision_data"
   controllerArgs [
     "BLUE_1"
   ]
+  supervisor TRUE
+}
+DEF control Robot {
+  controller "teleport_master_controller"
+  controllerArgs [
+    "soccerField"
+    "RED_1"
+    "RED_2"
+    "RED_3"
+    "RED_4"
+    "BLUE_1"
+  ]
+  supervisor TRUE
 }

@@ -9,6 +9,8 @@ PROTO RobocupSoccerField [
   field SFString                    name        "soccer_field"
   field SFString{"adult", "kid"}    size        "adult"
   field SFBool                      turfPhysics TRUE
+  field MFColor                     recognitionColors [0 1 0]         # the field is green
+  field SFBool                      isRecognition     FALSE
   field SFFloat                     xSize       8.6 
   field SFFloat                     ySize       5.8
 ]

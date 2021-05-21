@@ -7,7 +7,7 @@
 PROTO NUgus [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 1 0 0
-  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture    "./robot/NUgus_textures/NUgus_base_color.jpg"
   field  SFString    name            "NUgus"  # Is `Robot.name`.
   field  SFString    controller      "void"             # Is `Robot.controller`.
   field  MFString    controllerArgs  []                 # Is `Robot.controllerArgs`.
@@ -39,12 +39,12 @@ PROTO NUgus [
       }%
       DEF jerseyFront JerseyFront {
         jerseyFrontTexture [
-          %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+          %{='"./robot/NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
       DEF jerseyBack JerseyBack {
         jerseyBackTexture [
-          %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+          %{='"./robot/NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
         ]
       }
 
@@ -61,7 +61,7 @@ PROTO NUgus [
             endPoint IS jerseyBack
           }
           Shape {
-            appearance PBRAppearance {
+            appearance DEF base_appearance PBRAppearance {
               baseColor 0.500000 0.500000 0.500000
               transparency 0.000000
               roughness 1.000000
@@ -165,7 +165,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -215,7 +215,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -353,7 +353,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -402,7 +402,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -634,7 +634,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                 }
@@ -743,6 +743,65 @@ PROTO NUgus [
                                               ]
                                               creaseAngle 1
                                             }
+                                          }
+                                          # Define four touch sensors for the right foot
+                                          # Back right touch sensor on right foot
+                                          TouchSensor {
+                                            # Define translation of touch sensor
+                                            translation -0.0575 0.025 -0.061
+                                            children [
+                                              # Define shape for all touch sensors
+                                              DEF touch_shape Shape{
+                                                appearance USE base_appearance
+                                                geometry DEF touch_box Box {
+                                                  size 0.01 0.01 0.005
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_br"
+                                            # Bounding object uses geometry from touch_shape
+                                            boundingObject USE touch_box
+                                            # Define physics for all touch sensors
+                                            physics DEF touch_physics Physics{
+                                              density -1
+                                              mass 0.02
+                                            }
+                                            # Sensor Type
+                                            # Bumper returns a 1 when collision is detected
+                                            type "bumper"
+                                          }
+                                          # Back left touch sensor on right foot
+                                          TouchSensor {
+                                            translation 0.041 0.025 -0.061
+                                            children [
+                                               USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front right touch sensor on right foot
+                                          TouchSensor {
+                                            translation -0.0575 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front left touch sensor on right foot
+                                          TouchSensor {
+                                            translation 0.0409 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
                                           }
                                         ]
                                         name "right_foot [foot]"
@@ -1002,7 +1061,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                   %{
@@ -1114,6 +1173,51 @@ PROTO NUgus [
                                               ]
                                               creaseAngle 1
                                             }
+                                          }
+                                          # Define four touch sensors for the left foot
+                                          # Back right touch sensor on left foot
+                                          TouchSensor {
+                                            translation -0.041 0.025 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_br"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Back left touch sensor on left foot
+                                          TouchSensor {
+                                            translation 0.057 0.025 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front left touch sensor on left foot
+                                          TouchSensor {
+                                            translation 0.057 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front right touch sensor on left foot
+                                          TouchSensor {
+                                            translation -0.041 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
                                           }
                                         ]
                                         name "left_foot [foot]"
@@ -1651,3 +1755,4 @@ PROTO NUgus [
     }
   }
 }
+
