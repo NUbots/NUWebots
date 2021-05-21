@@ -18,20 +18,15 @@ add_custom_command(
 # * If the protobuf generation starts to generate more warnings, add '-Wno-<warning_name>' to this list of -Wno's
 set_source_files_properties(
   "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.cc" "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.h"
-  PROPERTIES GENERATED TRUE COMPILE_FLAGS "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error -Wno-conversion"
+  PROPERTIES GENERATED TRUE COMPILE_FLAGS
+                            "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error -Wno-conversion"
 )
 
 # Add separate OBJECTs for the protobufs so that we can skip running clang-tidy on them
 add_library(
-  robot_control_protobuf
-  OBJECT
-    "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.cc"
-    "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.h"
+  robot_control_protobuf OBJECT "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.cc"
+                                "${PROJECT_BINARY_DIR}/shared/message/RobotControl.pb.h"
 )
 
 # Turn off clang-tidy for them
-set_target_properties(
-  robot_control_protobuf
-  PROPERTIES
-    CXX_CLANG_TIDY ""
-)
+set_target_properties(robot_control_protobuf PROPERTIES CXX_CLANG_TIDY "")
