@@ -111,7 +111,7 @@ public:
 
                 Nh = msg.ByteSizeLong();
                 data.resize(Nh);
-                msg.SerializeToArray(data.data(), Nh);
+                msg.SerializeToArray(data.data(), int(Nh));
 
                 Nn = htonl(Nh);
 
