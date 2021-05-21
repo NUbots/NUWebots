@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     // Connect to the server
     int tcp_fd = -1;
     while (tcp_fd == -1) {
-        tcp_fd = connect(argv[1], std::stoi(argv[2]));
+        tcp_fd = connect(argv[1], uint16_t(std::stoi(argv[2])));
     }
 
     // Do nothing with the welcome message sent
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     controller::nugus::RobotControl msg;
     msg.set_num(current_num);
 
-    uint32_t Nh = msg.ByteSizeLong();
+    size_t Nh = msg.ByteSizeLong();
     std::vector<uint8_t> data(Nh, 0);
     msg.SerializeToArray(data.data(), Nh);
 
