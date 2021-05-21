@@ -109,7 +109,7 @@ public:
                 // Send a message to the client
                 msg.set_num(current_num);
 
-                Nh = msg.ByteSizeLong();
+                Nh = uint32_t(msg.ByteSizeLong());
                 data.resize(Nh);
                 msg.SerializeToArray(data.data(), int(Nh));
 

@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
     std::vector<uint8_t> data(Nh, 0);
     msg.SerializeToArray(data.data(), int(Nh));
 
-    size_t Nn = htonl(Nh);
+    size_t Nn = htonl(uint32_t(Nh));
 
     if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
         std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -154,9 +154,9 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            Nh = ntohl(Nn);
+            Nh = ntohl(uint32_t(Nn));
 
-            if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
+            if (recv(tcp_fd, data.data(), Nh, 0) != ssize_t(Nh)) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 continue;
             }
@@ -180,7 +180,7 @@ int main(int argc, char** argv) {
             msg.SerializeToArray(data.data(), int(Nh));
 
             // Covert to network endianness, which might be different to host endianness
-            Nn = htonl(Nh);
+            Nn = htonl(uint32_t(Nh));
 
             if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
                 std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
