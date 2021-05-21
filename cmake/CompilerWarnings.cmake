@@ -1,6 +1,7 @@
-# Comprehensive warnings set Source
-# https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md and
-# https://github.com/lefticus/cpp_starter_project/blob/master/cmake/CompilerWarnings.cmake
+# * Comprehensive warnings set
+# * Sources:
+# * https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md
+# * https://github.com/lefticus/cpp_starter_project/blob/master/cmake/CompilerWarnings.cmake
 
 function(set_project_warnings)
 
@@ -35,7 +36,7 @@ function(set_project_warnings)
       -Wuseless-cast # warn if you perform a cast to the same type
   )
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR ENABLE_CLANG_TIDY)
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
