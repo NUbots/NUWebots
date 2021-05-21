@@ -39,7 +39,7 @@
 
 #include "RobotControl.pb.h"
 
-int connect(const std::string& server_address, const int& port) {
+int connect(const std::string& server_address, const uint16_t& port) {
 #ifdef _WIN32
     // initialize the socket api
     WSADATA info;
@@ -67,9 +67,7 @@ int connect(const std::string& server_address, const int& port) {
     hostent* server    = gethostbyname(server_address.data());
 
     if (server != nullptr) {
-        std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr),
-                    reinterpret_cast<char*>(server->h_addr),
-                    server->h_length);
+        std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr), server->h_addr, size_t(server->h_length));
     }
     else {
         std::cerr << "Cannot resolve server name: " << server_address << std::endl;
