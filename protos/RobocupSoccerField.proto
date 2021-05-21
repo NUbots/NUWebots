@@ -4,13 +4,13 @@
 # Official soccer field for the Robocup Humanoid League 2021.
 
 PROTO RobocupSoccerField [
-  field SFVec3f                     translation       0 0 0
-  field SFRotation                  rotation          0 1 0 0
-  field SFString                    name              "soccer_field"
-  field SFString{"adult", "kid"}    size              "adult"
-  field SFBool                      turfPhysics       TRUE
-  field MFColor                     recognitionColors [0 1 0]         # the field is green
-  field SFBool                      isRecognition     FALSE
+  field SFVec3f                     translation 0 0 0
+  field SFRotation                  rotation    0 1 0 0
+  field SFString                    name        "soccer_field"
+  field SFString{"adult", "kid"}    size        "adult"
+  field SFBool                      turfPhysics TRUE
+  field SFFloat                     xSize       8.6 
+  field SFFloat                     ySize       5.8
 ]
 {
 

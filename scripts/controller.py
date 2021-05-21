@@ -4,40 +4,63 @@ import os
 import sys
 import textwrap
 
-if __name__ == "__main__":
-    controller_name = sys.argv[1]
-    controller_path = os.path.join("controllers", controller_name)
+import b
+
+
+def register(command):
+
+    # Module help
+    command.help = "Manage Webots controllers in the codebase"
+
+    # Module subcommands
+    subcommands = command.add_subparsers(dest="controller_command")
+
+    # Generate controller subcommand
+    generate_command = subcommands.add_parser("generate", help="Generate a new Webots controller based on a template")
+
+    generate_command.add_argument(
+        "controller",
+        metavar="controller",
+        help="name of the controller to create",
+    )
+
+
+def run(controller, **kwargs):
+    controller_path = os.path.join(b.project_dir, "controllers", controller)
 
     # Make controller source directory
+    # It is an error for this to already exist
     try:
         os.makedirs(controller_path, exist_ok=False)
     except:
         print("Unable to create new controller directory as it already exists.")
         sys.exit(0)
 
+    # Create the template for the CMakeList.txt file
     cmake_template = textwrap.dedent(
         """\
         # Find the webots package
         find_package(webots REQUIRED)
 
         # Find/list all of the source files
-        set(controller_sources "{controller_name}.cpp")
+        set(controller_sources "{controller}.cpp")
 
         # Create an executable using all of the sources
-        add_executable({controller_name} ${{controller_sources}})
+        add_executable({controller} ${{controller_sources}})
 
         # Make sure we can find the utility folder
-        target_include_directories({controller_name} PRIVATE "${{PROJECT_SOURCE_DIR}}/shared")
+        target_include_directories({controller} PRIVATE "${{PROJECT_SOURCE_DIR}}/shared")
 
         # Link against the webots target (this will also add any necessary include directories to our target)
-        target_link_libraries({controller_name} PRIVATE webots::webots)
+        target_link_libraries({controller} PRIVATE webots::webots)
 
         # Generate binary in controller source directory
-        set_target_properties({controller_name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${{CMAKE_CURRENT_SOURCE_DIR}}"
-                                                OUTPUT_NAME {controller_name})
+        set_target_properties({controller} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${{CMAKE_CURRENT_SOURCE_DIR}}"
+                                                OUTPUT_NAME {controller})
         """
     )
 
+    # Create the template for the controller C++ code
     controller_template = textwrap.dedent(
         """\
         /*
@@ -85,7 +108,7 @@ if __name__ == "__main__":
             }
 
             // Load in the TCP port number from the command line and convert to an int
-            int server_port;
+            int server_port = 0;
             try {
                 server_port = std::stoi(argv[1]);
             }
@@ -95,7 +118,7 @@ if __name__ == "__main__":
             }
 
             // Load in the simulation timestep from the command line and convert to an int
-            int time_step;
+            int time_step = 0;
             try {
                 time_step = std::stoi(argv[2]);
             }
@@ -132,16 +155,16 @@ if __name__ == "__main__":
 
     # Write controller CMakeLists.txt
     with open(os.path.join(controller_path, "CMakeLists.txt"), "w") as f:
-        f.write(cmake_template.format(controller_name=controller_name))
+        f.write(cmake_template.format(controller=controller))
 
     # Write controller source file
-    with open(os.path.join(controller_path, f"{controller_name}.cpp"), "w") as f:
+    with open(os.path.join(controller_path, f"{controller}.cpp"), "w") as f:
         f.write(controller_template)
 
     # Add controller directory to the controllers CMakeList.txt
     with open(os.path.join(controller_path, "..", "CMakeLists.txt"), "a") as f:
-        f.write(f"add_subdirectory({controller_name})\n")
+        f.write(f"add_subdirectory({controller})\n")
 
     # Append new controller binary to .gitignore
     with open(".gitignore", "a") as f:
-        f.write("{}\n".format(os.path.join(os.sep, controller_path, controller_name)))
+        f.write("{}\n".format(os.path.join(os.sep, os.path.relpath(controller_path, b.project_dir), controller)))
