@@ -81,10 +81,9 @@ int main(int argc, char** argv) {
         const double* target_translation_vec = target_translation_field.getSFVec3f();
 
         // Output current location
-        std::ofstream log;
         log.open("teleport_controller.log", std::fstream::app);
         if (!log.good()) {
-            std::cout << "Error writing to log file" << std::endl;
+            std::cerr << "Error writing to log file" << std::endl;
         }
         log << "\n" << supervisor.getTime() << "s - ";
         log << "Location: ";
@@ -118,7 +117,6 @@ int main(int argc, char** argv) {
         for (const std::array<double, 4>& rotation : rotations) {
             // Output current rotation
 
-            std::ofstream log;
             log.open("teleport_controller.log", std::fstream::app);
             if (!log.good()) {
                 std::cout << "Error writing to log file" << std::endl;
