@@ -40,7 +40,9 @@
 
 #include "utility/tcp.hpp"
 
-using namespace utility::tcp;
+using utility::tcp::close_socket;
+using utility::tcp::create_socket_server;
+
 using controller::nugus::AccelerometerMeasurement;
 using controller::nugus::ActuatorRequests;
 using controller::nugus::BumperMeasurement;
@@ -55,8 +57,6 @@ using controller::nugus::PositionSensorMeasurement;
 using controller::nugus::SensorMeasurements;
 using controller::nugus::SensorTimeStep;
 using controller::nugus::Vector3;
-using utility::tcp::close_socket;
-using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
@@ -122,9 +122,9 @@ public:
             // uint8_t * Nn  the message
             uint32_t Nn = 0;
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
-                            << std::endl;
-                continue;
+                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
+                throw;
+            }
 
             // Covert to host endianness, which might be different to network endianness
             uint32_t Nh = ntohl(Nn);
@@ -265,7 +265,7 @@ public:
                     AccelerometerMeasurement* measurement = sensorMeasurements->add_accelerometers();
                     measurement->set_name(accelerometer->getName());
                     const double* values = accelerometer->getValues();
-                    Vector3* vector3      = measurement->mutable_value();
+                    Vector3* vector3     = measurement->mutable_value();
                     vector3->set_x(values[0]);
                     vector3->set_y(values[1]);
                     vector3->set_z(values[2]);
@@ -292,7 +292,7 @@ public:
                     GyroMeasurement* measurement = sensorMeasurements->add_gyros();
                     measurement->set_name(gyro->getName());
                     const double* values = gyro->getValues();
-                    Vector3* vector3      = measurement->mutable_value();
+                    Vector3* vector3     = measurement->mutable_value();
                     vector3->set_x(values[0]);
                     vector3->set_y(values[1]);
                     vector3->set_z(values[2]);
@@ -332,7 +332,7 @@ public:
                             Force3DMeasurement* measurement = sensorMeasurements->add_force3ds();
                             measurement->set_name(touch_sensor->getName());
                             const double* values = touch_sensor->getValues();
-                            Vector3* vector3      = measurement->mutable_value();
+                            Vector3* vector3     = measurement->mutable_value();
                             vector3->set_x(values[0]);
                             vector3->set_y(values[1]);
                             vector3->set_z(values[2]);
@@ -345,7 +345,7 @@ public:
             }
         }
 
-        if (false) { // set to true to print the created SensorMeasurements message for debugging
+        if (false) {  // set to true to print the created SensorMeasurements message for debugging
             std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
             std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
             std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
@@ -361,14 +361,15 @@ public:
                 }
             }
 
-                    
+
             {
                 std::cout << "  sm.accelerometers: " << std::endl;
                 int i = 0;
                 for (auto acc : sensorMeasurements->accelerometers()) {
                     std::cout << "    sm.accelerometers[" << i << "]" << std::endl;
                     std::cout << "      name: " << acc.name() << std::endl;
-                    std::cout << "      value: [" << acc.value().x() << ", " << acc.value().y() << ", " << acc.value().z() << "]" << std::endl;
+                    std::cout << "      value: [" << acc.value().x() << ", " << acc.value().y() << ", "
+                              << acc.value().z() << "]" << std::endl;
                     i++;
                 }
             }
@@ -415,7 +416,8 @@ public:
                 for (auto force : sensorMeasurements->force3ds()) {
                     std::cout << "    sm.force3ds[" << i << "]" << std::endl;
                     std::cout << "      name: " << force.name() << std::endl;
-                    std::cout << "      value: [" << force.value().x() << ", " << force.value().y() << ", " << force.value().z() << "]" << std::endl;
+                    std::cout << "      value: [" << force.value().x() << ", " << force.value().y() << ", "
+                              << force.value().z() << "]" << std::endl;
                     i++;
                 }
             }
@@ -426,8 +428,10 @@ public:
                 for (auto force : sensorMeasurements->force6ds()) {
                     std::cout << "    sm.force6ds[" << i << "]" << std::endl;
                     std::cout << "      name: " << force.name() << std::endl;
-                    std::cout << "      force: [" << force.force().x() << ", " << force.force().y() << ", " << force.force().z() << "]" << std::endl;
-                    std::cout << "      torque: [" << force.torque().x() << ", " << force.force().y() << ", " << force.force().z() << "]" << std::endl;
+                    std::cout << "      force: [" << force.force().x() << ", " << force.force().y() << ", "
+                              << force.force().z() << "]" << std::endl;
+                    std::cout << "      torque: [" << force.torque().x() << ", " << force.force().y() << ", "
+                              << force.force().z() << "]" << std::endl;
                     i++;
                 }
             }
@@ -438,7 +442,8 @@ public:
                 for (auto gyro : sensorMeasurements->gyros()) {
                     std::cout << "    sm.gyros[" << i << "]" << std::endl;
                     std::cout << "      name: " << gyro.name() << std::endl;
-                    std::cout << "      value: [" << gyro.value().x() << ", " << gyro.value().y() << ", " << gyro.value().z() << "]" << std::endl;
+                    std::cout << "      value: [" << gyro.value().x() << ", " << gyro.value().y() << ", "
+                              << gyro.value().z() << "]" << std::endl;
                     i++;
                 }
             }
@@ -464,8 +469,8 @@ public:
         uint32_t Nn = htonl(Nh);
 
         if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-            std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno)
-                        << std::endl;
+            std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno) << std::endl;
+        }
         else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
