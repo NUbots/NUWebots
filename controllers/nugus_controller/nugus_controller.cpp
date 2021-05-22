@@ -96,7 +96,7 @@ public:
                 handleReceived();
             }
             catch (const std::exception& e) {
-                std::cout << "didn't work" << std::endl;
+                std::cerr << e.what() << std::endl;
                 continue;
             }
         }
@@ -113,8 +113,7 @@ public:
         // No wait - polling as fast as possible
         int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
         if (num_ready < 0) {
-            std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
-            throw;
+            throw std::runtime_error("Error: Polling of TCP connection failed: "+ *strerror(errno));
         }
         else if (num_ready > 0) {
             // Wire format
@@ -122,8 +121,7 @@ public:
             // uint8_t * Nn  the message
             uint32_t Nn = 0;
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
-                throw std::runtime_error("Failed to read message size from TCP connection: " + strerror(errno));
+                throw std::runtime_error("Failed to read message size from TCP connection: " + *strerror(errno));
             }
 
             // Covert to host endianness, which might be different to network endianness
@@ -131,15 +129,13 @@ public:
 
             std::vector<uint8_t> data(Nh, 0);
             if (recv(tcp_fd, data.data(), Nh, MSG_WAITALL) != Nh) {
-                std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
-                throw;
+                throw std::runtime_error("Error: Failed to read message from TCP connection: " + *strerror(errno));
             }
 
             // Parse message data
             ActuatorRequests actuatorRequests;
             if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
-                std::cerr << "Error: Failed to parse serialised message" << std::endl;
-                throw;
+                throw std::runtime_error("rror: Failed to parse serialised message: " + *strerror(errno));
             }
             //------PARSE ACTUATOR REQUESTS MESSAGE-----------
             // For each motor in the message, get the motor and set the values for it
@@ -344,7 +340,7 @@ public:
             }
         }
 
-        #ifndef #NDEBUG  // set to print the created SensorMeasurements message for debugging
+        #ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging
             std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
             std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
             std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
