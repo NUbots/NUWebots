@@ -55,6 +55,8 @@ using controller::nugus::PositionSensorMeasurement;
 using controller::nugus::SensorMeasurements;
 using controller::nugus::SensorTimeStep;
 using controller::nugus::Vector3;
+using utility::tcp::close_socket;
+using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
@@ -62,9 +64,15 @@ public:
         : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
         send(tcp_fd, "Welcome", 8, 0);
     }
-    ~NUgus() {
+    ~NUgus() override {
         close_socket(tcp_fd);
     }
+    // We want to prevent multiple NUguses connecting with the same port
+    NUgus(NUgus& other) = delete;
+    NUgus& operator=(NUgus& other) = delete;
+    // Disable moving NUgus objects until we have tested that doing it doesn't break things
+    NUgus(NUgus&& other) = delete;
+    NUgus& operator=(NUgus&& other) = delete;
 
     void run() {
         int controller_time = 0;
@@ -112,11 +120,11 @@ public:
             // Wire format
             // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
             // uint8_t * Nn  the message
-            uint32_t Nn;
+            uint32_t Nn = 0;
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
-                throw;
-            }
+                std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
+                            << std::endl;
+                continue;
 
             // Covert to host endianness, which might be different to network endianness
             uint32_t Nh = ntohl(Nn);
@@ -456,8 +464,8 @@ public:
         uint32_t Nn = htonl(Nh);
 
         if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-            std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
-        }
+            std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno)
+                        << std::endl;
         else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
@@ -490,7 +498,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the TCP port number from the command line and convert to an int
-    int server_port;
+    int server_port = 0;
     try {
         server_port = std::stoi(argv[1]);
     }
@@ -500,7 +508,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the simulation timestep from the command line and convert to an int
-    int time_step;
+    int time_step = 0;
     try {
         time_step = std::stoi(argv[2]);
     }

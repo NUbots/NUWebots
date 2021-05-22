@@ -31,14 +31,28 @@ set_source_files_properties(
   PROPERTIES GENERATED TRUE COMPILE_FLAGS "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error"
 )
 
-# Create an executable using all of the sources
-add_executable(nugus_controller ${controller_sources})
+# Add a separate OBJECT for the protobufs so that we can skip running clang-tidy on them
+add_library(
+  robot_control_protobuf
+  OBJECT
+    "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
+    "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
+)
+# Turn off clang-tidy for it
+set_target_properties(
+  robot_control_protobuf
+  PROPERTIES
+    CXX_CLANG_TIDY ""
+)
+
+# Create an executable using all of the sources and the non-clang-tidy suitable generated protobuf sources
+add_executable(nugus_controller ${controller_sources} $<TARGET_OBJECTS:robot_control_protobuf>)
 
 # Make sure we can find the utility folder
 target_include_directories(nugus_controller PRIVATE "${PROJECT_SOURCE_DIR}/shared")
 
 # Make sure we can find the generated protobuf header files
-target_include_directories(nugus_controller PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
+target_include_directories(nugus_controller SYSTEM PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/protobuf")
 
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE webots::webots)
