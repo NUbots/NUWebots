@@ -344,7 +344,7 @@ public:
             }
         }
 
-        if (false) {  // set to true to print the created SensorMeasurements message for debugging
+        #ifndef #NDEBUG  // set to print the created SensorMeasurements message for debugging
             std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
             std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
             std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
@@ -457,7 +457,7 @@ public:
                     i++;
                 }
             }
-        }
+        #endif
 
         // Try to send the message
         uint32_t Nh = sensorMeasurements->ByteSizeLong();
