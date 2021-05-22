@@ -130,7 +130,7 @@ public:
             uint32_t Nh = ntohl(Nn);
 
             std::vector<uint8_t> data(Nh, 0);
-            if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
+            if (recv(tcp_fd, data.data(), Nh, MSG_WAITALL) != Nh) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 throw;
             }
