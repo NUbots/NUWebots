@@ -123,7 +123,7 @@ public:
             uint32_t Nn = 0;
             if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                 std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno) << std::endl;
-                throw;
+                throw std::runtime_error("Failed to read message size from TCP connection: " + strerror(errno));
             }
 
             // Covert to host endianness, which might be different to network endianness
@@ -175,14 +175,13 @@ public:
             }
 
             // For each time step message sent, we enable that device if the value exists
-            for (int i = 0; i < actuatorRequests.sensor_time_steps_size(); i++) {
-                const SensorTimeStep sensorTimeStep = actuatorRequests.sensor_time_steps(i);
+            for (const auto& sensorTimeStep : actuatorRequests.sensor_time_steps()) {
                 webots::Device* device              = this->getDevice(sensorTimeStep.name());
                 if (device != nullptr) {
                     const int sensor_time_step = sensorTimeStep.timestep();
                     // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
                     // remove it
-                    if (sensor_time_step) {
+                    if (sensor_time_step > 0) {
                         sensors.insert(device);
                     }
                     else {
@@ -281,7 +280,7 @@ public:
                     measurement->set_width(camera->getWidth());
                     measurement->set_height(camera->getHeight());
                     measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
-                    measurement->set_image((const char*) camera->getImage());
+                    measurement->set_image(reinterpret_cast<const char*>(camera->getImage()));
                     break;
                 }
                 case webots::Node::GYRO: {
@@ -341,7 +340,7 @@ public:
                     }
                 }
                 default:
-                    std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
+                    std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl; break;
             }
         }
 
