@@ -184,7 +184,7 @@ int main(int argc, char** argv) {
 
         //-----------SAVE DATA-----------//
         std::string count_padded = padLeft(count, 7);
-
+        
         // Save mono images
         left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
         left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",

@@ -15,6 +15,13 @@ PROTO NUgus [
   field  SFBool      supervisor      FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE              # Is `Robot.selfCollision`.
+  field  MFColor     recognitionColors [0 0 1]
+  field SFFloat      fieldOfView          1.5707
+  field SFInt32      cameraWidth          640
+  field SFInt32      cameraHeight         480
+  field SFFloat      cameraLensFocalLength 1.98
+  field SFFloat      cameraNoise          0.000000001
+  field SFFloat      cameraMotionBlur     10
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015        # Resolution of the encoder for DYNAMIXEL servo (See section 2.0.3 of docs/Robot_Model_RoboCup_2021)
 ]
 {
@@ -1403,19 +1410,38 @@ PROTO NUgus [
                     children [
                       Camera {
                         name "right_camera"
-                        translation 0.069952 -0.033795 0.06488
-                        rotation -0.570515 0.570516 0.590782 -2.07437
-                        fieldOfView 1.5707
-                        width 640
-                        height 480
+                        translation  0.0889361 -0.0352991  0.0713675
+                        
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
+                        spherical FALSE
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
+
+                        # Allows the robot to detect objects in the world
+                        recognition DEF RECOGNITION Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
+                        }
                       }
                       Camera {
                         name "left_camera"
-                        translation 0.069952 0.033795 0.06488
-                        rotation -0.570515 0.570516 0.590782 -2.07437
-                        fieldOfView 1.5707
-                        width 640
-                        height 480
+                        translation 0.0889361 0.0352991 0.0713675
+                        rotation  0.577322 -0.595552 -0.558585 2.06587
+
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
+                        spherical FALSE
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
+                        
+                        # Allows the robot to detect objects in the world
+                        recognition DEF RECOGNITION Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
+                        }
                       }
                     ]
                   }
