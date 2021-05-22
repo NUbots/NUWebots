@@ -20,11 +20,6 @@ add_custom_command(
   COMMENT "Compiling protocol buffer messages.proto"
 )
 
-# Add generated protobuf sources to controller sources
-list(APPEND controller_sources "${CMAKE_CURRENT_BINARY_DIR}/protobuf/messages.pb.cc"
-     "${CMAKE_CURRENT_BINARY_DIR}/protobuf/messages.pb.h"
-)
-
 # Prevent Effective C++ and unused parameter error checks being performed on generated files.
 set_source_files_properties(
   "${CMAKE_CURRENT_BINARY_DIR}/protobuf/messages.pb.cc" "${CMAKE_CURRENT_BINARY_DIR}/protobuf/messages.pb.h"
