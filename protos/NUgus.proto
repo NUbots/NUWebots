@@ -1454,6 +1454,7 @@ PROTO NUgus [
           # lis331dlh Accelerometer (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on parameters)
           # Axis: x forward, y left, z up
           Accelerometer {
+            name "accelerometer"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
@@ -1595,6 +1596,7 @@ PROTO NUgus [
           # L3G4200D Gyro (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on parameters)
           # Axis: x forward, y left, z up
           Gyro {
+            name "gyroscope"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
