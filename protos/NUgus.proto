@@ -22,7 +22,6 @@ PROTO NUgus [
   field  SFFloat     MX106-vel            5.76
   field  SFFloat     MX106-damping        1.23
   field  SFFloat     MX106-friction       2.55
-  field  SFVec3f     PID                  0.5 0.0009765625 0.125
   field  SFFloat     backlash             0.01
   field  SFFloat     gearMass             0.001
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
@@ -112,7 +111,6 @@ PROTO NUgus [
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX64-torque
-            controlPID IS PID
           }
           PositionSensor {
             name "right_shoulder_pitch_sensor"
@@ -162,7 +160,6 @@ PROTO NUgus [
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX64-torque
-                  controlPID IS PID
                 }
                 PositionSensor {
                   name "right_shoulder_roll_sensor"
@@ -214,7 +211,6 @@ PROTO NUgus [
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque IS MX64-torque
-                        controlPID IS PID
                       }
                       PositionSensor {
                         name "right_elbow_pitch_sensor"
@@ -309,7 +305,6 @@ PROTO NUgus [
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX64-torque
-            controlPID IS PID
           }
           PositionSensor {
             name "left_shoulder_pitch_sensor"
@@ -359,7 +354,6 @@ PROTO NUgus [
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX64-torque
-                  controlPID IS PID
                 }
                 PositionSensor {
                   name "left_shoulder_roll_sensor"
@@ -411,7 +405,6 @@ PROTO NUgus [
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque IS MX64-torque
-                        controlPID IS PID 
                       }
                       PositionSensor {
                         name "left_elbow_pitch_sensor"
@@ -505,7 +498,6 @@ PROTO NUgus [
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX106-torque
-            controlPID IS PID  
           }
           PositionSensor {
             name "right_hip_yaw_sensor"
@@ -555,7 +547,6 @@ PROTO NUgus [
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX106-torque
-                  controlPID IS PID  
                 }
                 PositionSensor {
                   name "right_hip_roll_sensor"
@@ -605,7 +596,6 @@ PROTO NUgus [
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque IS MX106-torque
-                        controlPID IS PID  
                       }
                       PositionSensor {
                         name "right_hip_pitch_sensor"
@@ -655,7 +645,6 @@ PROTO NUgus [
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
                               maxTorque IS MX106-torque
-                              controlPID IS PID  
                             }
                             PositionSensor {
                               name "right_knee_pitch_sensor"
@@ -707,7 +696,6 @@ PROTO NUgus [
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque IS MX106-torque
-                                    controlPID IS PID  
                                   }
                                   PositionSensor {
                                     name "right_ankle_pitch_sensor"
@@ -757,7 +745,6 @@ PROTO NUgus [
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
                                           maxTorque IS MX106-torque
-                                          controlPID IS PID  
                                         }
                                         PositionSensor {
                                           name "right_ankle_roll_sensor"
@@ -891,7 +878,6 @@ PROTO NUgus [
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX106-torque
-            controlPID IS PID  
           }
           PositionSensor {
             name "left_hip_yaw_sensor"
@@ -941,7 +927,6 @@ PROTO NUgus [
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX106-torque
-                  controlPID IS PID  
                 }
                 PositionSensor {
                   name "left_hip_roll_sensor"
@@ -991,7 +976,6 @@ PROTO NUgus [
                         minPosition -3.14159265359
                         maxPosition 3.14159265359
                         maxTorque IS MX106-torque
-                        controlPID IS PID  
                       }
                       PositionSensor {
                         name "left_hip_pitch_sensor"
@@ -1041,7 +1025,6 @@ PROTO NUgus [
                               minPosition -3.14159265359
                               maxPosition 3.14159265359
                               maxTorque IS MX106-torque
-                              controlPID IS PID  
                             }
                             PositionSensor {
                               name "left_knee_pitch_sensor"
@@ -1096,7 +1079,6 @@ PROTO NUgus [
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque 10.0
-                                    controlPID IS PID
                                   }
                                   PositionSensor {
                                     name "left_ankle_pitch_sensor"
@@ -1146,7 +1128,6 @@ PROTO NUgus [
                                           minPosition -3.14159265359
                                           maxPosition 3.14159265359
                                           maxTorque IS MX106-torque
-                                          controlPID IS PID  
                                         }
                                         PositionSensor {
                                           name "left_ankle_roll_sensor"
@@ -1280,7 +1261,6 @@ PROTO NUgus [
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX64-torque
-            controlPID IS PID
           }
           PositionSensor {
             name "neck_yaw_sensor"
@@ -1328,7 +1308,6 @@ PROTO NUgus [
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX64-torque
-                  controlPID IS PID
                 }
                 PositionSensor {
                   name "head_pitch_sensor"
