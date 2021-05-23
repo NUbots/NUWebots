@@ -1,6 +1,7 @@
-# Comprehensive warnings set Source
-# https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md and
-# https://github.com/lefticus/cpp_starter_project/blob/master/cmake/CompilerWarnings.cmake
+# * Comprehensive warnings set
+# * Sources:
+# * https://github.com/lefticus/cppbestpractices/blob/master/02-Use_the_Tools_Available.md
+# * https://github.com/lefticus/cpp_starter_project/blob/master/cmake/CompilerWarnings.cmake
 
 function(set_project_warnings)
 
@@ -17,7 +18,6 @@ function(set_project_warnings)
       -Wpedantic # warn if non-standard C++ is used
       -Wconversion # warn on type conversions that may lose data
       -Wsign-conversion # warn on sign conversions
-      -Wnull-dereference # warn if a null dereference is detected
       -Wdouble-promotion # warn if float is implicit promoted to double
       # -Wformat=2 # warn on security issues around functions that format output (ie printf)
   )
@@ -28,6 +28,7 @@ function(set_project_warnings)
 
   set(GCC_WARNINGS
       ${CLANG_WARNINGS}
+      -Wnull-dereference # warn if a null dereference is detected
       -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
       -Wduplicated-cond # warn if if / else chain has duplicated conditions
       -Wduplicated-branches # warn if if / else branches have duplicated code

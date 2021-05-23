@@ -12,6 +12,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# * We need to tell cmake where the function for the compiler warnings is (src/cmake)
+# * We use additional modules that cmake needs to know about (src/cmake/Modules)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+include(CompilerWarnings)
 # If this option is set we are building using continous integration
 option(CI_BUILD "Enable build options for building in the CI server" OFF)
 
@@ -42,15 +46,7 @@ if(CI_BUILD)
   set(WARNINGS_AS_ERRORS=ON)
 endif()
 
-# We need to tell cmake where the function for the compiler warnings is
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
-include(CompilerWarnings)
-
 set_project_warnings()
-
-# We use additional modules that cmake needs to know about
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
-
 # GNU Compiler
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
   # Enable colours on g++ 4.9 or greater
@@ -119,4 +115,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
 endif()
 
+add_subdirectory(shared/message)
 add_subdirectory(controllers)
