@@ -1368,7 +1368,7 @@ PROTO NUgus [
           # Axis: x forward, y left, z up
           # Units are [rad/s]  
           Gyro {
-            name "gyro"
+            name "gyroscope"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
