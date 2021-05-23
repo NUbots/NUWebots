@@ -11,6 +11,14 @@ def register(command):
     command.help = "Configure the project in a docker container"
 
     command.add_argument(
+        "--clean",
+        dest="purge_build_folder",
+        action="store_true",
+        default=False,
+        help="Purge the build folder before configuring",
+    )
+
+    command.add_argument(
         "-i",
         "--interactive",
         dest="interactive",
@@ -21,7 +29,14 @@ def register(command):
     command.add_argument("args", nargs="...", help="the arguments to pass through to cmake")
 
 
-def run(interactive, args, **kwargs):
+def run(purge_build_folder, interactive, args, **kwargs):
+
+    # Purge the build folder if we have passed the purge_build_folder argument
+    if purge_build_folder:
+        from shutil import rmtree
+
+        # We ignore errors so that it doesn't fail if `build` doesn't exist
+        rmtree(os.path.join(os.getcwd(), "build"), ignore_errors=True)
 
     # Make sure we have a build directory
     os.makedirs("build", exist_ok=True)
