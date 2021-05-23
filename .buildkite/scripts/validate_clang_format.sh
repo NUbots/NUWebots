@@ -21,7 +21,8 @@ check_formatting() {
 export -f check_formatting
 
 # Loop through all c/cpp/proto files and check validation
-git ls-files | grep '.*\.\(c\|cc\|cpp\|cxx\|hpp\|ipp\|proto\)$' \
+# We don't want to format the webots proto files though - protos/* are skipped 
+git ls-files | grep '.*\.\(c\|cc\|cpp\|cxx\|hpp\|ipp\|proto\)$' | grep -v '^protos/' \
     | parallel --joblog /var/tmp/formatting.log -j$(nproc) check_formatting
 
 # Count how many returned a non zero exist status
