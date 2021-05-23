@@ -22,5 +22,5 @@ syntax = "proto3";
 package controller.nugus;
 
 message RobotControl {
-    int32 num = 1;
+    uint32 num = 1;
 }

@@ -52,8 +52,8 @@ int main(int argc, char** argv) {
 
     // AxisAngle rotations will be read from a config file and saved here
     std::vector<std::array<double, 4>> rotations;
-    double minDistance;
-    double zHeight;
+    double minDistance = 0.0;
+    double zHeight     = 0.0;
     // Load config file
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
@@ -68,6 +68,10 @@ int main(int argc, char** argv) {
     catch (const YAML::ParserException& e) {
         std::cerr << e.msg << std::endl;
         return 2;
+    }
+    catch (...) {
+        std::cerr << "Some other YAML error occurred.\n" << std::endl;
+        return 3;
     }
 
     webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
@@ -97,7 +101,7 @@ int main(int argc, char** argv) {
             // Assume there is no collision
             bool collision = false;
             // newPos will be a "Proposed location" for a robot to teleport to
-            std::array<double, 3> newPos;
+            std::array<double, 3> newPos{};
             do {
                 collision = false;
                 // Generate a new random location
@@ -119,7 +123,6 @@ int main(int argc, char** argv) {
             // Finally add the proposed location in as a confirmed position
             positions.emplace_back(newPos);
         }
-
         // Loop through every robot
         for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
             // Grab translation field of the robot to modify
