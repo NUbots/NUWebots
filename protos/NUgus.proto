@@ -1295,6 +1295,8 @@ PROTO NUgus [
               }
             }
             HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
               jointParameters HingeJointParameters {
                 axis 1.000000 0.000000 0.000000
                 anchor 0.000000 0.000000 0.000000
