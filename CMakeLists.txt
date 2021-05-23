@@ -12,14 +12,29 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# If this option is set we are building using continous integration
+option(CI_BUILD "Enable build options for building in the CI server" OFF)
+
 # * We need to tell cmake where the function for the compiler warnings is (src/cmake)
 # * We use additional modules that cmake needs to know about (src/cmake/Modules)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 include(CompilerWarnings)
 
-# Default not to run the clang-tidy checks
+# A flag to set when you want set_project_warnings to turn warnings into errors
+option(WARNINGS_AS_ERRORS "All compiler and clang-tidy warnings make compilation fail" OFF)
+
+# If we are doing a CI build then we want warnings to be dealt with, so we fail compilation. We will also make it fail
+# if clang-tidy has a warning
+if(CI_BUILD)
+  set(WARNINGS_AS_ERRORS=ON)
+endif()
+
+# We can set our project warnings now that we know if warnings are errors
+set_project_warnings()
+
+# Default not to run the clang-tidy checks, default to whatever our CI_BUILD is
 option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." OFF)
-if(ENABLE_CLANG_TIDY)
+if(ENABLE_CLANG_TIDY OR CI_BUILD)
   find_package(PythonInterp 3 REQUIRED)
   set(CMAKE_CXX_CLANG_TIDY "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/clang-tidy.py"
                            "${PROJECT_BINARY_DIR}/clang-tidy-fixes" clang-tidy
@@ -34,10 +49,6 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Applying fixes from clang-tidy to the codebase."
   )
 endif()
-
-# A flag to set when you want set_project_warnings to turn warnings into errors
-option(WARNINGS_AS_ERRORS "All compiler and clang-tidy warnings make compilation fail" OFF)
-set_project_warnings()
 
 # GNU Compiler
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)

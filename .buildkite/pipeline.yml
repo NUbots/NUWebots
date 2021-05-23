@@ -1,10 +1,7 @@
 steps:
-  # Build with warnings as errors, using full list of gcc warnings
-  - label: "Build controllers"
-    command: "./b configure -- -DWARNINGS_AS_ERRORS=ON && ./b build"
   # Build with clang-tidy on, with warnings as errors
-  - label: "Build controllers with clang-tidy"
-    command: "./b configure -- -DENABLE_CLANG_TIDY=ON -DWARNINGS_AS_ERRORS=ON && ./b build"
+  - label: "Build controllers"
+    command: "./b configure -- -DCI_BUILD=ON && ./b build"
   # clang-format checks
   - label: "Validate C++ and protobuf formatting"
     command: ".buildkite/scripts/validate_clang_format.sh"
