@@ -1351,13 +1351,14 @@ PROTO NUgus [
           # Units are [m/s^2]
           # The acelerometer measures the reaction forces over 3 axes in [m/s^2], thus,
           # at rest the accelerometer should read +9.81 [m/s^2] in the z axis.
+          # Range is -39.24 to 39.24 [m/s^2]
+          # Return value (2nd column of LUT) is offset by 100
           Accelerometer {
             name "accelerometer"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
             resolution 0.0011975
-            # Return value (2nd column of LUT) is offset by 100
             lookupTable [ 
               -39.24 60.76 0.000704
               39.24  139.24 0.000307
@@ -1367,13 +1368,14 @@ PROTO NUgus [
           # (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise)
           # Axis: x forward, y left, z up
           # Units are [rad/s]  
+          # Range is -8.72665 to 8.72665 [rad/s]
+          # Return value (2nd column of LUT) is offset by 100
           Gyro {
             name "gyroscope"
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
             resolution 0.00026632
-            # Return value (2nd column of LUT) is offset by 100
             lookupTable [ 
               -8.72665 91.238   0.0001151     
               8.72665  108.762  0.000096541
