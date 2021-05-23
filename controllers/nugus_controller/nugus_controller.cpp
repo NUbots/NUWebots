@@ -135,7 +135,7 @@ public:
             // Parse message data
             ActuatorRequests actuatorRequests;
             if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
-                throw std::runtime_error("rror: Failed to parse serialised message: " + *strerror(errno));
+                throw std::runtime_error("Error: Failed to parse serialised message: " + *strerror(errno));
             }
             //------PARSE ACTUATOR REQUESTS MESSAGE-----------
             // For each motor in the message, get the motor and set the values for it
