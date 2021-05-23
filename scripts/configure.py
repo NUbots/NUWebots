@@ -36,14 +36,13 @@ def run(purge_build_folder, interactive, args, **kwargs):
         from shutil import rmtree
 
         # We ignore errors so that it doesn't fail if `build` doesn't exist
-        rmtree(os.path.join(os.getcwd(), "build"), ignore_errors=True)
+        rmtree(b.build_dir, ignore_errors=True)
 
-    # Make sure we have a build directory
-    os.makedirs("build", exist_ok=True)
+    # Make sure we have a build directory the change into it
+    os.makedirs(b.build_dir, exist_ok=True)
+    os.chdir(b.build_dir)
 
     # If interactive then run ccmake else just run cmake
-    os.chdir(os.path.join(b.project_dir, "build"))
-
     command = ["ccmake" if interactive else "cmake"]
 
     # To pass arguments to the cmake command you put them after "--"
