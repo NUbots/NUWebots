@@ -26,18 +26,11 @@ function(set_project_warnings)
     set(CLANG_WARNINGS ${CLANG_WARNINGS} -Werror)
   endif()
 
-  set(GCC_WARNINGS
-      ${CLANG_WARNINGS}
-      -Wnull-dereference # warn if a null dereference is detected
-      -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
-      -Wduplicated-cond # warn if if / else chain has duplicated conditions
-      -Wduplicated-branches # warn if if / else branches have duplicated code
-      -Wlogical-op # warn about logical operations being used where bitwise were probably wanted
-      -Wuseless-cast # warn if you perform a cast to the same type
+  set(GCC_WARNINGS ${CLANG_WARNINGS} -Wnull-dereference # warn if a null dereference is detected
+                   -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
   )
 
-  # We can't run the full set of GCC warnings when using clang-tidy, because clang-tidy doesn't know them
-  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR ENABLE_CLANG_TIDY)
+  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
