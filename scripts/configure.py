@@ -38,7 +38,7 @@ def run(purge_build_folder, interactive, args, **kwargs):
         # We ignore errors so that it doesn't fail if `build` doesn't exist
         rmtree(b.build_dir, ignore_errors=True)
 
-    # Make sure we have a build directory the change into it
+    # Make sure we have a build directory, then change into it
     os.makedirs(b.build_dir, exist_ok=True)
     os.chdir(b.build_dir)
 
