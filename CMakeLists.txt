@@ -33,10 +33,12 @@ if(ENABLE_CLANG_TIDY OR CI_BUILD)
   )
 endif()
 
-# If we are doing a CI build then we want to enable -Werror when compiling warnings are bad. We will also make it fail
-# if clang-tidy has an error
+# A flag to set when you want set_project_warnings to turn warnings into errors
+option(WARNINGS_AS_ERRORS "All compiler and clang-tidy warnings make compilation fail" OFF)
+
+# If we are doing a CI build then we want warnings to be dealt with, so we fail compilation. We will also make it fail
+# if clang-tidy has a warning
 if(CI_BUILD)
-  # Turn on the variable which makes warnings errors in set_project_warnings()
   set(WARNINGS_AS_ERRORS=ON)
 endif()
 
