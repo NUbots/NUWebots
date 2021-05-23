@@ -7,7 +7,7 @@
 PROTO NUgus [
   field  SFVec3f     translation            0 0 0
   field  SFRotation  rotation               0 1 0 0
-  field  MFString    robotTexture           "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture           "NUgus_textures/NUgus_base_color.jpg"
   field  SFString    name                   "NUgus"                           # Is `Robot.name`.
   field  SFString    controller             "void"                            # Is `Robot.controller`.
   field  MFString    controllerArgs         []                                # Is `Robot.controllerArgs`.
@@ -53,7 +53,7 @@ PROTO NUgus [
         children [
           JerseyFront {
             jerseyFrontTexture [
-             %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -65,7 +65,7 @@ PROTO NUgus [
         children [
           JerseyBack {
             jerseyBackTexture [
-             %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
