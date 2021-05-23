@@ -35,7 +35,8 @@ function(set_project_warnings)
       -Wuseless-cast # warn if you perform a cast to the same type
   )
 
-  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang")
+  # We can't run the full set of GCC warnings when using clang-tidy, because clang-tidy doesn't know them
+  if(CMAKE_CXX_COMPILER_ID MATCHES ".*Clang" OR ENABLE_CLANG_TIDY)
     set(PROJECT_WARNINGS ${CLANG_WARNINGS})
   elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     set(PROJECT_WARNINGS ${GCC_WARNINGS})
