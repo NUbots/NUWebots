@@ -1,13 +1,16 @@
 steps:
-  # Build with clang-tidy on and warnings as errors, then test the code
-  - label: "Build Controllers"
-    command: "./b configure -- -DBUILD_TESTS=ON -DCI_BUILD=ON && ./b build && ./b build test"
+  # Build with warnings as errors
+  - label: "Build controllers"
+    command: "./b configure -- -DCI_BUILD=ON && ./b build"
+  # Build with clang-tidy on, with warnings as errors
+  - label: "Build controllers with clang-tidy"
+    command: "./b configure -- -DENABLE_CLANG_TIDY=ON -DCI_BUILD=ON && ./b build"
   # clang-format checks
-  - label: "Validate C++ and Protobuf Formatting"
+  - label: "Validate C++ and protobuf formatting"
     command: ".buildkite/scripts/validate_clang_format.sh"
   # cmake-format checks
   - label: "Validate CMake formatting"
     command: ".buildkite/scripts/validate_cmake_format.sh"
   # black and isort checks
-  - label: "Validate Python Formatting"
+  - label: "Validate python formatting"
     command: ".buildkite/scripts/validate_python_format"
