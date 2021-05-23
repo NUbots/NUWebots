@@ -1358,7 +1358,8 @@ PROTO NUgus [
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
-            resolution 0.0011975
+            # Calculation used: (size of range)/4095
+            resolution 0.01916
             lookupTable [ 
               -39.24 60.76 0.000704
               39.24  139.24 0.000307
@@ -1375,7 +1376,8 @@ PROTO NUgus [
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
-            resolution 0.00026632
+            # Calculation used: (size of range)/4095
+            resolution 0.0042621
             lookupTable [ 
               -8.72665 91.238   0.0001151     
               8.72665  108.762  0.000096541
