@@ -1356,7 +1356,7 @@ PROTO NUgus [
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
-            resolution 0.002
+            resolution 0.0011975
             # Return value (2nd column of LUT) is offset by 100
             lookupTable [ 
               -39.24 60.76 0.000704
@@ -1372,7 +1372,7 @@ PROTO NUgus [
             xAxis TRUE
             yAxis TRUE
             zAxis TRUE
-            resolution 0.0175
+            resolution 0.00026632
             # Return value (2nd column of LUT) is offset by 100
             lookupTable [ 
               -8.72665 91.238   0.0001151     
