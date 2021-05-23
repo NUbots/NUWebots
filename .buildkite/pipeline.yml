@@ -10,4 +10,4 @@ steps:
     command: ".buildkite/scripts/validate_cmake_format.sh"
   # black and isort checks
   - label: "Validate python formatting"
-    command: ".buildkite/scripts/validate_python_format"
+    command: ".buildkite/scripts/validate_python_format.sh"
