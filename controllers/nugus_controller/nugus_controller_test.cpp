@@ -39,7 +39,7 @@
 
 #include "RobotControl.pb.h"
 
-int connect(const std::string& server_address, const int& port) {
+int connect(const std::string& server_address, const uint16_t& port) {
 #ifdef _WIN32
     // initialize the socket api
     WSADATA info;
@@ -67,9 +67,7 @@ int connect(const std::string& server_address, const int& port) {
     hostent* server    = gethostbyname(server_address.data());
 
     if (server != nullptr) {
-        std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr),
-                    reinterpret_cast<char*>(server->h_addr),
-                    server->h_length);
+        std::memcpy(reinterpret_cast<char*>(&address.sin_addr.s_addr), server->h_addr, size_t(server->h_length));
     }
     else {
         std::cerr << "Cannot resolve server name: " << server_address << std::endl;
@@ -107,7 +105,7 @@ int main(int argc, char** argv) {
     // Connect to the server
     int tcp_fd = -1;
     while (tcp_fd == -1) {
-        tcp_fd = connect(argv[1], std::stoi(argv[2]));
+        tcp_fd = connect(argv[1], uint16_t(std::stoi(argv[2])));
     }
 
     // Do nothing with the welcome message sent
@@ -121,11 +119,11 @@ int main(int argc, char** argv) {
     controller::nugus::RobotControl msg;
     msg.set_num(current_num);
 
-    uint32_t Nh = msg.ByteSizeLong();
+    size_t Nh = msg.ByteSizeLong();
     std::vector<uint8_t> data(Nh, 0);
-    msg.SerializeToArray(data.data(), Nh);
+    msg.SerializeToArray(data.data(), int(Nh));
 
-    uint32_t Nn = htonl(Nh);
+    size_t Nn = htonl(uint32_t(Nh));
 
     if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
         std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -156,14 +154,14 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            uint32_t Nh = ntohl(Nn);
+            Nh = ntohl(uint32_t(Nn));
 
-            if (recv(tcp_fd, data.data(), Nh, 0) != Nh) {
+            if (recv(tcp_fd, data.data(), Nh, 0) != ssize_t(Nh)) {
                 std::cerr << "Error: Failed to read message from TCP connection: " << strerror(errno) << std::endl;
                 continue;
             }
 
-            if (!msg.ParseFromArray(data.data(), Nh)) {
+            if (!msg.ParseFromArray(data.data(), int(Nh))) {
                 std::cerr << "Error: Failed to parse serialised message" << std::endl;
                 continue;
             }
@@ -179,10 +177,10 @@ int main(int argc, char** argv) {
 
             Nh = msg.ByteSizeLong();
             data.resize(Nh);
-            msg.SerializeToArray(data.data(), Nh);
+            msg.SerializeToArray(data.data(), int(Nh));
 
             // Covert to network endianness, which might be different to host endianness
-            Nn = htonl(Nh);
+            Nn = htonl(uint32_t(Nh));
 
             if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
                 std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;

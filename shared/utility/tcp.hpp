@@ -47,7 +47,7 @@ namespace utility::tcp {
         }
     }
 
-    inline int create_socket_server(const int& port) {
+    inline int create_socket_server(const uint16_t& port) {
 #ifdef _WIN32
         // initialize the socket api
         WSADATA info;
@@ -69,7 +69,7 @@ namespace utility::tcp {
         sockaddr_in address{};
         std::memset(&address, 0, sizeof(sockaddr_in));
         address.sin_family      = AF_INET;
-        address.sin_port        = htons((unsigned short) port);
+        address.sin_port        = htons(port);
         address.sin_addr.s_addr = INADDR_ANY;
 
         // bind to port
