@@ -261,6 +261,11 @@ PROTO NUgus [
                             creaseAngle 1
                           }
                         }
+                        Solid {
+                          name "right_hand [hand]"
+                          translation 0.0 -0.2 0.0
+                          rotation 0.000000 1.000000 0.000000 0.000000
+                        }
                       ]
                       name "right_lower_arm [arm]"
                       boundingObject USE right_lower_arm
@@ -453,6 +458,11 @@ PROTO NUgus [
                             ]
                             creaseAngle 1
                           }
+                        }
+                        Solid {
+                          name "left_hand [hand]"
+                          translation 0.0 -0.21 0.0
+                          rotation 0.000000 1.000000 0.000000 0.000000
                         }
                       ]
                       name "left_lower_arm [arm]"
