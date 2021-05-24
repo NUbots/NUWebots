@@ -539,7 +539,16 @@ PROTO NUgus [
                                             children [
                                               # Define shape for all touch sensors
                                               DEF touch_shape Shape{
-                                                appearance USE base_appearance
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                  baseColorMap ImageTexture {
+                                                    url IS robotTexture
+                                                  }
+                                                }
                                                 geometry DEF touch_box Box {
                                                   size 0.01 0.01 0.005
                                                 }
