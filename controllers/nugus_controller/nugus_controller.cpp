@@ -31,17 +31,24 @@
 
 #include "utility/tcp.hpp"
 
-using namespace utility::tcp;
+using utility::tcp::close_socket;
+using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
-    NUgus(const int& time_step, const int& server_port)
-        : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
-            send(tcp_fd, "Welcome", 8, 0);
+    NUgus(const int& time_step_, const uint16_t& server_port_)
+        : time_step(time_step_), server_port(server_port_), tcp_fd(create_socket_server(server_port_)) {
+        send(tcp_fd, "Welcome", 8, 0);
     }
-    ~NUgus() {
+    ~NUgus() override {
         close_socket(tcp_fd);
     }
+    // We want to prevent multiple NUguses connecting with the same port
+    NUgus(NUgus& other) = delete;
+    NUgus& operator=(NUgus& other) = delete;
+    // Disable moving NUgus objects until we have tested that doing it doesn't break things
+    NUgus(NUgus&& other) = delete;
+    NUgus& operator=(NUgus&& other) = delete;
 
     void run() {
         // Message counter
@@ -69,11 +76,11 @@ public:
                 std::cerr << "Error: Polling of TCP connection failed: " << strerror(errno) << std::endl;
                 continue;
             }
-            else if (num_ready > 0) {
+            if (num_ready > 0) {
                 // Wire format
                 // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
                 // uint8_t * Nn  the message
-                uint32_t Nn;
+                uint32_t Nn = 0;
                 if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
                     std::cerr << "Error: Failed to read message size from TCP connection: " << strerror(errno)
                               << std::endl;
@@ -91,7 +98,7 @@ public:
 
                 // Parse message data
                 controller::nugus::RobotControl msg;
-                if (!msg.ParseFromArray(data.data(), Nh)) {
+                if (!msg.ParseFromArray(data.data(), int(Nh))) {
                     std::cerr << "Error: Failed to parse serialised message" << std::endl;
                     continue;
                 }
@@ -102,14 +109,15 @@ public:
                 // Send a message to the client
                 msg.set_num(current_num);
 
-                Nh = msg.ByteSizeLong();
+                Nh = uint32_t(msg.ByteSizeLong());
                 data.resize(Nh);
-                msg.SerializeToArray(data.data(), Nh);
+                msg.SerializeToArray(data.data(), int(Nh));
 
                 Nn = htonl(Nh);
 
                 if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
-                    std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
+                    std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno)
+                              << std::endl;
                 }
                 else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
                     std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
@@ -122,7 +130,7 @@ private:
     /// Controller time step
     const int time_step;
     /// TCP server port
-    const int server_port;
+    const uint16_t server_port;
     /// File descriptor to use for the TCP connection
     int tcp_fd;
 };
@@ -143,7 +151,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the TCP port number from the command line and convert to an int
-    int server_port;
+    int server_port = 0;
     try {
         server_port = std::stoi(argv[1]);
     }
@@ -153,7 +161,7 @@ int main(int argc, char** argv) {
     }
 
     // Load in the simulation timestep from the command line and convert to an int
-    int time_step;
+    int time_step = 0;
     try {
         time_step = std::stoi(argv[2]);
     }
