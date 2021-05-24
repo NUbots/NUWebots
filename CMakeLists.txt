@@ -12,6 +12,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# * We need to tell cmake where the function for the compiler warnings is (src/cmake)
+# * We use additional modules that cmake needs to know about (src/cmake/Modules)
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+include(CompilerWarnings)
+
+option(WARNINGS_AS_ERRORS "Fail the build when we have compiler or clang-tidy warnings" ON)
+set_project_warnings()
+
 # Default not to run the clang-tidy checks, default to whatever our CI_BUILD is
 option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." OFF)
 if(ENABLE_CLANG_TIDY)
@@ -29,9 +37,6 @@ if(ENABLE_CLANG_TIDY)
     COMMENT "Applying fixes from clang-tidy to the codebase."
   )
 endif()
-
-# We use additional modules that cmake needs to know about
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 # GNU Compiler
 if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
@@ -101,4 +106,5 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   list(APPEND CMAKE_INSTALL_RPATH "${WEBOTS_HOME}")
 endif()
 
+add_subdirectory(shared/message)
 add_subdirectory(controllers)

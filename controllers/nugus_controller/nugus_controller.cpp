@@ -64,8 +64,8 @@ using controller::nugus::Vector3;
 
 class NUgus : public webots::Robot {
 public:
-    NUgus(const int& time_step, const int& server_port)
-        : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
+    NUgus(const int& time_step_, const uint16_t& server_port_)
+        : time_step(time_step_), server_port(server_port_), tcp_fd(create_socket_server(server_port_)) {
         send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() override {
@@ -90,7 +90,7 @@ public:
                 controller_time = 0;
                 continue;
             }
-            controller_time += this->getBasicTimeStep();
+            controller_time = int(controller_time + this->getBasicTimeStep());
 
             // Send data from the simulated robot hardware to the robot control software
             sendData(controller_time);
@@ -143,7 +143,7 @@ public:
         for (const auto& sensorTimeStep : actuatorRequests.sensor_time_steps()) {
             webots::Device* device = this->getDevice(sensorTimeStep.name());
             if (device != nullptr) {
-                const int sensor_time_step = sensorTimeStep.timestep();
+                const uint32_t sensor_time_step = sensorTimeStep.timestep();
                 // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
                 // remove it
                 if (sensor_time_step > 0) {
@@ -155,7 +155,7 @@ public:
                 // Warn if the time step is non-zero and smaller than the basic time step
                 // which shouldn't happen because smaller steps indicate the basic time step
                 // is not "basic"
-                const int basic_time_step = this->getBasicTimeStep();
+                const double basic_time_step = this->getBasicTimeStep();
                 if (sensor_time_step != 0 && sensor_time_step < basic_time_step) {
                     std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be greater or equal to "
                                      + std::to_string(basic_time_step) + ", ignoring "
@@ -164,7 +164,7 @@ public:
                 }
                 // Warn if the time step is not a multiple of the basic time step
                 // The time step should be some multiple of the basic time step
-                else if (sensor_time_step % basic_time_step != 0) {
+                else if (sensor_time_step % uint32_t(basic_time_step) != 0) {
                     std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be a multiple of "
                                      + std::to_string(basic_time_step) + ", ignoring "
                                      + std::to_string(sensor_time_step) + " value."
@@ -175,27 +175,27 @@ public:
                     switch (device->getNodeType()) {
                         case webots::Node::ACCELEROMETER: {
                             auto* accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
-                            accelerometer->enable(sensor_time_step);
+                            accelerometer->enable(int(sensor_time_step));
                             break;
                         }
                         case webots::Node::CAMERA: {
                             auto* camera = reinterpret_cast<webots::Camera*>(device);
-                            camera->enable(sensor_time_step);
+                            camera->enable(int(sensor_time_step));
                             break;
                         }
                         case webots::Node::GYRO: {
                             auto* gyro = reinterpret_cast<webots::Gyro*>(device);
-                            gyro->enable(sensor_time_step);
+                            gyro->enable(int(sensor_time_step));
                             break;
                         }
                         case webots::Node::POSITION_SENSOR: {
                             auto* positionSensor = reinterpret_cast<webots::PositionSensor*>(device);
-                            positionSensor->enable(sensor_time_step);
+                            positionSensor->enable(int(sensor_time_step));
                             break;
                         }
                         case webots::Node::TOUCH_SENSOR: {
                             auto* touchSensor = reinterpret_cast<webots::TouchSensor*>(device);
-                            touchSensor->enable(sensor_time_step);
+                            touchSensor->enable(int(sensor_time_step));
                             break;
                         }
                         default:
@@ -221,8 +221,8 @@ public:
         ::read(tcp_fd, buffer.data() + old_size, available);
 
         // Function to read the payload length from the buffer
-        auto read_length = [](const std::vector<uint8_t>& buffer) {
-            return buffer.size() >= sizeof(uint32_t) ? ntohl(*reinterpret_cast<const uint32_t*>(buffer.data())) : 0u;
+        auto read_length = [](const std::vector<uint8_t>& data) {
+            return data.size() >= sizeof(uint32_t) ? ntohl(*reinterpret_cast<const uint32_t*>(data.data())) : 0u;
         };
 
         // So long as we have enough bytes to process an entire packet, process the packets
@@ -233,7 +233,7 @@ public:
 
             // Parse message data
             ActuatorRequests actuatorRequests;
-            if (!actuatorRequests.ParseFromArray(payload, length)) {
+            if (!actuatorRequests.ParseFromArray(payload, int(length))) {
                 throw std::runtime_error("Error: Failed to parse serialised message: " + std::string(strerror(errno)));
             }
 
@@ -248,11 +248,10 @@ public:
         // Create the SensorMeasurements message
         auto sensorMeasurements = std::make_unique<SensorMeasurements>();
 
-        sensorMeasurements->set_time(controller_time);
+        sensorMeasurements->set_time(uint32_t(controller_time));
         struct timeval tp;
         gettimeofday(&tp, NULL);
-        uint64_t real_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
-        sensorMeasurements->set_real_time(real_time);
+        sensorMeasurements->set_real_time(uint64_t(tp.tv_sec * 1000 + tp.tv_usec / 1000));
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
         for (auto* device : sensors) {
@@ -278,8 +277,8 @@ public:
                     }
                     CameraMeasurement* measurement = sensorMeasurements->add_cameras();
                     measurement->set_name(camera->getName());
-                    measurement->set_width(camera->getWidth());
-                    measurement->set_height(camera->getHeight());
+                    measurement->set_width(uint32_t(camera->getWidth()));
+                    measurement->set_height(uint32_t(camera->getHeight()));
                     measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
                     measurement->set_image(reinterpret_cast<const char*>(camera->getImage()));
                     break;
@@ -339,6 +338,7 @@ public:
                             break;
                         }
                     }
+                    break;
                 }
                 default:
                     std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
@@ -462,9 +462,8 @@ public:
 #endif
 
         // Try to send the message
-        std::string proto = sensorMeasurements->SerializeAsString();
-        uint32_t N        = proto.size();
-        N                 = htonl(N);
+        const std::string proto = sensorMeasurements->SerializeAsString();
+        const uint32_t N        = htonl(uint32_t(proto.size()));
         if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
             std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno) << std::endl;
         }
@@ -477,7 +476,7 @@ private:
     /// Controller time step
     const int time_step;
     /// TCP server port
-    const int server_port;
+    const uint16_t server_port;
     /// File descriptor to use for the TCP connection
     int tcp_fd;
     /// Set of robot sensors
