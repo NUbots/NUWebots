@@ -33,6 +33,7 @@ PROTO NUgus [
   field SFFloat      cameraLensFocalLength  1.98             # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
   field SFFloat      cameraNoise            0.000000001      # Not much noise on real cameras
   field SFFloat      cameraMotionBlur       10               # With over 100fps, real cameras do not have much motion blur
+  field  MFColor     recognitionColors [0 0 1]
 ]
 {
   Robot {
@@ -61,7 +62,7 @@ PROTO NUgus [
         children [
           JerseyFront {
             jerseyFrontTexture [
-             %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -73,7 +74,7 @@ PROTO NUgus [
         children [
           JerseyBack {
             jerseyBackTexture [
-             %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -192,7 +193,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -244,7 +245,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -386,7 +387,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -437,7 +438,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -677,7 +678,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                 }
@@ -1116,7 +1117,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                   %{
@@ -1594,3 +1595,4 @@ PROTO NUgus [
     }
   }
 }
+
