@@ -52,21 +52,28 @@ int main(int argc, char** argv) {
         std::cerr << e.msg << std::endl;
         return 2;
     }
-    
+
+    // Open the existing log file and immediately close it to overwrite it for a new instance of
+    // the program
+    std::ofstream log;
+    log.open("teleport_controller.log");
+    log.close();
+
+
     // create the Supervisor instance and assign it to a robot
     webots::Supervisor supervisor = webots::Supervisor();
     webots::Node& target          = *supervisor.getFromDef(def);
 
     // Get the time step of the current world.
-    int time_step = int(supervisor.getBasicTimeStep());
+    int timeStep = int(supervisor.getBasicTimeStep());
 
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> xDistrib(0, 1080);
-    std::uniform_int_distribution<> yDistrib(0, 760);
+    std::uniform_int_distribution<> xDistrib(0, 760);
+    std::uniform_int_distribution<> yDistrib(0, 1080);
 
-    while (supervisor.step(time_step) != -1) {
+    while (supervisor.step(timeStep) != -1) {
 
         // Grab the current translation field of the robot to modify
         webots::Field& target_translation_field = *target.getField("translation");
@@ -96,10 +103,7 @@ int main(int argc, char** argv) {
         // image only, after resetPhysics is should return to a regular state
 
 
-        std::array<double, 3> newPos;
-        newPos[0] = 5.4 - xDistrib(gen) / 100;
-        newPos[1] = 3.8 - yDistrib(gen) / 100;
-        newPos[2] = 0.51;
+        std::array<double, 3> newPos = {3.8 - xDistrib(gen) / 100.0, 5.4 - yDistrib(gen) / 100.0, 0.51};
 
         // Set new location
         target_translation_field.setSFVec3f(newPos.data());
@@ -131,7 +135,6 @@ int main(int argc, char** argv) {
             // Apply new rotation and reset physics to avoid robot tearing itself apart
             target_rotation_field.setSFRotation(rotation.data());
             target.resetPhysics();
-            supervisor.step(time_step);
         }
     };
     return 0;
