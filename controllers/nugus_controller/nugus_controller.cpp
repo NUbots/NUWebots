@@ -36,6 +36,10 @@
 #include <webots/Robot.hpp>
 #include <webots/TouchSensor.hpp>
 
+extern "C" {
+#include <sys/ioctl.h>
+}
+
 #include "messages.pb.h"
 
 #include "utility/tcp.hpp"
@@ -102,140 +106,141 @@ public:
         }
     }
 
-    void handleReceived() {
-        // Setup arguments for select call
-        fd_set rfds;
-        FD_ZERO(&rfds);
-        FD_SET(tcp_fd, &rfds);
-        timeval timeout = {0, 0};
-
-        // Watch TCP file descriptor to see when it has input.
-        // No wait - polling as fast as possible
-        int num_ready = select(tcp_fd + 1, &rfds, nullptr, nullptr, &timeout);
-        if (num_ready < 0) {
-            throw std::runtime_error("Error: Polling of TCP connection failed: "+ *strerror(errno));
+    void parseActuatorRequests(const ActuatorRequests& actuatorRequests) {
+        // For each motor in the message, get the motor and set the values for it
+        for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
+            const MotorPID motorPID = actuatorRequests.motor_pids(i);
+            webots::Motor* motor    = this->getMotor(motorPID.name());
+            if (motor != nullptr) {
+                if (i < actuatorRequests.motor_positions_size()) {
+                    motor->setPosition(actuatorRequests.motor_positions(i).position());
+                }
+                if (i < actuatorRequests.motor_velocities_size()) {
+                    motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
+                }
+                if (i < actuatorRequests.motor_forces_size()) {
+                    motor->setForce(actuatorRequests.motor_forces(i).force());
+                }
+                if (i < actuatorRequests.motor_torques_size()) {
+                    motor->setTorque(actuatorRequests.motor_torques(i).torque());
+                }
+                if (i < actuatorRequests.motor_pids_size()) {
+                    motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
+                }
+            }
         }
-        else if (num_ready > 0) {
-            // Wire format
-            // unit32_t Nn  message size in bytes. The bytes are in network byte order (big endian)
-            // uint8_t * Nn  the message
-            uint32_t Nn = 0;
-            if (recv(tcp_fd, &Nn, sizeof(Nn), 0) != sizeof(Nn)) {
-                throw std::runtime_error("Failed to read message size from TCP connection: " + *strerror(errno));
-            }
 
-            // Covert to host endianness, which might be different to network endianness
-            uint32_t Nh = ntohl(Nn);
-
-            std::vector<uint8_t> data(Nh, 0);
-            if (recv(tcp_fd, data.data(), Nh, MSG_WAITALL) != Nh) {
-                throw std::runtime_error("Error: Failed to read message from TCP connection: " + *strerror(errno));
+        // For each camera in the message, set the exposure
+        for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
+            const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
+            webots::Camera* camera              = this->getCamera(cameraExposure.name());
+            if (camera != nullptr) {
+                camera->setExposure(cameraExposure.exposure());
             }
+        }
+
+        // For each time step message sent, we enable that device if the value exists
+        for (const auto& sensorTimeStep : actuatorRequests.sensor_time_steps()) {
+            webots::Device* device = this->getDevice(sensorTimeStep.name());
+            if (device != nullptr) {
+                const int sensor_time_step = sensorTimeStep.timestep();
+                // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
+                // remove it
+                if (sensor_time_step > 0) {
+                    sensors.insert(device);
+                }
+                else {
+                    sensors.erase(device);
+                }
+                // Warn if the time step is non-zero and smaller than the basic time step
+                // which shouldn't happen because smaller steps indicate the basic time step
+                // is not "basic"
+                const int basic_time_step = this->getBasicTimeStep();
+                if (sensor_time_step != 0 && sensor_time_step < basic_time_step) {
+                    std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be greater or equal to "
+                                     + std::to_string(basic_time_step) + ", ignoring "
+                                     + std::to_string(sensor_time_step) + " value."
+                              << std::endl;
+                }
+                // Warn if the time step is not a multiple of the basic time step
+                // The time step should be some multiple of the basic time step
+                else if (sensor_time_step % basic_time_step != 0) {
+                    std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be a multiple of "
+                                     + std::to_string(basic_time_step) + ", ignoring "
+                                     + std::to_string(sensor_time_step) + " value."
+                              << std::endl;
+                }
+                else {
+                    // Given a valid time step, enable the corresponding device
+                    switch (device->getNodeType()) {
+                        case webots::Node::ACCELEROMETER: {
+                            auto* accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
+                            accelerometer->enable(sensor_time_step);
+                            break;
+                        }
+                        case webots::Node::CAMERA: {
+                            auto* camera = reinterpret_cast<webots::Camera*>(device);
+                            camera->enable(sensor_time_step);
+                            break;
+                        }
+                        case webots::Node::GYRO: {
+                            auto* gyro = reinterpret_cast<webots::Gyro*>(device);
+                            gyro->enable(sensor_time_step);
+                            break;
+                        }
+                        case webots::Node::POSITION_SENSOR: {
+                            auto* positionSensor = reinterpret_cast<webots::PositionSensor*>(device);
+                            positionSensor->enable(sensor_time_step);
+                            break;
+                        }
+                        case webots::Node::TOUCH_SENSOR: {
+                            auto* touchSensor = reinterpret_cast<webots::TouchSensor*>(device);
+                            touchSensor->enable(sensor_time_step);
+                            break;
+                        }
+                        default:
+                            std::cerr << "Unable to enable unknown device WbNodeType: " << device->getNodeType()
+                                      << std::endl;
+                    }
+                }
+            }
+        }
+    }
+
+    void handleReceived() {
+        unsigned long available = 0;
+        if (::ioctl(tcp_fd, FIONREAD, &available) < 0) {
+            std::cerr << "Error querying for available data, " << strerror(errno) << std::endl;
+            return;
+        }
+
+        const size_t old_size = buffer.size();
+        buffer.resize(old_size + available);
+
+        // Read data into our buffer and resize it to the new data we read
+        ::read(tcp_fd, buffer.data() + old_size, available);
+
+        // Function to read the payload length from the buffer
+        auto read_length = [](const std::vector<uint8_t>& buffer) {
+            return buffer.size() >= sizeof(uint32_t) ? ntohl(*reinterpret_cast<const uint32_t*>(buffer.data())) : 0u;
+        };
+
+        // So long as we have enough bytes to process an entire packet, process the packets
+        for (uint32_t length = read_length(buffer); buffer.size() >= length + sizeof(length);
+             length          = read_length(buffer)) {
+            // Decode the protocol buffer and emit it as a message
+            char* payload = reinterpret_cast<char*>(buffer.data()) + sizeof(length);
 
             // Parse message data
             ActuatorRequests actuatorRequests;
-            if (!actuatorRequests.ParseFromArray(data.data(), Nh)) {
-                throw std::runtime_error("Error: Failed to parse serialised message: " + *strerror(errno));
-            }
-            //------PARSE ACTUATOR REQUESTS MESSAGE-----------
-            // For each motor in the message, get the motor and set the values for it
-            for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
-                const MotorPID motorPID = actuatorRequests.motor_pids(i);
-                webots::Motor* motor    = this->getMotor(motorPID.name());
-                if (motor != nullptr) {
-                    if (i < actuatorRequests.motor_positions_size()) {
-                        motor->setPosition(actuatorRequests.motor_positions(i).position());
-                    }
-                    if (i < actuatorRequests.motor_velocities_size()) {
-                        motor->setVelocity(actuatorRequests.motor_velocities(i).velocity());
-                    }
-                    if (i < actuatorRequests.motor_forces_size()) {
-                        motor->setForce(actuatorRequests.motor_forces(i).force());
-                    }
-                    if (i < actuatorRequests.motor_torques_size()) {
-                        motor->setTorque(actuatorRequests.motor_torques(i).torque());
-                    }
-                    if (i < actuatorRequests.motor_pids_size()) {
-                        motor->setControlPID(motorPID.pid().x(), motorPID.pid().y(), motorPID.pid().z());
-                    }
-                }
+            if (!actuatorRequests.ParseFromArray(payload, length)) {
+                throw std::runtime_error("Error: Failed to parse serialised message: " + std::string(strerror(errno)));
             }
 
-            // For each camera in the message, set the exposure
-            for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
-                const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
-                webots::Camera* camera              = this->getCamera(cameraExposure.name());
-                if (camera != nullptr) {
-                    camera->setExposure(cameraExposure.exposure());
-                }
-            }
+            parseActuatorRequests(actuatorRequests);
 
-            // For each time step message sent, we enable that device if the value exists
-            for (const auto& sensorTimeStep : actuatorRequests.sensor_time_steps()) {
-                webots::Device* device              = this->getDevice(sensorTimeStep.name());
-                if (device != nullptr) {
-                    const int sensor_time_step = sensorTimeStep.timestep();
-                    // Add to our list of sensors if we have a time step, otherwise if we do not have a time step
-                    // remove it
-                    if (sensor_time_step > 0) {
-                        sensors.insert(device);
-                    }
-                    else {
-                        sensors.erase(device);
-                    }
-                    // Warn if the time step is non-zero and smaller than the basic time step
-                    // which shouldn't happen because smaller steps indicate the basic time step
-                    // is not "basic"
-                    const int basic_time_step = this->getBasicTimeStep();
-                    if (sensor_time_step != 0 && sensor_time_step < basic_time_step) {
-                        std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be greater or equal to "
-                                         + std::to_string(basic_time_step) + ", ignoring "
-                                         + std::to_string(sensor_time_step) + " value."
-                                  << std::endl;
-                    }
-                    // Warn if the time step is not a multiple of the basic time step
-                    // The time step should be some multiple of the basic time step
-                    else if (sensor_time_step % basic_time_step != 0) {
-                        std::cerr << "Time step for \"" + sensorTimeStep.name() + "\" should be a multiple of "
-                                         + std::to_string(basic_time_step) + ", ignoring "
-                                         + std::to_string(sensor_time_step) + " value."
-                                  << std::endl;
-                    }
-                    else {
-                        // Given a valid time step, enable the corresponding device
-                        switch (device->getNodeType()) {
-                            case webots::Node::ACCELEROMETER: {
-                                auto* accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
-                                accelerometer->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::CAMERA: {
-                                auto* camera = reinterpret_cast<webots::Camera*>(device);
-                                camera->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::GYRO: {
-                                auto* gyro = reinterpret_cast<webots::Gyro*>(device);
-                                gyro->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::POSITION_SENSOR: {
-                                auto* positionSensor = reinterpret_cast<webots::PositionSensor*>(device);
-                                positionSensor->enable(sensor_time_step);
-                                break;
-                            }
-                            case webots::Node::TOUCH_SENSOR: {
-                                auto* touchSensor = reinterpret_cast<webots::TouchSensor*>(device);
-                                touchSensor->enable(sensor_time_step);
-                                break;
-                            }
-                            default:
-                                std::cerr << "Unable to enable unknown device WbNodeType: " << device->getNodeType()
-                                          << std::endl;
-                        }
-                    }
-                }
-            }
+            // Delete the packet we just read ready to read the next one
+            buffer.erase(buffer.begin(), std::next(buffer.begin(), sizeof(length) + length));
         }
     }
 
@@ -480,6 +485,8 @@ private:
     int tcp_fd;
     /// Set of robot sensors
     std::set<webots::Device*> sensors;
+
+    std::vector<uint8_t> buffer;
 };
 
 
