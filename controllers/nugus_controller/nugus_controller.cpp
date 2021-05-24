@@ -341,137 +341,134 @@ public:
                     }
                 }
                 default:
-                    std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl; break;
+                    std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
+                    break;
             }
         }
 
-        #ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging
-            std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
-            std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
-            std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
+#ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging
+        std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
+        std::cout << "  sm.time: " << sensorMeasurements->time() << std::endl;
+        std::cout << "  sm.real_time: " << sensorMeasurements->real_time() << std::endl;
 
-            {
-                std::cout << "  sm.messages: " << std::endl;
-                int i = 0;
-                for (auto message : sensorMeasurements->messages()) {
-                    std::cout << "    sm.messages[" << i << "]" << std::endl;
-                    std::cout << "      message_type: " << message.message_type() << std::endl;
-                    std::cout << "      text: " << message.text() << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.messages: " << std::endl;
+            int i = 0;
+            for (auto message : sensorMeasurements->messages()) {
+                std::cout << "    sm.messages[" << i << "]" << std::endl;
+                std::cout << "      message_type: " << message.message_type() << std::endl;
+                std::cout << "      text: " << message.text() << std::endl;
+                i++;
             }
+        }
 
 
-            {
-                std::cout << "  sm.accelerometers: " << std::endl;
-                int i = 0;
-                for (auto acc : sensorMeasurements->accelerometers()) {
-                    std::cout << "    sm.accelerometers[" << i << "]" << std::endl;
-                    std::cout << "      name: " << acc.name() << std::endl;
-                    std::cout << "      value: [" << acc.value().x() << ", " << acc.value().y() << ", "
-                              << acc.value().z() << "]" << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.accelerometers: " << std::endl;
+            int i = 0;
+            for (auto acc : sensorMeasurements->accelerometers()) {
+                std::cout << "    sm.accelerometers[" << i << "]" << std::endl;
+                std::cout << "      name: " << acc.name() << std::endl;
+                std::cout << "      value: [" << acc.value().x() << ", " << acc.value().y() << ", " << acc.value().z()
+                          << "]" << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.bumpers: " << std::endl;
-                int i = 0;
-                for (auto bumper : sensorMeasurements->bumpers()) {
-                    std::cout << "    sm.bumpers[" << i << "]" << std::endl;
-                    std::cout << "      name: " << bumper.name() << std::endl;
-                    std::cout << "      value: " << bumper.value() << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.bumpers: " << std::endl;
+            int i = 0;
+            for (auto bumper : sensorMeasurements->bumpers()) {
+                std::cout << "    sm.bumpers[" << i << "]" << std::endl;
+                std::cout << "      name: " << bumper.name() << std::endl;
+                std::cout << "      value: " << bumper.value() << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.cameras: " << std::endl;
-                int i = 0;
-                for (auto camera : sensorMeasurements->cameras()) {
-                    std::cout << "    sm.cameras[" << i << "]" << std::endl;
-                    std::cout << "      name: " << camera.name() << std::endl;
-                    std::cout << "      width: " << camera.width() << std::endl;
-                    std::cout << "      height: " << camera.height() << std::endl;
-                    std::cout << "      quality: " << camera.quality() << std::endl;
-                    std::cout << "      image (size): " << camera.image().size() << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.cameras: " << std::endl;
+            int i = 0;
+            for (auto camera : sensorMeasurements->cameras()) {
+                std::cout << "    sm.cameras[" << i << "]" << std::endl;
+                std::cout << "      name: " << camera.name() << std::endl;
+                std::cout << "      width: " << camera.width() << std::endl;
+                std::cout << "      height: " << camera.height() << std::endl;
+                std::cout << "      quality: " << camera.quality() << std::endl;
+                std::cout << "      image (size): " << camera.image().size() << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.forces: " << std::endl;
-                int i = 0;
-                for (auto force : sensorMeasurements->forces()) {
-                    std::cout << "    sm.forces[" << i << "]" << std::endl;
-                    std::cout << "      name: " << force.name() << std::endl;
-                    std::cout << "      value: " << force.value() << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.forces: " << std::endl;
+            int i = 0;
+            for (auto force : sensorMeasurements->forces()) {
+                std::cout << "    sm.forces[" << i << "]" << std::endl;
+                std::cout << "      name: " << force.name() << std::endl;
+                std::cout << "      value: " << force.value() << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.force3ds: " << std::endl;
-                int i = 0;
-                for (auto force : sensorMeasurements->force3ds()) {
-                    std::cout << "    sm.force3ds[" << i << "]" << std::endl;
-                    std::cout << "      name: " << force.name() << std::endl;
-                    std::cout << "      value: [" << force.value().x() << ", " << force.value().y() << ", "
-                              << force.value().z() << "]" << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.force3ds: " << std::endl;
+            int i = 0;
+            for (auto force : sensorMeasurements->force3ds()) {
+                std::cout << "    sm.force3ds[" << i << "]" << std::endl;
+                std::cout << "      name: " << force.name() << std::endl;
+                std::cout << "      value: [" << force.value().x() << ", " << force.value().y() << ", "
+                          << force.value().z() << "]" << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.force6ds: " << std::endl;
-                int i = 0;
-                for (auto force : sensorMeasurements->force6ds()) {
-                    std::cout << "    sm.force6ds[" << i << "]" << std::endl;
-                    std::cout << "      name: " << force.name() << std::endl;
-                    std::cout << "      force: [" << force.force().x() << ", " << force.force().y() << ", "
-                              << force.force().z() << "]" << std::endl;
-                    std::cout << "      torque: [" << force.torque().x() << ", " << force.force().y() << ", "
-                              << force.force().z() << "]" << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.force6ds: " << std::endl;
+            int i = 0;
+            for (auto force : sensorMeasurements->force6ds()) {
+                std::cout << "    sm.force6ds[" << i << "]" << std::endl;
+                std::cout << "      name: " << force.name() << std::endl;
+                std::cout << "      force: [" << force.force().x() << ", " << force.force().y() << ", "
+                          << force.force().z() << "]" << std::endl;
+                std::cout << "      torque: [" << force.torque().x() << ", " << force.force().y() << ", "
+                          << force.force().z() << "]" << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.gyros: " << std::endl;
-                int i = 0;
-                for (auto gyro : sensorMeasurements->gyros()) {
-                    std::cout << "    sm.gyros[" << i << "]" << std::endl;
-                    std::cout << "      name: " << gyro.name() << std::endl;
-                    std::cout << "      value: [" << gyro.value().x() << ", " << gyro.value().y() << ", "
-                              << gyro.value().z() << "]" << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.gyros: " << std::endl;
+            int i = 0;
+            for (auto gyro : sensorMeasurements->gyros()) {
+                std::cout << "    sm.gyros[" << i << "]" << std::endl;
+                std::cout << "      name: " << gyro.name() << std::endl;
+                std::cout << "      value: [" << gyro.value().x() << ", " << gyro.value().y() << ", "
+                          << gyro.value().z() << "]" << std::endl;
+                i++;
             }
+        }
 
-            {
-                std::cout << "  sm.position_sensors: " << std::endl;
-                int i = 0;
-                for (auto sensor : sensorMeasurements->position_sensors()) {
-                    std::cout << "    sm.position_sensors[" << i << "]" << std::endl;
-                    std::cout << "      name: " << sensor.name() << std::endl;
-                    std::cout << "      value: " << sensor.value() << std::endl;
-                    i++;
-                }
+        {
+            std::cout << "  sm.position_sensors: " << std::endl;
+            int i = 0;
+            for (auto sensor : sensorMeasurements->position_sensors()) {
+                std::cout << "    sm.position_sensors[" << i << "]" << std::endl;
+                std::cout << "      name: " << sensor.name() << std::endl;
+                std::cout << "      value: " << sensor.value() << std::endl;
+                i++;
             }
-        #endif
+        }
+#endif
 
         // Try to send the message
-        uint32_t Nh = sensorMeasurements->ByteSizeLong();
-        std::vector<uint8_t> data;
-        data.resize(Nh);
-        sensorMeasurements->SerializeToArray(data.data(), Nh);
-
-        uint32_t Nn = htonl(Nh);
-
-        if (send(tcp_fd, &Nn, sizeof(Nn), 0) < 0) {
+        std::string proto = sensorMeasurements->SerializeAsString();
+        uint32_t N        = proto.size();
+        N                 = htonl(N);
+        if (send(tcp_fd, &N, sizeof(N), 0) < 0) {
             std::cerr << "Error: Failed to send message size over TCP connection: " << strerror(errno) << std::endl;
         }
-        else if (send(tcp_fd, data.data(), data.size(), 0) < 0) {
+        else if (send(tcp_fd, proto.data(), proto.size(), 0) < 0) {
             std::cerr << "Error: Failed to send data over TCP connection: " << strerror(errno) << std::endl;
         }
     }
