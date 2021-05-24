@@ -89,6 +89,7 @@ DEF BLUE_1 NUgus {
   rotation 0 0 1 3.1415
   controller "nugus_controller"
   controllerArgs [
-    "32"
+    "10020"
+    "8"
   ]
 }
