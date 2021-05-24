@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<> xDistrib(-xSize * 0.5, xSize * 0.5);
     std::uniform_real_distribution<> yDistrib(-ySize * 0.5, ySize * 0.5);
     // The RNG for the index of the rotation selected this round
-    std::uniform_real_distribution<> rotDistrib(0.0, double(rotations.size()) - 1.0);
+    std::uniform_int_distribution<size_t> rotDistrib(0, rotations.size() - 1);
 
     while (supervisor.step(timeStep) != -1) {
 
