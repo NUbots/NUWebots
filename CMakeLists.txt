@@ -33,7 +33,7 @@ endif()
 set_project_warnings()
 
 # Default not to run the clang-tidy checks, default to whatever our CI_BUILD is
-option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." OFF)
+option(ENABLE_CLANG_TIDY "Enable building with clang-tidy checks." ON)
 if(ENABLE_CLANG_TIDY OR CI_BUILD)
   find_package(PythonInterp 3 REQUIRED)
   set(CMAKE_CXX_CLANG_TIDY "${PYTHON_EXECUTABLE}" "${PROJECT_SOURCE_DIR}/scripts/clang-tidy.py"
