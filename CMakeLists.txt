@@ -26,7 +26,7 @@ option(WARNINGS_AS_ERRORS "All compiler and clang-tidy warnings make compilation
 # If we are doing a CI build then we want warnings to be dealt with, so we fail compilation. We will also make it fail
 # if clang-tidy has a warning
 if(CI_BUILD)
-  set(WARNINGS_AS_ERRORS=ON)
+  set(WARNINGS_AS_ERRORS ON)
 endif()
 
 # We can set our project warnings now that we know if warnings are errors
