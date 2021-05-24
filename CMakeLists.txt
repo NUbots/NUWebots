@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.16)
 project(nugus_controller LANGUAGES CXX)
 
 # Make sure a build type has been set
