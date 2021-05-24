@@ -2,6 +2,10 @@
 protos/**/*.cache
 worlds/.*.wbproj
 
+# Generated when converting a NUgus to base nodes
+worlds/NUgus_textures
+worlds/robot
+
 # Build files and binaries
 build/
 data/
