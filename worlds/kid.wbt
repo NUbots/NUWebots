@@ -117,7 +117,7 @@ NUgus {
   controller "nugus_controller"
   controllerArgs [
     "10020"
-    "32"
+    "8"
   ]
   name "red player 1"
 }
