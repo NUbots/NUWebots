@@ -4,7 +4,10 @@ worlds/.*.wbproj
 
 # Build files and binaries
 build/
+data/
+
 /controllers/nugus_controller/nugus_controller
+/controllers/collect_vision_data/collect_vision_data
 /controllers/teleport_controller/teleport_controller
 nugus_controller_test
 
