@@ -72,7 +72,19 @@ int main(int argc, char** argv) {
         webots::Field& target_translation_field = *target.getField("translation");
         // Convert the field to a vector to output to console
         const double* target_translation_vec = target_translation_field.getSFVec3f();
-        
+
+        // Output current location
+        log.open("teleport_controller.log", std::fstream::app);
+        if (!log.good()) {
+            std::cerr << "Error writing to log file" << std::endl;
+        }
+        log << "\n" << supervisor.getTime() << "s - ";
+        log << "Location: ";
+        log << "X: " << target_translation_vec[0];
+        log << " Y: " << target_translation_vec[1];
+        log << " Z: " << target_translation_vec[2] << std::endl;
+        log.close();
+
         // Prepare new location
 
         // 0, 0, 0 is centre of the playing field.
@@ -98,7 +110,21 @@ int main(int argc, char** argv) {
         const double* target_rotation_vec = target_rotation_field.getSFRotation();
 
         // Loop once for each rotation
-        for (const std::array<double, 4>& rotation : rotations) {      
+        for (const std::array<double, 4>& rotation : rotations) {
+            // Output current rotation
+
+            log.open("teleport_controller.log", std::fstream::app);
+            if (!log.good()) {
+                std::cout << "Error writing to log file" << std::endl;
+            }
+            log << supervisor.getTime() << "s - ";
+            log << "Rotation: ";
+            log << "X: " << target_rotation_vec[0];
+            log << " Y: " << target_rotation_vec[1];
+            log << " Z: " << target_rotation_vec[2];
+            log << " alpha: " << target_rotation_vec[3] << std::endl;
+            log.close();
+
             // Prepare new rotation. These are saved in rotations vector as the axis-angle
             // calculation is rough to calculate on the fly
 

@@ -28,17 +28,11 @@ set_source_files_properties(
 
 # Add a separate OBJECT for the protobufs so that we can skip running clang-tidy on them
 add_library(
-  robot_control_protobuf
-  OBJECT
-    "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
-    "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
+  robot_control_protobuf OBJECT "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.cc"
+                                "${CMAKE_CURRENT_BINARY_DIR}/protobuf/RobotControl.pb.h"
 )
 # Turn off clang-tidy for it
-set_target_properties(
-  robot_control_protobuf
-  PROPERTIES
-    CXX_CLANG_TIDY ""
-)
+set_target_properties(robot_control_protobuf PROPERTIES CXX_CLANG_TIDY "")
 
 # Create an executable using all of the sources and the non-clang-tidy suitable generated protobuf sources
 add_executable(nugus_controller ${controller_sources} $<TARGET_OBJECTS:robot_control_protobuf>)

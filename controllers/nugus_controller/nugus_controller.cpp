@@ -36,8 +36,8 @@ using utility::tcp::create_socket_server;
 
 class NUgus : public webots::Robot {
 public:
-    NUgus(const int& time_step, const int& server_port)
-        : time_step(time_step), server_port(server_port), tcp_fd(create_socket_server(server_port)) {
+    NUgus(const int& time_step_, const uint16_t& server_port_)
+        : time_step(time_step_), server_port(server_port_), tcp_fd(create_socket_server(server_port_)) {
         send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() override {
@@ -98,7 +98,7 @@ public:
 
                 // Parse message data
                 controller::nugus::RobotControl msg;
-                if (!msg.ParseFromArray(data.data(), Nh)) {
+                if (!msg.ParseFromArray(data.data(), int(Nh))) {
                     std::cerr << "Error: Failed to parse serialised message" << std::endl;
                     continue;
                 }
@@ -109,9 +109,9 @@ public:
                 // Send a message to the client
                 msg.set_num(current_num);
 
-                Nh = msg.ByteSizeLong();
+                Nh = uint32_t(msg.ByteSizeLong());
                 data.resize(Nh);
-                msg.SerializeToArray(data.data(), Nh);
+                msg.SerializeToArray(data.data(), int(Nh));
 
                 Nn = htonl(Nh);
 
@@ -130,7 +130,7 @@ private:
     /// Controller time step
     const int time_step;
     /// TCP server port
-    const int server_port;
+    const uint16_t server_port;
     /// File descriptor to use for the TCP connection
     int tcp_fd;
 };
