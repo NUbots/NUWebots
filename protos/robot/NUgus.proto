@@ -7,7 +7,7 @@
 PROTO NUgus [
   field  SFVec3f     translation            0 0 0
   field  SFRotation  rotation               0 1 0 0
-  field  MFString    robotTexture           "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture           "NUgus_textures/NUgus_base_color.jpg"
   field  SFString    name                   "NUgus"                           # Is `Robot.name`.
   field  SFString    controller             "void"                            # Is `Robot.controller`.
   field  MFString    controllerArgs         []                                # Is `Robot.controllerArgs`.
@@ -24,6 +24,7 @@ PROTO NUgus [
   field SFFloat      cameraMotionBlur       10                                # With over 100fps, real cameras do not have much motion blur
   # MOTOR PARAMETER: See section 2.0.3 of docs/Robot_Model_RoboCup_2021 for more information
   field SFFloat     DYNAMIXEL-RESOLUTION    0.0015                            # Resolution of the encoder for DYNAMIXEL servo 
+  field  MFColor     recognitionColors [0 0 1]
 ]
 {
   Robot {
@@ -52,7 +53,7 @@ PROTO NUgus [
         children [
           JerseyFront {
             jerseyFrontTexture [
-             %{='"./textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -64,7 +65,7 @@ PROTO NUgus [
         children [
           JerseyBack {
             jerseyBackTexture [
-             %{='"./textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"./NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -179,7 +180,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -229,7 +230,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -367,7 +368,7 @@ PROTO NUgus [
                       emissiveColor 0.000000 0.000000 0.000000
                       baseColorMap ImageTexture {
                         url [
-                          %{='"./textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                          %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                         ]
                       }
                     }
@@ -416,7 +417,7 @@ PROTO NUgus [
                             emissiveColor 0.000000 0.000000 0.000000
                             baseColorMap ImageTexture {
                               url [
-                                %{='"./textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                                %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                               ]
                             }
                           }
@@ -648,7 +649,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                 }
@@ -1075,7 +1076,7 @@ PROTO NUgus [
                                   emissiveColor 0.000000 0.000000 0.000000
                                   baseColorMap ImageTexture {
                                     url [
-                                      %{='"./textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                      %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                     ]
                                   }
                                   %{
@@ -1790,3 +1791,4 @@ PROTO NUgus [
     }
   }
 }
+
