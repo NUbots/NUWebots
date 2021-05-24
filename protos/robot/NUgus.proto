@@ -13,7 +13,7 @@ PROTO NUgus [
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
-  field  MFString    robotTexture         "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture         "NUgus_textures/NUgus_base_color.jpg"
   # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
   field  SFFloat     MX64-torque          7.30
   field  SFFloat     MX64-vel             8.17
@@ -146,7 +146,7 @@ PROTO NUgus [
                 children [
                   DEF right_upper_arm NUgus_right_upper_armMesh {
                     robotTexture [
-                      %{='"./robot/textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                      %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                     ]
                   }
                   HingeJointWithBacklash {
@@ -177,7 +177,7 @@ PROTO NUgus [
                       children [
                         DEF right_lower_arm NUgus_right_lower_armMesh {
                           robotTexture [
-                            %{='"./robot/textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                            %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                           ]
                         }
                       ]
@@ -279,7 +279,7 @@ PROTO NUgus [
                 children [
                   DEF left_upper_arm NUgus_left_upper_armMesh {
                     robotTexture [
-                      %{='"./robot/textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                      %{='"./robot/NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
                     ]
                   }
                   HingeJointWithBacklash {
@@ -310,7 +310,7 @@ PROTO NUgus [
                       children [
                         DEF left_lower_arm NUgus_left_lower_armMesh {
                           robotTexture [
-                            %{='"./robot/textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                            %{='"./robot/NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
                           ]
                         }
                       ]
@@ -470,7 +470,7 @@ PROTO NUgus [
                             children [
                               DEF right_lower_leg NUgus_right_lower_legMesh {
                                 robotTexture [
-                                  %{='"./robot/textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                  %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                 ]
                               }
                               HingeJointWithBacklash {
@@ -789,8 +789,9 @@ PROTO NUgus [
                             children [
                               DEF left_lower_leg NUgus_left_lower_legMesh {
                                 robotTexture [
-                                  %{='"./robot/textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                  %{='"./robot/NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
                                 ]
+                                %{ end }%
                               }
                               HingeJointWithBacklash {
                                 gearMass IS gearMass
