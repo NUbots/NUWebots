@@ -47,7 +47,7 @@ std::string padLeft(int number, int width) {
 // Quality of the images we are saving
 const int QUALITY = 100;
 
-void collect_vision_data(webots::Robot robot) {
+void collect_vision_data(const webots::Node& robot) {
     // Counter for saving images
     int count = 0;
 
