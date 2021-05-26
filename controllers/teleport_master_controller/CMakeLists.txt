@@ -2,6 +2,7 @@
 find_package(webots REQUIRED)
 # Find YAML
 find_package(yaml-cpp REQUIRED)
+find_package(Eigen3 REQUIRED)
 # Find/list all of the source files
 set(controller_sources "teleport_master_controller.cpp")
 # Create an executable using all of the sources
@@ -12,6 +13,7 @@ target_include_directories(teleport_master_controller PRIVATE "${PROJECT_SOURCE_
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(teleport_master_controller PRIVATE webots::webots)
 target_link_libraries(teleport_master_controller PRIVATE ${YAML_CPP_LIBRARIES})
+target_link_libraries(teleport_master_controller PRIVATE Eigen3::Eigen)
 # Generate binary in controller source directory
 set_target_properties(
   teleport_master_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"

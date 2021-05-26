@@ -71,7 +71,6 @@ DEF RED_2 NUgus {
     "robot/NUgus_textures/NUgus_base_color.jpg"
   ]
   name "red player 2"
-  controller "collect_vision_data"
   controllerArgs [
     "RED_2"
   ]
@@ -105,7 +104,6 @@ DEF BLUE_1 NUgus {
     "robot/NUgus_textures/NUgus_base_color.jpg"
   ]
   name "blue player 1"
-  controller "collect_vision_data"
   controllerArgs [
     "BLUE_1"
   ]
@@ -115,12 +113,13 @@ DEF control Robot {
   controller "teleport_master_controller"
   controllerArgs [
     "soccerField"
+    "BLUE_1"
     "RED_1"
     "RED_2"
     "RED_3"
     "RED_4"
-    "BLUE_1"
     "ball"
   ]
   supervisor TRUE
+  recognitionColors [0 0 0.5]
 }

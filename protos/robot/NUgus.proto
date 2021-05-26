@@ -33,8 +33,9 @@ PROTO NUgus [
   field SFFloat      cameraLensFocalLength  1.98             # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
   field SFFloat      cameraNoise            0.000000001      # Not much noise on real cameras
   field SFFloat      cameraMotionBlur       10               # With over 100fps, real cameras do not have much motion blur
-  field  MFColor     recognitionColors [0 0 1]
-]
+  field  MFColor     recognitionColors      [0 0 1]
+  field SFBool       takeImage              FALSE            # For use in the vision controller to know when to take an image
+  ]
 {
   Robot {
     translation IS translation
