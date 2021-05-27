@@ -31,7 +31,6 @@
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 #include <webots/Supervisor.hpp>
-
 #include <yaml-cpp/yaml.h>
 
 std::string padLeft(int number, int width) {
@@ -108,11 +107,11 @@ int main(int argc, char** argv) {
     while (robot->step(time_step) != -1) {
         //----------GET TRANSLATION OF ROBOT------------//
         webots::Field* robotTranslationField = robot_def->getField("translation");
-        const double* robot_position = robotTranslationField->getSFVec3f();
+        const double* robot_position         = robotTranslationField->getSFVec3f();
 
         // ---------GET ROTATION OF ROBOT--------//
         webots::Field* robotRotationField = robot_def->getField("rotation");
-        const double* rotation = robotRotationField->getSFRotation();
+        const double* rotation            = robotRotationField->getSFRotation();
 
         // Set random positions for the head and neck servos
         const double neck_yaw_position   = servoDistrib(gen);
@@ -173,10 +172,9 @@ int main(int argc, char** argv) {
         // Htw
         Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
         Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
-                            .toRotationMatrix()
-                            .transpose();
-        Htw.translation() =
-            -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
+                           .toRotationMatrix()
+                           .transpose();
+        Htw.translation() = -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
         // Calculate the left and right camera to world transformation matrices
         Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
@@ -184,17 +182,15 @@ int main(int argc, char** argv) {
 
         //-----------SAVE DATA-----------//
         std::string count_padded = padLeft(count, 7);
-        
+
         // Save mono images
         left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
-        left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
-                                                    QUALITY);
+        left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", QUALITY);
         // Save stereo images
         left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
         right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
         left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
-        right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
-                                                        QUALITY);
+        right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png", QUALITY);
 
         // Prepare the mono lens data
         YAML::Emitter mono_lens;

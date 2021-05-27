@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
                 // Generate a new random location
                 newPos[0] = xDistrib(gen);
                 newPos[1] = yDistrib(gen);
-                
+
                 if (otherRobotsNodes[i]->getTypeName() == "RobocupSoccerBall") {
                     newPos[2] = 0.08;
                 }
