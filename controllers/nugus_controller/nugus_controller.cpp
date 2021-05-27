@@ -52,14 +52,12 @@ using controller::nugus::ActuatorRequests;
 using controller::nugus::BumperMeasurement;
 using controller::nugus::CameraExposure;
 using controller::nugus::CameraMeasurement;
-using controller::nugus::CameraQuality;
 using controller::nugus::Force3DMeasurement;
 using controller::nugus::ForceMeasurement;
 using controller::nugus::GyroMeasurement;
 using controller::nugus::MotorPID;
 using controller::nugus::PositionSensorMeasurement;
 using controller::nugus::SensorMeasurements;
-using controller::nugus::SensorTimeStep;
 using controller::nugus::Vector3;
 
 class NUgus : public webots::Robot {
@@ -109,8 +107,8 @@ public:
     void parseActuatorRequests(const ActuatorRequests& actuatorRequests) {
         // For each motor in the message, get the motor and set the values for it
         for (int i = 0; i < actuatorRequests.motor_positions_size(); i++) {
-            const MotorPID motorPID = actuatorRequests.motor_pids(i);
-            webots::Motor* motor    = this->getMotor(motorPID.name());
+            const MotorPID& motorPID = actuatorRequests.motor_pids(i);
+            webots::Motor* motor     = this->getMotor(motorPID.name());
             if (motor != nullptr) {
                 if (i < actuatorRequests.motor_positions_size()) {
                     motor->setPosition(actuatorRequests.motor_positions(i).position());
@@ -132,8 +130,8 @@ public:
 
         // For each camera in the message, set the exposure
         for (int i = 0; i < actuatorRequests.camera_exposures_size(); i++) {
-            const CameraExposure cameraExposure = actuatorRequests.camera_exposures(i);
-            webots::Camera* camera              = this->getCamera(cameraExposure.name());
+            const CameraExposure& cameraExposure = actuatorRequests.camera_exposures(i);
+            webots::Camera* camera               = this->getCamera(cameraExposure.name());
             if (camera != nullptr) {
                 camera->setExposure(cameraExposure.exposure());
             }
@@ -208,7 +206,7 @@ public:
     }
 
     void handleReceived() {
-        unsigned long available = 0;
+        uint64_t available = 0;
         if (::ioctl(tcp_fd, FIONREAD, &available) < 0) {
             std::cerr << "Error querying for available data, " << strerror(errno) << std::endl;
             return;
@@ -249,16 +247,16 @@ public:
         auto sensorMeasurements = std::make_unique<SensorMeasurements>();
 
         sensorMeasurements->set_time(uint32_t(controller_time));
-        struct timeval tp;
-        gettimeofday(&tp, NULL);
+        struct timeval tp {};
+        gettimeofday(&tp, nullptr);
         sensorMeasurements->set_real_time(uint64_t(tp.tv_sec * 1000 + tp.tv_usec / 1000));
 
         // Iterator over all the devices that have been enabled from any received ActuatorRequests messages
         for (auto* device : sensors) {
             switch (device->getNodeType()) {
                 case webots::Node::ACCELEROMETER: {
-                    auto accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
-                    if (time_step % accelerometer->getSamplingPeriod()) {
+                    auto* accelerometer = reinterpret_cast<webots::Accelerometer*>(device);
+                    if ((time_step % accelerometer->getSamplingPeriod()) != 0) {
                         break;
                     }
                     AccelerometerMeasurement* measurement = sensorMeasurements->add_accelerometers();
@@ -271,8 +269,8 @@ public:
                     break;
                 }
                 case webots::Node::CAMERA: {
-                    auto camera = reinterpret_cast<webots::Camera*>(device);
-                    if (time_step % camera->getSamplingPeriod()) {
+                    auto* camera = reinterpret_cast<webots::Camera*>(device);
+                    if ((time_step % camera->getSamplingPeriod()) != 0) {
                         break;
                     }
                     CameraMeasurement* measurement = sensorMeasurements->add_cameras();
@@ -284,8 +282,8 @@ public:
                     break;
                 }
                 case webots::Node::GYRO: {
-                    auto gyro = reinterpret_cast<webots::Gyro*>(device);
-                    if (time_step % gyro->getSamplingPeriod()) {
+                    auto* gyro = reinterpret_cast<webots::Gyro*>(device);
+                    if ((time_step % gyro->getSamplingPeriod()) != 0) {
                         break;
                     }
                     GyroMeasurement* measurement = sensorMeasurements->add_gyros();
@@ -298,8 +296,8 @@ public:
                     break;
                 }
                 case webots::Node::POSITION_SENSOR: {
-                    auto position_sensor = reinterpret_cast<webots::PositionSensor*>(device);
-                    if (time_step % position_sensor->getSamplingPeriod()) {
+                    auto* position_sensor = reinterpret_cast<webots::PositionSensor*>(device);
+                    if ((time_step % position_sensor->getSamplingPeriod()) != 0) {
                         break;
                     }
                     PositionSensorMeasurement* measurement = sensorMeasurements->add_position_sensors();
@@ -308,8 +306,8 @@ public:
                     break;
                 }
                 case webots::Node::TOUCH_SENSOR: {
-                    auto touch_sensor = reinterpret_cast<webots::TouchSensor*>(device);
-                    if (time_step % touch_sensor->getSamplingPeriod()) {
+                    auto* touch_sensor = reinterpret_cast<webots::TouchSensor*>(device);
+                    if ((time_step % touch_sensor->getSamplingPeriod()) != 0) {
                         break;
                     }
                     webots::TouchSensor::Type type = touch_sensor->getType();
