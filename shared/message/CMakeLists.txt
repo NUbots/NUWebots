@@ -17,8 +17,9 @@ add_custom_command(
 # * If the protobuf generation starts to generate more warnings, add '-Wno-<warning_name>' to this list of -Wno's
 set_source_files_properties(
   "${PROJECT_BINARY_DIR}/shared/message/messages.pb.cc" "${PROJECT_BINARY_DIR}/shared/message/messages.pb.h"
-  PROPERTIES GENERATED TRUE COMPILE_FLAGS
-                            "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error -Wno-conversion"
+  PROPERTIES GENERATED TRUE
+             COMPILE_FLAGS
+             "-Wno-unused-parameter -Wno-error=unused-parameter -Wno-error -Wno-conversion -Wno-sign-conversion"
 )
 
 # Add separate OBJECTs for the protobufs so that we can skip running clang-tidy on them
