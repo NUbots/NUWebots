@@ -107,7 +107,16 @@ int main(int argc, char** argv) {
                 // Generate a new random location
                 newPos[0] = xDistrib(gen);
                 newPos[1] = yDistrib(gen);
-                newPos[2] = zHeight;
+                
+                if (otherRobotsNodes[i]->getTypeName() == "RobocupSoccerBall") {
+                    newPos[2] = 0.08;
+                }
+                else if (otherRobotsNodes[i]->getTypeName() == "Darwin-opHinge2Seg") {
+                    newPos[2] = 0.24;
+                }
+                else {
+                    newPos[2] = zHeight;
+                }
 
                 // Loop through the vector of existing proposed locations and see if the new one is going to
                 // collide with any of them
@@ -129,7 +138,7 @@ int main(int argc, char** argv) {
             // There will be a position for every robot in the positions vector
             otherRobotsNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
             // Apply new rotation
-            otherRobotsNodes[i]->getField("rotation")->setSFRotation(rotations[rotDistrib(gen)].data());
+            otherRobotsNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
 
             // Reset physics to avoid robot tearing itself apart
             otherRobotsNodes[i]->resetPhysics();
