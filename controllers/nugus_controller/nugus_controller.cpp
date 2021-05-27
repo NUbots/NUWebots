@@ -216,7 +216,13 @@ public:
         buffer.resize(old_size + available);
 
         // Read data into our buffer and resize it to the new data we read
-        ::read(tcp_fd, buffer.data() + old_size, available);
+        const ssize_t err = ::read(tcp_fd, buffer.data() + old_size, available);
+        if (err == 0) {
+            std::cerr << "Read end of file from buffer" << std::endl;
+        }
+        else if (err == -1) {
+            std::cerr << "Error from read() call: " << std::string(strerror(errno)) << std::endl;
+        }
 
         // Function to read the payload length from the buffer
         auto read_length = [](const std::vector<uint8_t>& data) {
@@ -238,7 +244,7 @@ public:
             parseActuatorRequests(actuatorRequests);
 
             // Delete the packet we just read ready to read the next one
-            buffer.erase(buffer.begin(), std::next(buffer.begin(), sizeof(length) + length));
+            buffer.erase(buffer.begin(), std::next(buffer.begin(), ssize_t(sizeof(length) + length)));
         }
     }
 
