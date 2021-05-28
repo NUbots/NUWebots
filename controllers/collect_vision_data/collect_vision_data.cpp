@@ -104,6 +104,8 @@ int main(int argc, char** argv) {
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
 
+    // (MoosaHassan) - TODO: have arms by the side instead of reaching out forward
+
     //--------MAIN CONTROL LOOP------------//
     while (robot->step(time_step) != -1) {
         //----------GET TRANSLATION OF ROBOT------------//
