@@ -113,7 +113,7 @@ PROTO NUgus [
         ]
         endPoint Solid {
           translation 0.005000 -0.115000 0.180000
-          rotation -0.577351 -0.577348 0.577351 2.094388
+          rotation -0.129425 0.129432 0.983106 1.58783
           children [
             DEF right_shoulder NUgus_right_shoulderMesh {
               robotTexture IS robotTexture
@@ -332,7 +332,7 @@ PROTO NUgus [
         ]
         endPoint Solid {
           translation 0.005000 0.115000 0.180000
-          rotation -0.577351 -0.577348 0.577351 2.094388
+          rotation -0.0735907 0.135127 -0.988092 -1.39127
           children [
             DEF left_shoulder NUgus_left_shoulderMesh {
               robotTexture IS robotTexture
