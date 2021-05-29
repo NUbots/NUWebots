@@ -1534,6 +1534,19 @@ PROTO NUgus [
                         # Set the recognition parameters from the left camera
                         recognition USE recognition
                       }
+                      DEF range_finder RangeFinder {
+                        name "range_finder"
+                        translation 0.0889361 -0.0352991 0.0713675
+                        rotation 0.577322 -0.595552 -0.558585 2.06587
+                        
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
+                        spherical FALSE
+
+                      }
                     ]
                   }
                 ]
