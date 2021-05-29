@@ -20,23 +20,23 @@
 // Special thanks to Hamburg Bit-Bots for ideas for this controller
 // https://github.com/bit-bots/wolfgang_robot/blob/feature/recognition/wolfgang_webots_sim/src/wolfgang_webots_sim/webots_camera_controller.py
 
-#include <array>
-#include <cmath>
-#include <fstream>
-#include <iostream>
-#include <random>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <array>
+#include <cmath>
 #include <filesystem>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <random>
 #include <sstream>
+#include <thread>
 #include <webots/Camera.hpp>
 #include <webots/Motor.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 #include <webots/Supervisor.hpp>
 #include <yaml-cpp/yaml.h>
-#include <thread>
 
 
 std::string padLeft(int number, int width) {
@@ -76,8 +76,8 @@ int main(int argc, char** argv) {
     int timeStep = int(supervisor.getBasicTimeStep());
 
     // Get the cameras
-        webots::Camera* left_camera  = supervisor.getCamera("left_camera");
-        webots::Camera* right_camera = supervisor.getCamera("right_camera");
+    webots::Camera* left_camera  = supervisor.getCamera("left_camera");
+    webots::Camera* right_camera = supervisor.getCamera("right_camera");
     left_camera->enable(timeStep);
     right_camera->enable(timeStep);
     left_camera->recognitionEnable(timeStep);
@@ -85,21 +85,21 @@ int main(int argc, char** argv) {
     left_camera->enableRecognitionSegmentation();
     right_camera->enableRecognitionSegmentation();
 
-        // Calculate camera field of view
-        int camera_width             = left_camera->getWidth();
-        int camera_height            = left_camera->getHeight();
-        const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
-        const double horizontal_fov  = left_camera->getFov();
-        const double vertical_fov = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
-        const double focal_length_px = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
-        const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
+    // Calculate camera field of view
+    int camera_width             = left_camera->getWidth();
+    int camera_height            = left_camera->getHeight();
+    const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
+    const double horizontal_fov  = left_camera->getFov();
+    const double vertical_fov = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
+    const double focal_length_px = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
+    const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
 
-        //-----------GET HANDLES TO NODES AND SERVOS-----------//
-        // Get a handle to our head and neck motors
-        webots::Motor* neck_yaw                   = supervisor.getMotor("neck_yaw");
-        webots::Motor* head_pitch                 = supervisor.getMotor("head_pitch");
-        webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
-        webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
+    //-----------GET HANDLES TO NODES AND SERVOS-----------//
+    // Get a handle to our head and neck motors
+    webots::Motor* neck_yaw                   = supervisor.getMotor("neck_yaw");
+    webots::Motor* head_pitch                 = supervisor.getMotor("head_pitch");
+    webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
+    webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
 
 
     // Create directories for saving data
@@ -132,6 +132,8 @@ int main(int argc, char** argv) {
         return 3;
     }
 
+    // Grab the size of the field from the soccer field proto to restrict the bounds of
+    // where the robots can teleport
     webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
     const double xSize      = fieldNode->getField("xSize")->getSFFloat();
     const double ySize      = fieldNode->getField("ySize")->getSFFloat();
@@ -148,26 +150,93 @@ int main(int argc, char** argv) {
     // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> servoDistrib(-M_PI_2, M_PI_2);
 
+    // In order to remove blurry images, images will only be saved on a disjointed
+    // number of timesteps using a moduluo operation
     int moduloCounter = 0;
-    int modulo = 3;
+    int modulo        = 3;
 
     while (supervisor.step(timeStep) != -1) {
         moduloCounter++;
-        robotsNodes[0]->resetPhysics();
+        // Reset physics of the robot running this controller to stabilise the image
+        supervisor.getFromDef(selfDef)->resetPhysics();
+
+        // Move the robot on the iteration immediately after saving an image
+        if (moduloCounter % modulo == 1) {
+            //-----------TRANSLATE ROBOTS-----------//
+
+            // Declare a vector of positions that will be saved as they are randomly generated, to be later
+            // applied to each robot
+            std::vector<std::array<double, 3>> positions;
+            // Loop through every robot
+            for (auto& robots : robotsNodes) {
+                // Assume there is no collision
+                bool collision = false;
+                // newPos will be a "Proposed location" for a robot to teleport to
+                std::array<double, 3> newPos{};
+                do {
+                    collision = false;
+                    // Generate a new random location
+                    newPos[0] = xDistrib(gen);
+                    newPos[1] = yDistrib(gen);
+
+                    if (robots->getTypeName() == "RobocupSoccerBall") {
+                        newPos[2] = 0.08;
+                    }
+                    else if (robots->getTypeName() == "Darwin-opHinge2Seg") {
+                        newPos[2] = 0.24;
+                    }
+                    else {
+                        newPos[2] = zHeight;
+                    }
+
+                    // Loop through the vector of existing proposed locations and see if the new one is going to
+                    // collide with any of them
+                    for (const auto& testPos : positions) {
+                        const double distance =
+                            std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
+                        if (distance < minDistance) {
+                            collision = true;
+                        }
+                    }
+                    // Loop until a proposed location has been found that doesn't clash with the existing ones
+                } while (collision);
+                // Finally add the proposed location in as a confirmed position
+                positions.emplace_back(newPos);
+            }
+
+            // Loop through every robot
+            for (size_t i = 0; i < robotsNodes.size(); i++) {
+                // Grab translation field of the robot to modify
+                // There will be a position for every robot in the positions vector
+                robotsNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
+                // Apply new rotation
+                robotsNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
+
+                // Reset physics to avoid robot tearing itself apart
+                robotsNodes[i]->resetPhysics();
+            }
+            // Set random positions for the head and neck servos
+            const double neck_yaw_position   = servoDistrib(gen);
+            const double head_pitch_position = servoDistrib(gen);
+            neck_yaw->setPosition(neck_yaw_position);
+            head_pitch->setPosition(head_pitch_position);
+        }
+
+        // Run a number of iterations after the robot has moved equal to the value of modulo
         if (moduloCounter % modulo == 0) {
             //----------GET TRANSLATION OF ROBOT------------//
             webots::Field* robotTranslationField = supervisor.getFromDef(selfDef)->getField("translation");
-            const double* robot_position = robotTranslationField->getSFVec3f();
+            const double* robot_position         = robotTranslationField->getSFVec3f();
 
             // ---------GET ROTATION OF ROBOT--------//
             webots::Field* robotRotationField = supervisor.getFromDef(selfDef)->getField("rotation");
-            const double* rotation = robotRotationField->getSFRotation();
+            const double* rotation            = robotRotationField->getSFRotation();
 
             /**************************************************************
-                * From the NUbots repo                                       *
-                * File: ForwardKinematics.hpp                                *
-                * Function: calculateHeadJointPosition                       *
-                **************************************************************/
+             * From the NUbots repo                                       *
+             * File: ForwardKinematics.hpp                                *
+             * Function: calculateHeadJointPosition                       *
+             **************************************************************/
             Eigen::Affine3d Htx = Eigen::Affine3d::Identity();
 
             // From Kinematics Configuration
@@ -196,10 +265,10 @@ int main(int argc, char** argv) {
             // camera position
 
             /**************************************************************
-                * From the NUbots repo                                       *
-                * Module: input/Camera                                       *
-                * Files: Left.yaml and Right.yaml                            *
-                **************************************************************/
+             * From the NUbots repo                                       *
+             * Module: input/Camera                                       *
+             * Files: Left.yaml and Right.yaml                            *
+             **************************************************************/
             // clang-format off
             Eigen::Affine3d Hxl;
             Hxl.matrix() << 0.9997403694613228,   -0.016551656784825577, -0.01566002262642871,  0.08893612063588988,
@@ -216,8 +285,8 @@ int main(int argc, char** argv) {
             // Htw
             Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
             Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
-                                .toRotationMatrix()
-                                .transpose();
+                               .toRotationMatrix()
+                               .transpose();
             Htw.translation() =
                 -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
@@ -225,22 +294,19 @@ int main(int argc, char** argv) {
             Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
             Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
 
-            // using namespace std::chrono_literals;
-            // std::this_thread::sleep_for(500ms);
-
             //-----------SAVE DATA-----------//
             std::string count_padded = padLeft(count, 7);
-            
+
             // Save mono images
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
-                                                        QUALITY);
+                                                          QUALITY);
             // Save stereo images
             left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", QUALITY);
             right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", QUALITY);
             left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", QUALITY);
             right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
-                                                            QUALITY);
+                                                           QUALITY);
 
             // Prepare the mono lens data
             YAML::Emitter mono_lens;
@@ -308,68 +374,6 @@ int main(int argc, char** argv) {
 
             count++;
         }
-        if (moduloCounter % modulo == 1) {
-        
-            //-----------TRANSLATE ROBOTS-----------//
-
-            // Declare a vector of positions that will be saved as they are randomly generated, to be later
-            // applied to each robot
-            std::vector<std::array<double, 3>> positions;
-            // Loop through every robot
-            for (auto& robots : robotsNodes) {
-                // Assume there is no collision
-                bool collision = false;
-                // newPos will be a "Proposed location" for a robot to teleport to
-                std::array<double, 3> newPos{};
-                do {
-                    collision = false;
-                    // Generate a new random location
-                    newPos[0] = xDistrib(gen);
-                    newPos[1] = yDistrib(gen);
-                    
-                    if (robots->getTypeName() == "RobocupSoccerBall") {
-                        newPos[2] = 0.08;
-                    }
-                    else if (robots->getTypeName() == "Darwin-opHinge2Seg") {
-                        newPos[2] = 0.24;
-                    }
-                    else {
-                        newPos[2] = zHeight;
-                    }
-
-                    // Loop through the vector of existing proposed locations and see if the new one is going to
-                    // collide with any of them
-                    for (const auto& testPos : positions) {
-                        const double distance =
-                            std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
-                        if (distance < minDistance) {
-                            collision = true;
-                        }
-                    }
-                    // Loop until a proposed location has been found that doesn't clash with the existing ones
-                } while (collision);
-                // Finally add the proposed location in as a confirmed position
-                positions.emplace_back(newPos);
-            }
-            
-            // Loop through every robot
-            for (size_t i = 0; i < robotsNodes.size(); i++) {
-                // Grab translation field of the robot to modify
-                // There will be a position for every robot in the positions vector
-                robotsNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
-                // Apply new rotation
-                robotsNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
-
-                // Reset physics to avoid robot tearing itself apart
-                robotsNodes[i]->resetPhysics();
-            }
-            // Set random positions for the head and neck servos
-            const double neck_yaw_position   = servoDistrib(gen);
-            const double head_pitch_position = servoDistrib(gen);
-            neck_yaw->setPosition(neck_yaw_position);
-            head_pitch->setPosition(head_pitch_position);
-        }
-
     };
     return 0;
 }
