@@ -103,6 +103,10 @@ int main(int argc, char** argv) {
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
 
+    // Get a handle to our shoulder motors
+    webots::Motor* right_shoulder_pitch       = robot->getMotor("right_shoulder_pitch [shoulder]");
+    webots::Motor* left_shoulder_pitch        = robot->getMotor("left_shoulder_pitch [shoulder]");
+
     //--------MAIN CONTROL LOOP------------//
     while (robot->step(time_step) != -1) {
         //----------GET TRANSLATION OF ROBOT------------//
@@ -118,6 +122,12 @@ int main(int argc, char** argv) {
         const double head_pitch_position = servoDistrib(gen);
         neck_yaw->setPosition(neck_yaw_position);
         head_pitch->setPosition(head_pitch_position);
+
+        // Set random positions for the shoulder servos
+        const double right_shoulder_position = servoDistrib(gen);
+        const double left_shoulder_position  = servoDistrib(gen);
+        right_shoulder_pitch->setPosition(right_shoulder_position);
+        left_shoulder_pitch->setPosition(left_shoulder_position);
 
         /**************************************************************
          * From the NUbots repo                                       *
