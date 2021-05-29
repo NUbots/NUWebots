@@ -4,6 +4,7 @@ WorldInfo {
     "Description: official soccer simulation for the 2021 Robocup Virtual Humanoid League (kid size)"
     "Version 0.2"
   ]
+  gravity 0
   title "Robocup V-HL Kid"
   basicTimeStep 8
   optimalThreadCount 8
@@ -104,12 +105,6 @@ DEF BLUE_1 NUgus {
     "robot/NUgus_textures/NUgus_base_color.jpg"
   ]
   name "blue player 1"
-  controllerArgs [
-    "BLUE_1"
-  ]
-  supervisor TRUE
-}
-DEF control Robot {
   controller "teleport_master_controller"
   controllerArgs [
     "soccerField"
@@ -123,3 +118,4 @@ DEF control Robot {
   supervisor TRUE
   recognitionColors [0 0 0.5]
 }
+
