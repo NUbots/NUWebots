@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
         // applied to each robot
         std::vector<std::array<double, 3>> positions;
         // Loop through every robot
-        for (size_t i = 0; i < otherRobotsNodes.size(); i++) {
+        for (auto& otherRobot : otherRobotsNodes) {
             // Assume there is no collision
             bool collision = false;
             // newPos will be a "Proposed location" for a robot to teleport to
@@ -107,11 +107,11 @@ int main(int argc, char** argv) {
                 // Generate a new random location
                 newPos[0] = xDistrib(gen);
                 newPos[1] = yDistrib(gen);
-                
-                if (otherRobotsNodes[i]->getTypeName() == "RobocupSoccerBall") {
+
+                if (otherRobot->getTypeName() == "RobocupSoccerBall") {
                     newPos[2] = 0.08;
                 }
-                else if (otherRobotsNodes[i]->getTypeName() == "Darwin-opHinge2Seg") {
+                else if (otherRobot->getTypeName() == "Darwin-opHinge2Seg") {
                     newPos[2] = 0.24;
                 }
                 else {

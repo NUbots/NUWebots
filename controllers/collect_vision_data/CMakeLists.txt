@@ -20,5 +20,6 @@ target_link_libraries(collect_vision_data PRIVATE ${YAML_CPP_LIBRARIES})
 target_link_libraries(collect_vision_data PRIVATE Eigen3::Eigen)
 
 # Generate binary in controller source directory
-set_target_properties(collect_vision_data PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-                                        OUTPUT_NAME collect_vision_data)
+set_target_properties(
+  collect_vision_data PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" OUTPUT_NAME collect_vision_data
+)
