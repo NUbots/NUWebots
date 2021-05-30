@@ -185,6 +185,9 @@ int main(int argc, char** argv) {
                     else if (robots->getTypeName() == "Darwin-opHinge2Seg") {
                         newPos[2] = 0.24;
                     }
+                    else if (robots->getTypeName() == "RobotisOP3") {
+                        newPos[2] = 0.29;
+                    }
                     else {
                         newPos[2] = zHeight;
                     }
