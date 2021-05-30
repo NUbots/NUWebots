@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     webots::Supervisor supervisor = webots::Supervisor();
     for (int i = 2; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
-     robotNodes.emplace_back(supervisor.getFromDef(argv[i]));
+        robotNodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
 
     // Get the time step of the current world.
@@ -90,14 +90,14 @@ int main(int argc, char** argv) {
     int cameraHeight            = leftCamera->getHeight();
     const double cameraDiagonal = std::sqrt(cameraWidth * cameraWidth + cameraHeight * cameraHeight);
     const double horizontalFov  = leftCamera->getFov();
-    const double verticalFov = 2 * std::atan(std::tan(horizontalFov * 0.5) * (double(cameraHeight) / cameraWidth));
-    const double focalLengthPx = 0.5 * cameraHeight / std::tan(verticalFov / 2.0);
+    const double verticalFov    = 2 * std::atan(std::tan(horizontalFov * 0.5) * (double(cameraHeight) / cameraWidth));
+    const double focalLengthPx  = 0.5 * cameraHeight / std::tan(verticalFov / 2.0);
     const double diagonalFov    = 2 * std::atan(cameraDiagonal / (2 * focalLengthPx));
 
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
     // Get a handle to our head and neck motors
-    webots::Motor* neckYaw                   = supervisor.getMotor("neck_yaw");
-    webots::Motor* headPitch                 = supervisor.getMotor("head_pitch");
+    webots::Motor* neckYaw                  = supervisor.getMotor("neck_yaw");
+    webots::Motor* headPitch                = supervisor.getMotor("head_pitch");
     webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
 
@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
 
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of timesteps using a modulo operation
-    int moduloCounter = 0;
-    int modulo        = 3;
+    int moduloCounter    = 0;
+    constexpr int MODULO = 3;
 
     while (supervisor.step(timeStep) != -1) {
         moduloCounter++;
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
         supervisor.getFromDef(selfDef)->resetPhysics();
 
         // Move the robot on the iteration immediately after saving an image
-        if (moduloCounter % modulo == 1) {
+        if (moduloCounter % MODULO == 1) {
             //-----------TRANSLATE ROBOTS-----------//
 
             // Declare a vector of positions that will be saved as they are randomly generated, to be later
@@ -208,12 +208,12 @@ int main(int argc, char** argv) {
             for (size_t i = 0; i < robotNodes.size(); i++) {
                 // Grab translation field of the robot to modify
                 // There will be a position for every robot in the positions vector
-             robotNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
+                robotNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
                 // Apply new rotation
-             robotNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
+                robotNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
 
                 // Reset physics to avoid robot tearing itself apart
-             robotNodes[i]->resetPhysics();
+                robotNodes[i]->resetPhysics();
             }
             // Set random positions for the head and neck servos
             const double neckYawPosition   = servoDistrib(gen);
@@ -223,7 +223,7 @@ int main(int argc, char** argv) {
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
-        if (moduloCounter % modulo == 0) {
+        if (moduloCounter % MODULO == 0) {
             //----------GET TRANSLATION OF ROBOT------------//
             webots::Field* robotTranslationField = supervisor.getFromDef(selfDef)->getField("translation");
             const double* robot_position         = robotTranslationField->getSFVec3f();
@@ -299,14 +299,12 @@ int main(int argc, char** argv) {
 
             // Save mono images
             leftCamera->saveImage("./data/data_mono/image" + countPadded + ".jpg", QUALITY);
-            leftCamera->saveRecognitionSegmentationImage("./data/data_mono/image" + countPadded + "_mask.png",
-                                                          QUALITY);
+            leftCamera->saveRecognitionSegmentationImage("./data/data_mono/image" + countPadded + "_mask.png", QUALITY);
             // Save stereo images
             leftCamera->saveImage("./data/data_stereo/image" + countPadded + "_L.jpg", QUALITY);
             rightCamera->saveImage("./data/data_stereo/image" + countPadded + "_R.jpg", QUALITY);
             leftCamera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + countPadded + "_L.png", QUALITY);
-            rightCamera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + countPadded + "_R.png",
-                                                           QUALITY);
+            rightCamera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + countPadded + "_R.png", QUALITY);
 
             // Prepare the mono lens data
             YAML::Emitter monoLens;
