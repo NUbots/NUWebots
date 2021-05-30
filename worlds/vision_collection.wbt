@@ -116,6 +116,6 @@ DEF BLUE_1 NUgus {
     "ball"
   ]
   supervisor TRUE
-  recognitionColors [0 0 0.5]
+  recognitionColors [0.5 0.5 0.5]
 }
 
