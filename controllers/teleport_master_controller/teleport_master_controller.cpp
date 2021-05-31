@@ -150,7 +150,8 @@ int main(int argc, char** argv) {
     // The RNG for the index of the rotation selected this round
     std::uniform_int_distribution<size_t> rotDistrib(0, rotations.size() - 1);
     // Move servos in the range [-PI/2, PI/2]
-    std::uniform_real_distribution<> servoDistrib(-M_PI_2, M_PI_2);
+    std::uniform_real_distribution<> headPitchDistrib(0.0, 1.0);
+    std::uniform_real_distribution<> neckYawDistrib(-M_PI_2, M_PI_2);
 
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of timesteps using a modulo operation
@@ -221,19 +222,12 @@ int main(int argc, char** argv) {
                 robotNodes[i]->resetPhysics();
             }
             // Set random positions for the head and neck servos
-            const double neckYawPosition   = servoDistrib(gen);
-            const double headPitchPosition = servoDistrib(gen);
+            const double neckYawPosition   = neckYawhDistrib(gen);
+            const double headPitchPosition = headPitchDistrib(gen);
             neckYaw->setPosition(neckYawPosition);
             headPitch->setPosition(headPitchPosition);
-            neckYaw->setVelocity(8.17);
-            headPitch->setVelocity(8.17);
-            neckYaw->setControlPID(20, 0, 0);
-            headPitch->setControlPID(20, 0, 0);
-
-            while ((neckYawSensor->getValue() != neckYawPosition) && (headPitchSensor->getValue() != headPitchPosition)) {
-                supervisor.step(timeStep);
-            }
-            
+            // Update physics step enough that the head will move
+            supervisor.step(timeStep * 20);             
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
