@@ -4,7 +4,6 @@ WorldInfo {
     "Description: official soccer simulation for the 2021 Robocup Virtual Humanoid League (kid size)"
     "Version 0.2"
   ]
-  #gravity 0
   title "Robocup V-HL Kid"
   basicTimeStep 8
   optimalThreadCount 8
