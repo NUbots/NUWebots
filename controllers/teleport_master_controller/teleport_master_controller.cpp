@@ -100,6 +100,8 @@ int main(int argc, char** argv) {
     webots::Motor* headPitch                = supervisor.getMotor("head_pitch");
     webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
+    neckYawSensor->enable(timeStep);
+    headPitchSensor->enable(timeStep);
 
 
     // Create directories for saving data
