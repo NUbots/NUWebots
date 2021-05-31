@@ -225,6 +225,15 @@ int main(int argc, char** argv) {
             const double headPitchPosition = servoDistrib(gen);
             neckYaw->setPosition(neckYawPosition);
             headPitch->setPosition(headPitchPosition);
+            neckYaw->setVelocity(8.17);
+            headPitch->setVelocity(8.17);
+            neckYaw->setControlPID(20, 0, 0);
+            headPitch->setControlPID(20, 0, 0);
+
+            while ((neckYawSensor->getValue() != neckYawPosition) && (headPitchSensor->getValue() != headPitchPosition)) {
+                supervisor.step(timeStep);
+            }
+            
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
