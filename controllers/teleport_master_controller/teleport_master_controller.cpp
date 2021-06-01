@@ -200,6 +200,9 @@ int main(int argc, char** argv) {
                     else if (robots->getTypeName() == "RobotisOP3") {
                         newPos[2] = 0.29;
                     }
+                    else if (robots->getTypeName() == "Wolfgang") {
+                        newPos[2] = 0.45;
+                    }
                     else {
                         newPos[2] = zHeight;
                     }
