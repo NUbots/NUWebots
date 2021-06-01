@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
     // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> headPitchDistrib(0.0, 1.0);
     std::uniform_real_distribution<> neckYawDistrib(-M_PI_2, M_PI_2);
-    std::uniform_real_distribution<> shoulderDistrib(-M_PI_2, M_PI_2);
+    std::uniform_real_distribution<> shoulderDistrib(0, M_PI_2);
     std::uniform_real_distribution<> elbowDistrib(-M_PI_2, 0);
     
     // In order to remove blurry images, images will only be saved on a disjointed
@@ -246,7 +246,7 @@ int main(int argc, char** argv) {
             left_elbow->setPosition(left_elbow_position);
 
             // Update physics step enough that the motors will move
-            supervisor.step(timeStep * 10);
+            supervisor.step(timeStep * 20);
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
