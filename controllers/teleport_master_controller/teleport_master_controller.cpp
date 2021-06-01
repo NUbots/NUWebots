@@ -96,10 +96,14 @@ int main(int argc, char** argv) {
 
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
     // Get a handle to our head and neck motors
-    webots::Motor* neckYaw                  = supervisor.getMotor("neck_yaw");
-    webots::Motor* headPitch                = supervisor.getMotor("head_pitch");
+    webots::Motor* neckYaw   = supervisor.getMotor("neck_yaw");
+    webots::Motor* headPitch = supervisor.getMotor("head_pitch");
+    // Get a handle to or shoulder motors
+    webots::Motor* right_shoulder_pitch     = supervisor.getMotor("right_shoulder_pitch [shoulder]");
+    webots::Motor* left_shoulder_pitch      = supervisor.getMotor("left_shoulder_pitch [shoulder]");
     webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
+
     neckYawSensor->enable(timeStep);
     headPitchSensor->enable(timeStep);
 
@@ -152,6 +156,7 @@ int main(int argc, char** argv) {
     // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> headPitchDistrib(0.0, 1.0);
     std::uniform_real_distribution<> neckYawDistrib(-M_PI_2, M_PI_2);
+    std::uniform_real_distribution<> shoulderDistrib(-M_PI_2, M_PI_2);
 
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of timesteps using a modulo operation
@@ -222,12 +227,17 @@ int main(int argc, char** argv) {
                 robotNodes[i]->resetPhysics();
             }
             // Set random positions for the head and neck servos
-            const double neckYawPosition   = neckYawhDistrib(gen);
-            const double headPitchPosition = headPitchDistrib(gen);
+            const double neckYawPosition         = neckYawDistrib(gen);
+            const double headPitchPosition       = headPitchDistrib(gen);
+            const double right_shoulder_position = shoulderDistrib(gen);
+            const double left_shoulder_position  = shoulderDistrib(gen);
             neckYaw->setPosition(neckYawPosition);
             headPitch->setPosition(headPitchPosition);
-            // Update physics step enough that the head will move
-            supervisor.step(timeStep * 20);             
+            right_shoulder_pitch->setPosition(right_shoulder_position);
+            left_shoulder_pitch->setPosition(left_shoulder_position);
+
+            // Update physics step enough that the motors will move
+            supervisor.step(timeStep * 10);
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
