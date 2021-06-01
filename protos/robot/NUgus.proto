@@ -7,7 +7,7 @@ PROTO NUgus [
   field  SFVec3f     translation          0 0 0
   field  SFRotation  rotation             0 1 0 0
   field  SFString    name                 "NUgus"            # Is `Robot.name`.
-  field  SFString    controller           "void"             # Is `Robot.controller`.
+  field  SFString    controller           "player"           # Find in "webots/projects/samples/contests/robocup/controllers/player"
   field  MFString    controllerArgs       []                 # Is `Robot.controllerArgs`.
   field  SFString    customData           ""                 # Is `Robot.customData`.
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
@@ -102,7 +102,7 @@ PROTO NUgus [
         device [
           RotationalMotor {
             name "right_shoulder_pitch [shoulder]"
-            maxVelocity 8.16814
+            maxVelocity IS MX64-vel
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX64-torque
@@ -321,7 +321,7 @@ PROTO NUgus [
         device [
           RotationalMotor {
             name "left_shoulder_pitch [shoulder]"
-            maxVelocity 8.16814
+            maxVelocity IS MX64-vel
             minPosition -3.14159265359
             maxPosition 3.14159265359
             maxTorque IS MX64-torque
@@ -569,7 +569,7 @@ PROTO NUgus [
               device [
                 RotationalMotor {
                   name "right_hip_roll [hip]"
-                  maxVelocity 5.75959
+                  maxVelocity IS MX106-vel
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX106-torque
@@ -1034,7 +1034,7 @@ PROTO NUgus [
               device [
                 RotationalMotor {
                   name "left_hip_roll [hip]"
-                  maxVelocity 5.75959
+                  maxVelocity IS MX106-vel
                   minPosition -3.14159265359
                   maxPosition 3.14159265359
                   maxTorque IS MX106-torque
@@ -1124,7 +1124,7 @@ PROTO NUgus [
                                 device [
                                   RotationalMotor {
                                     name "left_ankle_pitch"
-                                    maxVelocity 5.75959
+                                    maxVelocity IS MX106-vel
                                     minPosition -3.14159265359
                                     maxPosition 3.14159265359
                                     maxTorque 10.0
