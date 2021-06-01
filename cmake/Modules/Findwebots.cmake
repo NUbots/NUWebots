@@ -1,7 +1,7 @@
 if(NOT webots_FOUND)
   # If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable. If the environment
   # variable is not defined, then choose some sort of sane default
-  if(NOT DEFINED WEBOTS_HOME)
+  if(NOT DEFINED WEBOTS_HOME OR WEBOTS_HOME STREQUAL "/usr/local/webots")
     if(DEFINED ENV{WEBOTS_HOME})
       set(WEBOTS_HOME
           $ENV{WEBOTS_HOME}
