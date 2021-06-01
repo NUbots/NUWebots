@@ -98,11 +98,14 @@ int main(int argc, char** argv) {
     // Get a handle to our head and neck motors
     webots::Motor* neckYaw   = supervisor.getMotor("neck_yaw");
     webots::Motor* headPitch = supervisor.getMotor("head_pitch");
+    webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
+    webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
     // Get a handle to or shoulder motors
     webots::Motor* right_shoulder_pitch     = supervisor.getMotor("right_shoulder_pitch [shoulder]");
     webots::Motor* left_shoulder_pitch      = supervisor.getMotor("left_shoulder_pitch [shoulder]");
-    webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
-    webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
+    webots::Motor* left_elbow      = supervisor.getMotor("left_elbow_pitch");
+    webots::Motor* right_elbow      = supervisor.getMotor("right_elbow_pitch");
+
 
     neckYawSensor->enable(timeStep);
     headPitchSensor->enable(timeStep);
@@ -157,7 +160,8 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<> headPitchDistrib(0.0, 1.0);
     std::uniform_real_distribution<> neckYawDistrib(-M_PI_2, M_PI_2);
     std::uniform_real_distribution<> shoulderDistrib(-M_PI_2, M_PI_2);
-
+    std::uniform_real_distribution<> elbowDistrib(-M_PI_2, 0);
+    
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of timesteps using a modulo operation
     int moduloCounter    = 0;
@@ -231,10 +235,15 @@ int main(int argc, char** argv) {
             const double headPitchPosition       = headPitchDistrib(gen);
             const double right_shoulder_position = shoulderDistrib(gen);
             const double left_shoulder_position  = shoulderDistrib(gen);
+            const double right_elbow_position = elbowDistrib(gen);
+            const double left_elbow_position  = elbowDistrib(gen);
+
             neckYaw->setPosition(neckYawPosition);
             headPitch->setPosition(headPitchPosition);
             right_shoulder_pitch->setPosition(right_shoulder_position);
             left_shoulder_pitch->setPosition(left_shoulder_position);
+            right_elbow->setPosition(right_elbow_position);
+            left_elbow->setPosition(left_elbow_position);
 
             // Update physics step enough that the motors will move
             supervisor.step(timeStep * 10);
