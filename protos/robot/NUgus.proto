@@ -953,12 +953,12 @@ PROTO NUgus [
           boundingObject Group {
             children [
               Transform {
-                translation 0.0 0.0 -0.015
+                translation 0.005 0.0 -0.015
                 rotation 1.0 0.0 0.0 1.5707963267948966
                 children [
                   Cylinder {
                     height 0.03
-                    radius 0.054
+                    radius 0.045
                   }
                 ]
               }
@@ -1396,12 +1396,12 @@ PROTO NUgus [
           boundingObject Group {
             children [
               Transform {
-                translation 0.0 0.0 -0.015
+                translation -0.005 0.0 -0.015
                 rotation 1.0 0.0 0.0 1.5707963267948966
                 children [
                   Cylinder {
                     height 0.03
-                    radius 0.054
+                    radius 0.045
                   }
                 ]
               }
