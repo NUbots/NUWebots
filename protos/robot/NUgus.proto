@@ -958,7 +958,7 @@ PROTO NUgus [
                 children [
                   Cylinder {
                     height 0.03
-                    radius 0.054
+                    radius 0.046
                   }
                 ]
               }
@@ -1401,7 +1401,7 @@ PROTO NUgus [
                 children [
                   Cylinder {
                     height 0.03
-                    radius 0.054
+                    radius 0.046
                   }
                 ]
               }
