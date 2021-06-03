@@ -733,6 +733,7 @@ PROTO NUgus [
                                             physics DEF touch_physics Physics{
                                               density -1
                                               mass 0.02
+                                              centerOfMass 0.0 0.0 0.0
                                             }
                                             # Sensor Type
                                             # Bumper returns a 1 when collision is detected
