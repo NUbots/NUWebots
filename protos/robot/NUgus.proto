@@ -790,7 +790,7 @@ PROTO NUgus [
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.132 0.08 0.05
+                                                  size  0.125 0.08 0.05
                                                 }
                                               ]
                                             }
@@ -1276,29 +1276,29 @@ PROTO NUgus [
                                         boundingObject Group {
                                           children [
                                             Transform {
-                                              translation 0.010500000000000002 0.037500000000000006 -0.011999999999999997
+                                              translation 0.0105 0.037 -0.017
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.125 0.025 0.068
+                                                  size 0.125 0.0175 0.0585
                                                 }
                                               ]
                                             }
                                             Transform {
-                                              translation 0.010500000000000002 -0.027999999999999997 -0.0385
+                                              translation 0.011 -0.128 -0.02
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.125 0.12 0.015
+                                                  size 0.125 0.08 0.05
                                                 }
                                               ]
                                             }
                                             Transform {
-                                              translation 0.010500000000000002 -0.11550000000000002 -0.017499999999999998
+                                              translation 0.011 -0.028 -0.035
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.125 0.105 0.057
+                                                  size 0.125 0.12 0.01875
                                                 }
                                               ]
                                             }
