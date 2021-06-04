@@ -721,14 +721,24 @@ PROTO NUgus [
                                                     url IS robotTexture
                                                   }
                                                 }
-                                                geometry DEF touch_box Box {
-                                                  size 0.01 0.01 0.005
-                                                }
                                               }
                                             ]
                                             name "right_touch_sensor_br"
                                             # Bounding object uses geometry from touch_shape
-                                            boundingObject USE touch_box
+                                            boundingObject DEF touch_box Transform {
+                                              translation 0.0 0.0 0.0056
+                                              rotation -1.0 0.0 0.0 -1.54
+                                              children [
+                                                Capsule {
+                                                  bottom      TRUE   # {TRUE, FALSE}
+                                                  height      0.001  # [0, inf)
+                                                  radius      0.009  # [0, inf)
+                                                  side        TRUE   # {TRUE, FALSE}
+                                                  top         FALSE  # {TRUE, FALSE}
+                                                  subdivision 12     # [3, inf)
+                                                }
+                                              ]
+                                            }
                                             # Define physics for all touch sensors
                                             physics DEF touch_physics Physics{
                                               density -1
@@ -800,62 +810,6 @@ PROTO NUgus [
                                               children [
                                                 Box {
                                                   size 0.125 0.12 0.01875
-                                                }
-                                              ]
-                                            }
-                                           Transform {
-                                              translation -0.057 0.024 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation 0.041 0.025 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation -0.057 -0.154 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation 0.041 -0.154 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
                                                 }
                                               ]
                                             }
@@ -1299,62 +1253,6 @@ PROTO NUgus [
                                               children [
                                                 Box {
                                                   size 0.125 0.12 0.01875
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation 0.057 0.024 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation -0.04 0.025 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation -0.04 -0.154 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
-                                                }
-                                              ]
-                                            }
-                                            Transform {
-                                              translation 0.057 -0.154 -0.056
-                                              rotation -1.0 0.0 0.0 -1.54
-                                              children [
-                                                Capsule {
-                                                  bottom      TRUE   # {TRUE, FALSE}
-                                                  height      0.001      # [0, inf)
-                                                  radius      0.009      # [0, inf)
-                                                  side        TRUE   # {TRUE, FALSE}
-                                                  top         FALSE  # {TRUE, FALSE}
-                                                  subdivision 12     # [3, inf)
                                                 }
                                               ]
                                             }
