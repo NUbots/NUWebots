@@ -786,7 +786,7 @@ PROTO NUgus [
                                               ]
                                             }
                                             Transform {
-                                              translation -0.011 -0.128 -0.013
+                                              translation -0.011 -0.128 -0.02
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
