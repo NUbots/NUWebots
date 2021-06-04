@@ -1220,29 +1220,43 @@ PROTO NUgus [
                                         boundingObject Group {
                                           children [
                                             Transform {
-                                              translation 0.010500000000000002 0.037500000000000006 -0.023
+                                              translation 0.010500000000000002 0.037500000000000006 -0.011999999999999997
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.125 0.025 0.078
+                                                  size 0.125 0.025 0.068
                                                 }
                                               ]
                                             }
                                             Transform {
-                                              translation 0.011000000000000003 -0.128 -0.033
+                                              translation 0.010500000000000002 -0.027999999999999997 -0.0385
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.132 0.08 0.058
+                                                  size 0.125 0.12 0.015
                                                 }
                                               ]
                                             }
                                             Transform {
-                                              translation 0.010500000000000002 -0.027999999999999997 -0.0495
+                                              translation 0.010500000000000002 -0.11550000000000002 -0.017499999999999998
                                               rotation 0.0 0.0 1.0 0.0
                                               children [
                                                 Box {
-                                                  size 0.125 0.12 0.025
+                                                  size 0.125 0.105 0.057
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation 0.041 0.025 -0.051
+                                              rotation 0.0 1 0 -1.571
+                                              children [
+                                                Capsule {
+                                                  bottom      TRUE   # {TRUE, FALSE}
+                                                  height      0.005      # [0, inf)
+                                                  radius      0.005      # [0, inf)
+                                                  side        TRUE   # {TRUE, FALSE}
+                                                  top         FALSE  # {TRUE, FALSE}
+                                                  subdivision 12     # [3, inf)
                                                 }
                                               ]
                                             }
