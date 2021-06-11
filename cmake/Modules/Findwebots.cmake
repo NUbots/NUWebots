@@ -15,9 +15,9 @@ if(NOT webots_FOUND)
             "/usr/local/webots"
             CACHE PATH "The path to the webots folder."
         )
-      endif(NOT WIN32)
-    endif(DEFINED ENV{WEBOTS_HOME})
-  endif(NOT DEFINED WEBOTS_HOME)
+      endif()
+    endif()
+  endif()
 
   # Clear our required_vars variable
   unset(required_vars)
@@ -74,4 +74,4 @@ if(NOT webots_FOUND)
     REQUIRED_VARS ${required_vars}
     VERSION_VAR webots_VERSION
   )
-endif(NOT webots_FOUND)
+endif()
