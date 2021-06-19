@@ -27,6 +27,7 @@ add_library(
   messages_protobuf OBJECT "${PROJECT_BINARY_DIR}/shared/message/messages.pb.cc"
                            "${PROJECT_BINARY_DIR}/shared/message/messages.pb.h"
 )
+target_link_libraries(messages_protobuf PRIVATE protobuf::libprotobuf)
 
 # Turn off clang-tidy for them
 set_target_properties(messages_protobuf PROPERTIES CXX_CLANG_TIDY "")
