@@ -3,7 +3,7 @@
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # This is a proto file for Webots for the NUgus
 # Extracted from: NUgus.urdf
-PROTO NUgus [
+PROTO NUgusMain [
   field  SFVec3f     translation          0 0 0
   field  SFRotation  rotation             0 1 0 0
   field  SFString    name                 "NUgus"            # Is `Robot.name`.
@@ -67,7 +67,7 @@ PROTO NUgus [
           }
         ]
       }
-    
+
       Transform {
         translation 0.000000 0.000000 0.000000
         rotation 0.000000 0.000000 1.000000 1.570790
@@ -182,7 +182,7 @@ PROTO NUgus [
                         }
                         Solid {
                           name "right_hand [hand]"
-                          translation 0.0 -0.2 0.0
+                          translation 0.0 -0.225 0.014
                           rotation 0.000000 1.000000 0.000000 0.000000
                         }
                       ]
@@ -375,7 +375,7 @@ PROTO NUgus [
                       axis 1.000000 0.000000 0.000000
                       anchor -0.010000 -0.190000 0.039990
                       dampingConstant IS MX64-damping
-                      staticFriction IS MX64-friction 
+                      staticFriction IS MX64-friction
                     }
                     device [
                       RotationalMotor {
@@ -401,7 +401,7 @@ PROTO NUgus [
                         }
                         Solid {
                           name "left_hand [hand]"
-                          translation 0.0 -0.21 0.0
+                          translation 0.0 -0.225 0.014
                           rotation 0.000000 1.000000 0.000000 0.000000
                         }
                       ]
@@ -1153,7 +1153,7 @@ PROTO NUgus [
                                     }
                                     HingeJointWithBacklash {
                                       gearMass IS gearMass
-                                      backlash IS backlash  
+                                      backlash IS backlash
                                       jointParameters HingeJointParameters {
                                         axis 0 -1.000000 0
                                         anchor 0.000000 0.040000 0.000000
@@ -1512,7 +1512,7 @@ PROTO NUgus [
                         name "left_camera"
                         translation 0.0889361 0.0352991 0.0713675
                         rotation 0.577322 -0.595552 -0.558585 2.06587
-                        
+
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
                         width IS cameraWidth
@@ -1525,23 +1525,23 @@ PROTO NUgus [
                         recognition DEF recognition Recognition {
                           frameThickness 0       # Remove bounding boxes
                           segmentation TRUE      # Add segmentation
-                        }              
+                        }
                       }
                       DEF right_camera Camera {
                         name "right_camera"
                         translation 0.0889361 -0.0352991 0.0713675
                         rotation 0.577322 -0.595552 -0.558585 2.06587
-                        
+
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
                         width IS cameraWidth
                         height IS cameraHeight
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                    
+
                         # We are using a rectilinear lens because there is no true spherical lens
                         spherical FALSE
-                        
+
                         # Set the recognition parameters from the left camera
                         recognition USE recognition
                       }
@@ -1609,15 +1609,15 @@ PROTO NUgus [
             zAxis TRUE
             # Calculation used: (size of range)/4095
             resolution 0.01916
-            lookupTable [ 
+            lookupTable [
               -39.24 60.76 0.000704
               39.24  139.24 0.000307
             ]
           }
-          # 'L3G4200D' Gyro 
+          # 'L3G4200D' Gyro
           # (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise)
           # Axis: x forward, y left, z up
-          # Units are [rad/s]  
+          # Units are [rad/s]
           # Range is -8.72665 to 8.72665 [rad/s]
           # Return value (2nd column of LUT) is offset by 100
           Gyro {
@@ -1627,8 +1627,8 @@ PROTO NUgus [
             zAxis TRUE
             # Calculation used: (size of range)/4095
             resolution 0.0042621
-            lookupTable [ 
-              -8.72665 91.238   0.0001151     
+            lookupTable [
+              -8.72665 91.238   0.0001151
               8.72665  108.762  0.000096541
             ]
           }
@@ -1656,4 +1656,3 @@ PROTO NUgus [
     }
   }
 }
-
