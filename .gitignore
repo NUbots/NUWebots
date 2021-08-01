@@ -19,3 +19,6 @@ nugus_controller_test
 /nugus_controller_test*log.txt
 *.log
 /controllers/teleport_master_controller/teleport_master_controller
+
+# Symlink
+webots/projects/samples/contests/robocup/protos/NUgus
