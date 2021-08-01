@@ -4,7 +4,9 @@ WEBOTS_HOME_LIB = $(WEBOTS_HOME)/lib/webots
 
 include $(WEBOTS_HOME)/resources/Makefile.os.include
 
-DEPENDENCIES_URL = https://cyberbotics.com/files/repository/dependencies/linux64/release
+# Replace Cyberbotics' mirror with the one we have on GitHub for faster downloads
+# DEPENDENCIES_URL = https://cyberbotics.com/files/repository/dependencies/linux64/release
+DEPENDENCIES_URL = https://github.com/NUbots/WebotsDependenciesMirror/releases/download/v2021.06.08-a
 
 QT_VERSION = 5.15.2
 QT_PACKAGE = webots-qt-$(QT_VERSION)-linux64-release.tar.bz2
