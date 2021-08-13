@@ -1,0 +1,69 @@
+#VRML_SIM R2020b utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# This is a proto file for Webots for the NUgus
+# Extracted from: NUgus.urdf
+PROTO NUgus [
+  field  SFVec3f     translation          0 0 0
+  field  SFRotation  rotation             0 1 0 0
+  field  SFString    name                 "NUgus"            # Is `Robot.name`.
+  field  SFString    controller           "player"           # Find in "webots/projects/samples/contests/robocup/controllers/player"
+  field  MFString    controllerArgs       []                 # Is `Robot.controllerArgs`.
+  field  SFString    customData           ""                 # Is `Robot.customData`.
+  field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
+  field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
+  field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
+  field  MFString    robotTexture         "NUgus_textures/NUgus_base_color.jpg"
+  # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
+  field  SFFloat     MX64-torque          7.30
+  field  SFFloat     MX64-vel             8.17
+  field  SFFloat     MX64-damping         0.65
+  field  SFFloat     MX64-friction        1.73
+  field  SFFloat     MX106-torque         10.00
+  field  SFFloat     MX106-vel            5.76
+  field  SFFloat     MX106-damping        1.23
+  field  SFFloat     MX106-friction       2.55
+  field  SFFloat     backlash             0.01
+  field  SFFloat     gearMass             0.001
+  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+  # CAMERA PARAMETERS: See docs for more information
+  field SFFloat      fieldOfView            1.5707           # Approximates PI/2 radians (90 degrees)
+  field SFInt32      cameraWidth            640              # 640 pixels
+  field SFInt32      cameraHeight           480              # 480 pixels
+  field SFFloat      cameraLensFocalLength  1.98             # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
+  field SFFloat      cameraNoise            0.000000001      # Not much noise on real cameras
+  field SFFloat      cameraMotionBlur       10               # With over 100fps, real cameras do not have much motion blur
+  field  MFColor     recognitionColors [0 0 1]
+]
+{
+  NUgusMain {
+    translation            IS translation
+    rotation               IS rotation
+    name                   IS name
+    controller             IS controller
+    controllerArgs         IS controllerArgs
+    customData             IS customData
+    supervisor             IS supervisor
+    synchronization        IS synchronization
+    selfCollision          IS selfCollision
+    robotTexture           IS robotTexture
+    MX64-torque            IS MX64-torque
+    MX64-vel               IS MX64-vel
+    MX64-damping           IS MX64-damping
+    MX64-friction          IS MX64-friction
+    MX106-torque           IS MX106-torque
+    MX106-vel              IS MX106-vel
+    MX106-damping          IS MX106-damping
+    MX106-friction         IS MX106-friction
+    backlash               IS backlash
+    gearMass               IS gearMass
+    DYNAMIXEL-RESOLUTION   IS DYNAMIXEL-RESOLUTION
+    fieldOfView            IS fieldOfView
+    cameraWidth            IS cameraWidth
+    cameraHeight           IS cameraHeight
+    cameraLensFocalLength  IS cameraLensFocalLength
+    cameraNoise            IS cameraNoise
+    cameraMotionBlur       IS cameraMotionBlur
+    recognitionColors      IS recognitionColors
+  }
+}
