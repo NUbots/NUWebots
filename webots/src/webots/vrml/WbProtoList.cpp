@@ -70,7 +70,7 @@ void WbProtoList::findProtosRecursively(const QString &dirPath, QFileInfoList &p
   }
   // search in subfolders
   QFileInfoList subfolderInfoList = dir.entryInfoList(QDir::AllDirs | QDir::NoDotAndDotDot);
-  
+
   if (!inProtos) {
     // try to identify a project root folder
     foreach (QFileInfo subfolder, subfolderInfoList) {
