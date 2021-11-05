@@ -1,0 +1,21 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+}
+Viewpoint {
+}
+Background {
+}
+DirectionalLight {
+}
+ParserTestSupervisor {
+}
+RobotSlot {
+  slot [
+    SolidSlot {
+      slot [
+        LightSensor {
+        }
+      ]
+    }
+  ]
+}
