@@ -43,7 +43,11 @@ release debug profile: $(XC16_TARGET)
 $(XC16_TARGET):
 	@if ! $(WGET) -h > /dev/null ; then echo "You need to download the" $(XC16_PACKAGE) "package and copy it in this directory"; fi
 	@echo "#" downloading $(XC16_PACKAGE)
-	@$(WGET) https://www.cyberbotics.com/files/repository/dependencies/$(OS_TAG)/release/$(XC16_PACKAGE)
+
+	# Replace Cyberbotics' mirror with the one we have on GitHub for faster downloads
+	# @$(WGET) https://www.cyberbotics.com/files/repository/dependencies/$(OS_TAG)/release/$(XC16_PACKAGE)
+	@$(WGET) https://github.com/NUbots/WebotsDependenciesMirror/releases/download/v2021.06.08-a/xc16-1.24.zip
+
 	@echo "#" removing old $(XC16_TARGET)
 	@rm -rf $(XC16_TARGET)
 	@echo "#" extracting $(XC16_PACKAGE)
