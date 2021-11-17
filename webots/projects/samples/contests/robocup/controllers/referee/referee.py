@@ -535,6 +535,8 @@ def game_controller_receive():
             game.interruption_step = step
             opponent_team = blue_team if secondary_state_info[0] == game.red.id else red_team
             check_team_away_from_ball(opponent_team, game.field.opponent_distance_to_ball)
+            if kick == "PENALTYKICK":
+                check_penalty_kick_positions()
             game_controller_send(f'{kick}:{secondary_state_info[0]}:EXECUTE')
             info(f'Execute {GAME_INTERRUPTIONS[kick]}.')
             game.interruption_seconds = game.state.seconds_remaining
@@ -1482,6 +1484,39 @@ def check_team_away_from_ball(team, distance):
                          f'({d:.2f} m., should be at least {distance:.2f} m.)')
 
 
+def check_penalty_kick_positions():
+    for team in [red_team, blue_team]:
+        defending_team = (team['color'] == 'red') ^ (game.state.secondary_state_info[0] == game.red.id)
+        has_striker = False
+        for number in team['players']:
+            player = team['players'][number]
+            if already_penalized(player):
+                continue
+            player_x = player['position'][0]
+            ahead_of_ball = game.ball_position[0] * player_x > 0 and abs(player_x) > game.field.penalty_mark_x
+            near_ball = distance2(game.ball_position, player['position']) < game.field.opponent_distance_to_ball
+            if ahead_of_ball:
+                if not defending_team:
+                    # In rules version from June 21st 2021, there are no constraint on the position of the striker.
+                    # Here, we assume that the striker is not allowed to be in front of the ball
+                    send_penalty(player, 'INCAPABLE', "Field player of the attacking team in front of penalty mark")
+                elif is_goalkeeper(team, number):
+                    on_goal_line_or_behind = (player['on_outer_line'] or player['outside_field']) and \
+                        abs(player['position'][1]) <= GOAL_WIDTH
+                    if not on_goal_line_or_behind:
+                        send_penalty(player, 'INCAPABLE', "Defending goalkeeper between goal line and penalty mark")
+                else:
+                    send_penalty(player, 'INCAPABLE', "Field player of the defending team in front of the penalty mark")
+            elif near_ball:
+                if defending_team:
+                    send_penalty(player, 'INCAPABLE', "Player of the defending team near ball (penaltykick)")
+                elif has_striker:
+                    send_penalty(player, 'INCAPABLE', "Player of the attacking team has already a striker")
+                else:
+                    has_striker = True
+                    info(f"Player {team['color']} {number} is considered as striker")
+
+
 def check_team_start_position(team):
     penalty = False
     for number in team['players']:
@@ -2012,9 +2047,9 @@ def interruption(interruption_type, team=None, location=None, is_goalkeeper_ball
                 interruption_type = 'INDIRECT_FREEKICK'
             else:
                 interruption_type = 'PENALTYKICK'
-                ball_reset_location = [game.field.penalty_mark_x, 0]
+                game.ball_kick_translation = [game.field.penalty_mark_x, 0, 0.08]
                 if location[0] < 0:
-                    ball_reset_location[0] *= -1
+                    game.ball_kick_translation[0] *= -1
         else:
             interruption_type = 'DIRECT_FREEKICK'
         game.can_score = interruption_type != 'INDIRECT_FREEKICK'
@@ -2210,6 +2245,7 @@ def move_robots_away(target_location):
                         info(f"Moving {team['color']} player {number} from {initial_pos} to {pos}")
                         # Pose of the robot is not changed
                         player['robot'].getField('translation').setSFVec3f(dst_t.tolist())
+                        player['position'] = dst_t.tolist()
                         break
 
 

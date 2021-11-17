@@ -1,4 +1,4 @@
 construct
 numpy
-transform3d
+transforms3d
 scipy
