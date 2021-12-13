@@ -1,11 +1,11 @@
 {
   "robot_name": "NUgus1",
   "upright": {
-    "right_shoulder_pitch [shoulder]": 0.0,
-    "right_shoulder_roll": 0.0,
+    "right_shoulder_pitch [shoulder]": 1.7,
+    "right_shoulder_roll": -0.2,
     "right_elbow_pitch": 0.0,
-    "left_shoulder_pitch [shoulder]": 0.0,
-    "left_shoulder_roll": 0.0,
+    "left_shoulder_pitch [shoulder]": 1.7,
+    "left_shoulder_roll": 0.2,
     "left_elbow_pitch": 0.0,
     "right_hip_yaw": 0.0,
     "right_hip_roll [hip]": 0.0,
