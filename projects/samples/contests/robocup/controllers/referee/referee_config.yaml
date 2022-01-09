@@ -1,0 +1,44 @@
+OUTSIDE_TURF_TIMEOUT: 20                 # a player outside the turf for more than 20 seconds gets a removal penalty
+INVALID_GOALKEEPER_TIMEOUT: 1            # 1 second
+INACTIVE_GOALKEEPER_TIMEOUT: 20          # a goalkeeper is penalized if inactive for 20 seconds while the ball is in goal area
+INACTIVE_GOALKEEPER_DIST: 0.5            # if goalkeeper is farther than this distance it can't be inactive
+INACTIVE_GOALKEEPER_PROGRESS: 0.05       # the minimal distance to move toward the ball in order to be considered active
+DROPPED_BALL_TIMEOUT: 120                # wait 2 simulated minutes if the ball doesn't move before starting dropped ball
+SIMULATED_TIME_INTERRUPTION_PHASE_0: 5   # waiting time of 5 simulated seconds in phase 0 of interruption
+SIMULATED_TIME_INTERRUPTION_PHASE_1: 15  # waiting time of 15 simulated seconds in phase 1 of interruption
+SIMULATED_TIME_BEFORE_PLAY_STATE: 5      # wait 5 simulated seconds in SET state before sending the PLAY state
+SIMULATED_TIME_SET_PENALTY_SHOOTOUT: 15  # wait 15 simulated seconds in SET state before sending the PLAY state
+HALF_TIME_BREAK_REAL_TIME_DURATION: 15   # the half-time break lasts 15 real seconds
+REAL_TIME_BEFORE_FIRST_READY_STATE: 120  # wait 2 real minutes before sending the first READY state
+IN_PLAY_TIMEOUT: 10                      # time after which the ball is considered in play even if it was not kicked
+FALLEN_TIMEOUT: 20                       # if a robot is down (fallen) for more than this amount of time, it gets penalized
+REMOVAL_PENALTY_TIMEOUT: 30              # removal penalty lasts for 30 seconds
+GOALKEEPER_BALL_HOLDING_TIMEOUT: 6       # a goalkeeper may hold the ball up to 6 seconds on the ground
+PLAYERS_BALL_HOLDING_TIMEOUT: 1          # field players may hold the ball up to 1 second
+BALL_HANDLING_TIMEOUT: 10                # a player throwing in or a goalkeeper may hold the ball up to 10 seconds in hands
+BALL_LIFT_THRESHOLD: 0.05                # during a throw-in with the hands, the ball must be lifted by at least 5 cm
+GOALKEEPER_GROUND_BALL_HANDLING: 6       # a goalkeeper may handle the ball on the ground for up to 6 seconds
+END_OF_GAME_TIMEOUT: 5                   # Once the game is finished, let the referee run for 5 seconds before closing game
+BALL_IN_PLAY_MOVE: 0.05                  # the ball must move 5 cm after interruption or kickoff to be considered in play
+FOUL_PUSHING_TIME: 1                     # 1 second
+FOUL_PUSHING_PERIOD: 2                   # 2 seconds
+FOUL_VINCITY_DISTANCE: 2                 # 2 meters
+FOUL_DISTANCE_THRESHOLD: 0.1             # 0.1 meter
+FOUL_SPEED_THRESHOLD: 0.2                # 0.2 m/s
+FOUL_DIRECTION_THRESHOLD: 0.523599       # 30 degrees
+FOUL_BALL_DISTANCE: 1                    # if the ball is more than 1 m away from an offense, a removal penalty is applied
+FOUL_PENALTY_IMMUNITY: 2                 # after a foul, a player is immune to penalty for a period of 2 seconds
+GOAL_WIDTH: 2.6                          # width of the goal
+RED_COLOR: 0xd62929                      # red team color used for the display
+BLUE_COLOR: 0x2943d6                     # blue team color used for the display
+WHITE_COLOR: 0xffffff                    # white color used for the display
+BLACK_COLOR: 0x000000                    # black color used for the display
+STATIC_SPEED_EPS: 0.01                   # The speed below which an object is considered as static [m/s]
+DROPPED_BALL_TEAM_ID: 128                # The team id used for dropped ball
+BALL_DIST_PERIOD: 1                      # seconds. The period at which distance to the ball is checked
+BALL_HOLDING_RATIO: 0.333333             # The ratio of the radius used to compute minimal distance to the convex hull
+GAME_INTERRUPTION_PLACEMENT_NB_STEPS: 5  # The maximal number of steps allowed when moving ball or player away
+STATUS_PRINT_PERIOD: 20                  # Real time between two status updates in seconds
+DISABLE_ACTUATORS_MIN_DURATION: 1.0      # The minimal simulated time [s] until enabling actuators again after a reset
+FONT_SIZE: 0.096                         # Font size for the display
+FONT: 'Lucida Console'                   # Font typeface for the display

@@ -1,0 +1,241 @@
+[
+    {
+        "description" : "Placing robots inside their own field",
+        "timing" : {
+            "time" : 5.0,
+            "clock_type" : "Simulated",
+            "state" : "READY"
+        },
+        "actions" : [
+            {
+                "target" : "RED_PLAYER_1",
+                "position" : [-2, -2, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_2",
+                "position" : [-2, 2, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_3",
+                "position" : [-3, -2, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_4",
+                "position" : [-3, 2, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_1",
+                "position" : [2, -2, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_2",
+                "position" : [2, 2, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_3",
+                "position" : [3, -2, 0.24]
+            }
+        ]
+    },
+    {
+        "description" : "Sanity check, robots not penalized",
+        "timing" : {
+            "time" : 4.0,
+            "clock_type" : "Simulated",
+            "state" : "SET"
+        },
+        "tests" : [
+            {
+                "name" : "Sanity check: Red 1 is not penalized",
+                "target" : "RED_PLAYER_1",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Red 2 is not penalized",
+                "target" : "RED_PLAYER_2",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Red 3 is not penalized",
+                "target" : "RED_PLAYER_3",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Red 4 is not penalized",
+                "target" : "RED_PLAYER_4",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Blue 1 is not penalized",
+                "target" : "BLUE_PLAYER_1",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Blue 2 is not penalized",
+                "target" : "BLUE_PLAYER_2",
+                "penalty" : 0
+            },
+            {
+                "name" : "Sanity check: Blue 3 is not penalized",
+                "target" : "BLUE_PLAYER_3",
+                "penalty" : 0
+            }
+        ]
+    },
+    {
+        "description" : "preparing the ball holding by RED 2 and 3 after ball is in play",
+        "timing" : {
+            "time" : 12,
+            "clock_type" : "Simulated",
+            "state" : "PLAYING"
+        },
+        "actions" : [
+            {
+                "target" : "RED_PLAYER_2",
+                "position" : [-3.0, -0.4, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_3",
+                "position" : [-3.0, -0.9, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_3",
+                "position" : [-3.0, -0.1, 0.24]
+            },
+            {
+                "target" : "BALL",
+                "position" : [-3.0, -0.65, 0.08]
+            }
+        ]
+    },
+    {
+        "description" : "Testing transition to penaltykick",
+        "timing" : {
+            "time" : 14,
+            "clock_type" : "Simulated",
+            "state" : "PLAYING"
+        },
+        "tests" : [
+            {
+                "name" : "SETUP ends with free kick for team blue",
+                "secondary_state" : "PENALTYKICK",
+                "secondary_team_id" : 8,
+                "critical" : true
+            }
+        ]
+    },
+    {
+        "description" : "Setup phases are finished: check position of ball + robots",
+        "timing" : {
+            "time" : 1,
+            "clock_type" : "Simulated",
+            "secondary_state" : "PENALTYKICK",
+            "phase" : 1
+        },
+        "tests" : [
+            {
+                "name" : "Phase 1: Player too close is moved away but not penalized (RED 2)",
+                "target" : "RED_PLAYER_2",
+                "position" : [-3.0, -2.0, 0.24],
+                "penalty" : 0
+            },
+            {
+                "name" : "Phase 1: Player too close is moved away but not penalized (BLUE 3)",
+                "target" : "BLUE_PLAYER_3",
+                "position" : [-3.0, -1.5, 0.24],
+                "penalty" : 0
+            },
+            {
+                "name" : "Phase 1: Ball is placed on penalty mark",
+                "target" : "BALL",
+                "position" : [-3, 0, 0.08]
+            }
+        ]
+    },
+    {
+        "description" : "Placing all robots during penalty phase 1",
+        "timing" : {
+            "time" : 8,
+            "clock_type" : "Simulated",
+            "secondary_state" : "PENALTYKICK",
+            "phase" : 1
+        },
+        "actions" : [
+            {
+                "target" : "RED_PLAYER_1",
+                "position" : [-4.5, 0.0, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_2",
+                "position" : [-4.5, 0.5, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_3",
+                "position" : [-3.1, 2.5, 0.24]
+            },
+            {
+                "target" : "RED_PLAYER_4",
+                "position" : [-2.5, 2.5, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_1",
+                "position" : [-4.5, -0.5, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_2",
+                "position" : [-2.8, -0.2, 0.24]
+            },
+            {
+                "target" : "BLUE_PLAYER_3",
+                "position" : [-2.8, 0.2, 0.24]
+            }
+        ]
+    },
+    {
+        "description" : "Testing robot penalties after penalty kick",
+        "timing" : {
+            "time" : 3,
+            "clock_type" : "Simulated",
+            "secondary_state" : "NORMAL",
+            "phase" : 0,
+            "state_count" : 2
+        },
+        "tests" : [
+            {
+                "name" : "Positioning for penalty: goalkeeper on its goal line",
+                "target" : "RED_PLAYER_1",
+                "penalty" : 0
+            },
+            {
+                "name" : "Positioning for penalty: field player on its goal line",
+                "target" : "RED_PLAYER_2",
+                "penalty" : 34
+            },
+            {
+                "name" : "Positioning for penalty: defender in front of the penalty mark",
+                "target" : "RED_PLAYER_3",
+                "penalty" : 34
+            },
+            {
+                "name" : "Positioning for penalty: defender behind the penalty mark",
+                "target" : "RED_PLAYER_4",
+                "penalty" : 0
+            },
+            {
+                "name" : "Positioning for penalty: attacking goalkeeper on defender's goal line",
+                "target" : "BLUE_PLAYER_1",
+                "penalty" : 34
+            },
+            {
+                "name" : "Positioning for penalty: striker behind penalty mark near ball",
+                "target" : "BLUE_PLAYER_2",
+                "penalty" : 0
+            },
+            {
+                "name" : "Positioning for penalty: second attacking robot near the ball",
+                "target" : "BLUE_PLAYER_3",
+                "penalty" : 34
+            }
+        ]
+    }
+]
