@@ -1,0 +1,90 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+  info [
+    "Description: official soccer simulation for the 2021 Robocup Virtual Humanoid League (kid size)"
+    "Version 0.2"
+  ]
+  title "Robocup V-HL Kid"
+  gravity 0
+  basicTimeStep 8
+  optimalThreadCount 8
+  physicsDisableTime 0.1
+  physicsDisableLinearThreshold 0.1
+  physicsDisableAngularThreshold 0.1
+  contactProperties [
+    ContactProperties {
+      material1 "grass"
+      coulombFriction [
+        0.5
+      ]
+      softCFM 0.03
+    }
+    ContactProperties {
+      material1 "grass"
+      material2 "robocup soccer ball"
+      coulombFriction [
+        0.5
+      ]
+      bounce 0.76
+      softCFM 0.05
+    }
+    ContactProperties {
+      material2 "robocup soccer ball"
+      bounce 0.76
+    }
+  ]
+}
+Viewpoint {
+  orientation 0.9981788687264337 0.05636990253042551 0.021479760630115738 1.6312670534595204
+  position 3.4042957489455796 -4.697116776687552 0.3344238741586565
+}
+TexturedBackground {
+  texture "stadium_dry"
+}
+TexturedBackgroundLight {
+  texture "stadium_dry"
+}
+RobocupSoccerField {
+  size "kid"
+}
+RobocupSoccerBall {
+  translation 0 -1.2605840975378444e-07 0.07852943586495187
+  rotation 0.9999999999999999 0 0 1.8715596617048374e-06
+}
+DEF RED_1 Darwin-opHinge2 {
+  translation -4.03 -0.028 0.237
+  rotation 0.5784606380748865 0.38230443554430216 0.7205738052143914 0.136
+  name "player red 1"
+  controller ""
+  cameraWidth 320
+  cameraHeight 240
+  jersey RobotisJersey {
+  }
+  backlash TRUE
+}
+DEF RED_2 NUgus {
+  translation -2.207 -0.71576 0.517
+  name "red player 2"
+}
+DEF RED_3 RobotisOp3 {
+  translation -1.358 1.11 0.289
+  rotation 0 0 -1 1
+  name "player red 3"
+  cameraWidth 320
+  cameraHeight 240
+}
+DEF RED_4 Wolfgang {
+  translation -0.9 -0.53 0.43
+  rotation 0.07816887083191468 0.8618619091723926 -0.5010825053327864 0.347
+  name "player red 4"
+}
+DEF BLUE_1 NUgus {
+  translation 2.688 -0.3985 0.4849
+  rotation -0.7071067808071544 3.27579898454983e-05 -0.7071067808071544 -3.1415253071795863
+  name "blue player 1"
+  controller "nugus_controller"
+  controllerArgs [
+    "10020"
+    "8"
+  ]
+}
