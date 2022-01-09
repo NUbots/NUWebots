@@ -1,0 +1,13 @@
+steps:
+  # Build with clang-tidy on, with warnings as errors
+  - label: "Build controllers"
+    command: "./b configure -- -DCI_BUILD=ON && ./b build"
+  # clang-format checks
+  - label: "Validate C++ and protobuf formatting"
+    command: ".buildkite/scripts/validate_clang_format.sh"
+  # cmake-format checks
+  - label: "Validate CMake formatting"
+    command: ".buildkite/scripts/validate_cmake_format.sh"
+  # black and isort checks
+  - label: "Validate python formatting"
+    command: ".buildkite/scripts/validate_python_format.sh"
