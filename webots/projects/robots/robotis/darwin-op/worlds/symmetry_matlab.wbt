@@ -1,0 +1,32 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+  info [
+    "ROBOTIS OP2 robot controller from Matlab"
+    "The ROBOTIS OP2 robot simulation model can be programmed from Matlab as illustrated in this example."
+  ]
+  title "ROBOTIS OP2 Matlab"
+  basicTimeStep 16
+}
+Viewpoint {
+  orientation 0.7350120343090103 -0.36874938824884285 -0.5690177484815694 1.445201851486331
+  position -1.211531900609356 -1.1076770715141124 0.8375879682849127
+  follow "ROBOTIS OP2"
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RobotisOp2 {
+  translation 0 0 0.236
+  rotation 0 1 0 0.09
+  controller "symmetry_matlab"
+  selfCollision TRUE
+  cameraWidth 320
+  cameraHeight 240
+}
+Floor {
+  rotation 1 0 0 1.5707963267948966
+  tileSize 1 1
+  appearance Parquetry {
+  }
+}
