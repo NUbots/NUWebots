@@ -59,7 +59,10 @@ release debug profile: $(SUMO_TARGET)
 $(SUMO_TARGET):
 	@if ! $(WGET) -h > /dev/null ; then echo "You need to download the" $(SUMO_PACKAGE) "package and copy it in this directory"; fi
 	@echo "#" downloading $(SUMO_PACKAGE)
-	@$(WGET) https://www.cyberbotics.com/files/repository/dependencies/$(OS_TAG)/release/$(SUMO_PACKAGE)
+	# Replace Cyberbotics' mirror with the one we have on GitHub for faster downloads
+	# @$(WGET) https://www.cyberbotics.com/files/repository/dependencies/$(OS_TAG)/release/$(SUMO_PACKAGE)
+	@$(WGET) https://github.com/NUbots/WebotsDependenciesMirror/releases/download/v2021.06.08-a/sumo-0.30-linux64.tar.gz
+	
 ifeq ($(OSTYPE),darwin)
 	@if [ `md5 -q $(SUMO_PACKAGE)` != $(SUMO_MD5SUM) ]; then echo "MD5 checksum failed for $(SUMO_PACKAGE)"; exit 1; fi
 else
