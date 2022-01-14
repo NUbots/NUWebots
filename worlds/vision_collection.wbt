@@ -74,6 +74,7 @@ DEF RED_2 NUgus {
     "robot/NUgus_textures/NUgus_base_color.jpg"
   ]
   name "red player 2"
+  controller ""
   controllerArgs [
     "RED_2"
   ]
