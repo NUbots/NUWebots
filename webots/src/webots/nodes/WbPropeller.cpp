@@ -79,6 +79,16 @@ WbPropeller::~WbPropeller() {
   }
 }
 
+void WbPropeller::downloadAssets() {
+  WbBaseNode::downloadAssets();
+  WbSolid *const fastHelix = helix(FAST_HELIX);
+  WbSolid *const slowHelix = helix(SLOW_HELIX);
+  if (fastHelix)
+    fastHelix->downloadAssets();
+  if (slowHelix)
+    slowHelix->downloadAssets();
+}
+
 void WbPropeller::preFinalize() {
   WbBaseNode::preFinalize();
 
@@ -242,7 +252,7 @@ void WbPropeller::prePhysicsStep(double ms) {
 
     // Moves the slow helix
     const WbQuaternion q(mNormalizedAxis, mPosition);
-    const WbQuaternion iq(mHelix->rotationFromFile().toQuaternion());
+    const WbQuaternion iq(mHelix->rotationFromFile(stateId()).toQuaternion());
     WbQuaternion qp(q * iq);
     if (qp.w() != 1.0)
       qp.normalize();
@@ -250,7 +260,7 @@ void WbPropeller::prePhysicsStep(double ms) {
     if (r.angle() == 0.0)
       r = WbRotation(mNormalizedAxis.x(), mNormalizedAxis.y(), mNormalizedAxis.z(), 0.0);
     const WbVector3 &c = mCenterOfThrust->value();
-    mHelix->setTranslationAndRotation(q * (mHelix->translationFromFile() - c) + c, r);
+    mHelix->setTranslationAndRotation(q * (mHelix->translationFromFile(stateId()) - c) + c, r);
   }
 }
 
@@ -400,4 +410,15 @@ void WbPropeller::reset(const QString &id) {
     slowHelix->reset(id);
 
   updateHelix(0.0);
+}
+
+QList<const WbBaseNode *> WbPropeller::findClosestDescendantNodesWithDedicatedWrenNode() const {
+  QList<const WbBaseNode *> list;
+  const WbBaseNode *const fastHelix = helix(FAST_HELIX);
+  if (fastHelix)
+    list << fastHelix->findClosestDescendantNodesWithDedicatedWrenNode();
+  const WbBaseNode *const slowHelix = helix(SLOW_HELIX);
+  if (slowHelix)
+    list << slowHelix->findClosestDescendantNodesWithDedicatedWrenNode();
+  return list;
 }

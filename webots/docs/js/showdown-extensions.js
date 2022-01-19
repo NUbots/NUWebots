@@ -27,15 +27,15 @@ function wbSlugify(obj) {
 showdown.extension('wbVariables', function() {
   // static variables to maintain
   // TODO: could be computed
-  const branch = (typeof setup !== 'undefined' && typeof setup.branch !== 'undefined') ? setup.branch : 'released';
+  const branch = (typeof setup !== 'undefined' && typeof setup.branch !== 'undefined' && setup.branch !== '') ? setup.branch : 'released';
   var vars = {
     webots: {
       version: {
         major: 'R2021b',
         // full is equal to major for the first major version
         // and contains the revision number for subsequent versions
-        full: 'R2021b',
-        package: 'R2021b'
+        full: 'R2021b revision 1',
+        package: 'R2021b-rev1'
       }
     },
     date: {

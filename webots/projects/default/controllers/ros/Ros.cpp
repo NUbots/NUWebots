@@ -16,6 +16,7 @@
 #include "Ros.hpp"
 
 #include "RosAccelerometer.hpp"
+#include "RosAltimeter.hpp"
 #include "RosBatterySensor.hpp"
 #include "RosBrake.hpp"
 #include "RosCamera.hpp"
@@ -305,6 +306,10 @@ void Ros::setRosDevices(const char **hiddenDevices, int numberHiddenDevices) {
         mSensorList.push_back(static_cast<RosSensor *>(new RosAccelerometer(dynamic_cast<Accelerometer *>(tempDevice), this)));
         mDeviceList.push_back(static_cast<RosDevice *>(mSensorList.back()));
         break;
+      case Node::ALTIMETER:
+        mSensorList.push_back(static_cast<RosSensor *>(new RosAltimeter(dynamic_cast<Altimeter *>(tempDevice), this)));
+        mDeviceList.push_back(static_cast<RosDevice *>(mSensorList.back()));
+        break;
       case Node::BRAKE:
         mDeviceList.push_back(static_cast<RosDevice *>(new RosBrake(dynamic_cast<Brake *>(tempDevice), this)));
         break;
@@ -461,7 +466,7 @@ void Ros::publishClockIfNeeded() {
 
 void Ros::run(int argc, char **argv) {
   launchRos(argc, argv);
-  ros::Rate loopRate(1000);  // Hz
+  ros::WallRate loopRate(1000);  // Hz
   ros::AsyncSpinner spinner(2);
   spinner.start();
 

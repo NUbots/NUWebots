@@ -52,6 +52,12 @@ void WbSlot::validateProtoNode() {
     solid->validateProtoNode();
 }
 
+void WbSlot::downloadAssets() {
+  WbBaseNode::downloadAssets();
+  if (hasEndpoint())
+    static_cast<WbBaseNode *>(endPoint())->downloadAssets();
+}
+
 void WbSlot::preFinalize() {
   WbBaseNode::preFinalize();
 
@@ -215,4 +221,12 @@ void WbSlot::write(WbVrmlWriter &writer) const {
     if (hasEndpoint())
       mEndPoint->value()->write(writer);
   }
+}
+
+QList<const WbBaseNode *> WbSlot::findClosestDescendantNodesWithDedicatedWrenNode() const {
+  QList<const WbBaseNode *> list;
+  const WbBaseNode *const e = static_cast<WbBaseNode *>(mEndPoint->value());
+  if (e)
+    list << e->findClosestDescendantNodesWithDedicatedWrenNode();
+  return list;
 }

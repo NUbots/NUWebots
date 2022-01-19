@@ -47,6 +47,7 @@ public:
   bool shallExport() const override;
   void reset(const QString &id) override;
   void save(const QString &id) override;
+  QList<const WbBaseNode *> findClosestDescendantNodesWithDedicatedWrenNode() const override;
 
   // field accessors
   int childCount() const { return mChildren->size(); }
@@ -91,7 +92,7 @@ public:
 
   // bounding sphere
   WbBoundingSphere *boundingSphere() const override { return mBoundingSphere; }
-
+  void recomputeBoundingSphere() const;
   // For a group in a boundingObject
   dSpaceID odeSpace() const { return mOdeSpace; }
   void setOdeData(dSpaceID s) { mOdeSpace = s; }

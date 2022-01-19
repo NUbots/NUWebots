@@ -87,6 +87,12 @@ def main(args=None):
     # gen(FUNC, "wb_accelerometer_get_lookup_table(tag)", "accelerometer")
     # gen(FUNC, "wb_accelerometer_get_values(tag)", "accelerometer")
 
+    # altimeter.h
+    gen(PROC, "wb_altimeter_enable(tag, sampling_period)", "altimeter")
+    gen(PROC, "wb_altimeter_disable(tag)", "altimeter")
+    gen(FUNC, "wb_altimeter_get_sampling_period(tag)", "altimeter")
+    gen(FUNC, "wb_altimeter_get_value(tag)", "altimeter")
+
     # brake.h
     gen(FUNC, "wb_brake_get_type(tag)", "brake")
     gen(PROC, "wb_brake_set_damping_constant(tag, damping_constant)", "brake")
@@ -458,10 +464,17 @@ def main(args=None):
     gen(FUNC, "wb_supervisor_node_get_type_name(noderef)", "supervisor")
     gen(FUNC, "wb_supervisor_node_get_base_type_name(noderef)", "supervisor")
     gen(FUNC, "wb_supervisor_node_get_field(noderef, fieldname)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_get_field_by_index(noderef, fieldname)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_get_proto_field(noderef, fieldname)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_get_proto_field_by_index(noderef, fieldname)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_get_number_of_fields(noderef, fieldname)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_get_proto_number_of_fields(noderef, fieldname)", "supervisor")
     gen(FUNC, "wb_supervisor_field_enable_sf_tracking(field, sampling_period)", "supervisor")
     gen(FUNC, "wb_supervisor_field_disable_sf_tracking(field)", "supervisor")
-    gen(FUNC, "wb_supervisor_node_get_proto_field(noderef, fieldname)", "supervisor")
     # gen(FUNC, "wb_supervisor_node_get_center_of_mass(noderef)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_enable_contact_point_tracking(noderef, sampling_period, include_descendants)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_disable_contact_point_tracking(noderef, include_descendants)", "supervisor")
+    # gen(PROC, "wb_supervisor_node_get_contact_points(noderef,include_descendants)", "supervisor")
     gen(FUNC, "wb_supervisor_node_get_number_of_contact_points(noderef, include_descendants)", "supervisor")
     # gen(FUNC, "wb_supervisor_node_get_contact_point(noderef, index)", "supervisor")
     gen(FUNC, "wb_supervisor_node_get_contact_point_node(noderef, index)", "supervisor")
@@ -487,8 +500,10 @@ def main(args=None):
     gen(FUNC, "wb_supervisor_node_export_string(noderef)", "supervisor")
     gen(FUNC, "wb_supervisor_node_save_state(noderef, state_name)", "supervisor")
     gen(FUNC, "wb_supervisor_node_load_state(noderef, state_name)", "supervisor")
+    gen(FUNC, "wb_supervisor_node_set_joint_position(noderef, position, index)", "supervisor")
     gen(FUNC, "wb_supervisor_field_get_type(fieldref)", "supervisor")
     gen(FUNC, "wb_supervisor_field_get_type_name(fieldref)", "supervisor")
+    gen(FUNC, "wb_supervisor_field_get_name(fieldref)", "supervisor")
     gen(FUNC, "wb_supervisor_field_get_count(fieldref)", "supervisor")
     gen(FUNC, "wb_supervisor_field_get_sf_bool(fieldref)", "supervisor")
     gen(FUNC, "wb_supervisor_field_get_sf_int32(fieldref)", "supervisor")
@@ -600,25 +615,26 @@ def main(args=None):
     gen_const("WB_KEYBOARD_NUMPAD_HOME",  "375")
     gen_const("WB_KEYBOARD_NUMPAD_END",   "382")
 
-    gen_const("WB_NO_FIELD",    "0")
-    gen_const("WB_SF_BOOL",     "1")
-    gen_const("WB_SF_INT32",    "2")
-    gen_const("WB_SF_FLOAT",    "3")
-    gen_const("WB_SF_VEC2F",    "4")
-    gen_const("WB_SF_VEC3F",    "5")
-    gen_const("WB_SF_ROTATION", "6")
-    gen_const("WB_SF_COLOR",    "7")
-    gen_const("WB_SF_STRING",   "8")
-    gen_const("WB_SF_NODE",     "9")
-    gen_const("WB_MF",         "16")
-    gen_const("WB_MF_BOOL",    "17")
-    gen_const("WB_MF_INT32",   "18")
-    gen_const("WB_MF_FLOAT",   "19")
-    gen_const("WB_MF_VEC2F",   "20")
-    gen_const("WB_MF_VEC3F",   "21")
-    gen_const("WB_MF_COLOR",   "23")
-    gen_const("WB_MF_STRING",  "24")
-    gen_const("WB_MF_NODE",    "25")
+    gen_const("WB_NO_FIELD",     "0")
+    gen_const("WB_SF_BOOL",      "1")
+    gen_const("WB_SF_INT32",     "2")
+    gen_const("WB_SF_FLOAT",     "3")
+    gen_const("WB_SF_VEC2F",     "4")
+    gen_const("WB_SF_VEC3F",     "5")
+    gen_const("WB_SF_ROTATION",  "6")
+    gen_const("WB_SF_COLOR",     "7")
+    gen_const("WB_SF_STRING",    "8")
+    gen_const("WB_SF_NODE",      "9")
+    gen_const("WB_MF",          "16")
+    gen_const("WB_MF_BOOL",     "17")
+    gen_const("WB_MF_INT32",    "18")
+    gen_const("WB_MF_FLOAT",    "19")
+    gen_const("WB_MF_VEC2F",    "20")
+    gen_const("WB_MF_VEC3F",    "21")
+    gen_const("WB_MF_ROTATION", "22")
+    gen_const("WB_MF_COLOR",    "23")
+    gen_const("WB_MF_STRING",   "24")
+    gen_const("WB_MF_NODE",     "25")
 
     gen_const("WB_EVENT_QUIT", "-1")
     gen_const("WB_EVENT_NO_EVENT", "0")
@@ -668,7 +684,7 @@ def main(args=None):
         WB_NODE_SPHERE, WB_NODE_SPOT_LIGHT, WB_NODE_TEXTURE_COORDINATE,
         WB_NODE_TEXTURE_TRANSFORM, WB_NODE_TRANSFORM, WB_NODE_VIEWPOINT,
         WB_NODE_ROBOT,
-        WB_NODE_ACCELEROMETER, WB_NODE_BRAKE, WB_NODE_CAMERA, WB_NODE_COMPASS,
+        WB_NODE_ACCELEROMETER, WB_NODE_ALTIMETER, WB_NODE_BRAKE, WB_NODE_CAMERA, WB_NODE_COMPASS,
         WB_NODE_CONNECTOR, WB_NODE_DISPLAY, WB_NODE_DISTANCE_SENSOR, WB_NODE_EMITTER,
         WB_NODE_GPS, WB_NODE_GYRO, WB_NODE_INERTIAL_UNIT, WB_NODE_LED, WB_NODE_LIDAR,
         WB_NODE_LIGHT_SENSOR, WB_NODE_LINEAR_MOTOR, WB_NODE_PEN,

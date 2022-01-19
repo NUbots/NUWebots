@@ -65,8 +65,9 @@ def take_original_screenshot(camera, directory):
 def autocrop(im):
     """Autocrop an image based on its upperleft pixel."""
     # reference: https://stackoverflow.com/a/48605963/2210777
-    bg = Image.new(im.mode, im.size, im.getpixel((0, 0)))
-    diff = ImageChops.difference(im, bg)
+    rgbImage = im.convert('RGB')  # from RGBA, needed since Pillow 7.1.0
+    bg = Image.new(rgbImage.mode, rgbImage.size, rgbImage.getpixel((0, 0)))
+    diff = ImageChops.difference(rgbImage, bg)
     diff = ImageChops.add(diff, diff, 2.0)
     bbox = diff.getbbox()
     if bbox:
@@ -236,7 +237,7 @@ def process_object(supervisor, category, nodeString, objectDirectory, protoPath,
 # Initialize the Supervisor.
 controller = Supervisor()
 timeStep = int(controller.getBasicTimeStep())
-camera = controller.getCamera('camera')
+camera = controller.getDevice('camera')
 camera.enable(timeStep)
 options = get_options()
 

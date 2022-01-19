@@ -20,6 +20,7 @@
 
 namespace webots {
   class Accelerometer;
+  class Altimeter;
   class Brake;
   class Camera;
   class Compass;
@@ -63,6 +64,7 @@ namespace webots {
     } UserInputEvent;
 
     Robot();
+    static Robot *internalGetInstance();
     virtual ~Robot();
 
     virtual int step(int duration);
@@ -91,6 +93,7 @@ namespace webots {
     double batterySensorGetValue() const;
 
     Accelerometer *getAccelerometer(const std::string &name);
+    Altimeter *getAltimeter(const std::string &name);
     Brake *getBrake(const std::string &name);
     Camera *getCamera(const std::string &name);
     Compass *getCompass(const std::string &name);
@@ -136,6 +139,7 @@ namespace webots {
 
   protected:
     virtual Accelerometer *createAccelerometer(const std::string &name) const;
+    virtual Altimeter *createAltimeter(const std::string &name) const;
     virtual Brake *createBrake(const std::string &name) const;
     virtual Camera *createCamera(const std::string &name) const;
     virtual Compass *createCompass(const std::string &name) const;

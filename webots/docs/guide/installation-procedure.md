@@ -18,6 +18,9 @@ Webots comes in three different package types: `.deb` (Debian package), `.tar.bz
 The Debian package is aimed at the latest LTS Ubuntu Linux distribution whereas the tarball and snap packages includes many dependency libraries and are therefore best suited for installation on other Linux distributions.
 All these packages can be installed from our [official GitHub repository](https://github.com/cyberbotics/webots/releases).
 
+The packages also contain a precompiled ROS API built with the latest recommended ROS distribution.
+For more details about the ROS version supported out of the box by each package please refer to [this section](tutorial-8-using-ros.md#check-compatibility-of-webots-ros-api).
+
 > **Note**: Webots will run much faster if you install an accelerated OpenGL drivers.
 If you have a NVIDIA or AMD graphics card, it is highly recommended that you install the Linux graphics drivers from these manufacturers to take the full advantage of the OpenGL hardware acceleration with Webots.
 Please find instructions in [this section](verifying-your-graphics-driver-installation.md).
@@ -108,12 +111,13 @@ You will need to install *make* and *g++* to compile your own robot controllers.
 Other particular libraries could also be required to recompile some of the distributed binary files.
 The package names could slightly change on different releases and distributions.
 In this case an error message will be printed in the Webots console mentioning the missing dependency.
-Webots also needs the *ffmpeg* and *libfdk-aac1* (from *ubuntu-restricted-extras* for H.264 codec) packages to create MPEG-4 movies.
- The following commands should work for Debian / Ubuntu based distributions:
+Webots also needs the *ffmpeg* and *libavcodec-extra* packages to create MPEG-4 movies.
+Additionally *ubuntu-restricted-extras* could be needed to play the MPEG-4 movies encoded with H.264 codec.
+Execute the following commands to enable the video creation and playback on Debian / Ubuntu based distributions:
 ```sh
 sudo apt-get update
-sudo apt-get install libx264-dev
-sudo apt-get install libfdk-aac1
+sudo apt-get install ffmpeg libavcodec-extra
+sudo apt-get install ubuntu-restricted-extras
 ```
 Using Anaconda could cause errors when recording videos, as the default conda installation of *ffmpeg* does not have *x264* enabled.
 Execute the following command to install *ffmpeg* with *x264* support:

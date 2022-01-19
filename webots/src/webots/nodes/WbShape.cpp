@@ -67,6 +67,7 @@ void WbShape::downloadAssets() {
   if (geometry())
     geometry()->downloadAssets();
 }
+
 void WbShape::preFinalize() {
   WbBaseNode::preFinalize();
 
@@ -260,16 +261,33 @@ void WbShape::applyMaterialToGeometry() {
 
   if (g) {
     if (appearance()) {
-      if (appearance()->areWrenObjectsInitialized())
+      if (appearance()->areWrenObjectsInitialized()) {
         mWrenMaterial = appearance()->modifyWrenMaterial(mWrenMaterial);
-      else
+        if (appearance()->material() && appearance()->material()->transparency() == 1)
+          g->setTransparent(true);
+        else
+          g->setTransparent(false);
+      } else {
         mWrenMaterial = WbAppearance::fillWrenDefaultMaterial(mWrenMaterial);
+        // We need to call setTransparent for default appearance in case a previous transparent appearance was existing and
+        // replaced by the default one.
+        g->setTransparent(false);
+      }
     } else if (pbrAppearance() && g->nodeType() != WB_NODE_POINT_SET) {
       createWrenMaterial(WR_MATERIAL_PBR);
-      if (pbrAppearance()->areWrenObjectsInitialized())
+      if (pbrAppearance()->areWrenObjectsInitialized()) {
         mWrenMaterial = pbrAppearance()->modifyWrenMaterial(mWrenMaterial);
-    } else
+        if (pbrAppearance()->transparency() == 1)
+          g->setTransparent(true);
+        else
+          g->setTransparent(false);
+      }
+    } else {
       mWrenMaterial = WbAppearance::fillWrenDefaultMaterial(mWrenMaterial);
+      // We need to call setTransparent for default appearance in case a previous transparent appearance was existing and
+      // replaced by the default one.
+      g->setTransparent(false);
+    }
 
     if (!g->isInBoundingObject())
       g->setWrenMaterial(mWrenMaterial, mCastShadows->value());
@@ -419,6 +437,14 @@ void WbShape::createWrenMaterial(int type) {
     wr_pbr_material_set_base_color(mWrenMaterial, defaultColor);
     wr_material_set_default_program(mWrenMaterial, WbWrenShaders::pbrShader());
   }
+}
+
+QList<const WbBaseNode *> WbShape::findClosestDescendantNodesWithDedicatedWrenNode() const {
+  QList<const WbBaseNode *> list;
+  const WbGeometry *const g = geometry();
+  if (g)
+    list << g;
+  return list;
 }
 
 ///////////////////////////////////////////////////////////

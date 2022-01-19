@@ -36,7 +36,14 @@ Setting the value of this field to `<extern>` will make this robot runnable from
 > **Note**: If the controller is not started the robot window will not work.
 If the robot window is required it is recommended to assign the `void` controller instead of an empty string.
 
-- `controllerArgs`: string containing the arguments (separated by space characters) to be passed to the `main` function of the C/C++ controller program or the `main` method of the Java controller program.
+- `controllerArgs`: list of strings containing the command line arguments to be passed to the controller program.
+Unlike in command line instructions, each `controllerArgs` item is interpreted as a single argument value, even if it contains spaces, and multiple arguments need to be specified on separate MFString items.
+On the other hand, it is not necessary to escape the spaces contained in the argument value.
+The corresponding command line instruction will have the form:
+
+    ``<controller_program_name> "controllerArgs[0]" "controllerArgs[1]" ...``
+
+    In case of C, C++, and Java controller programs the values are passed as arguments of the `main` function or method.
 
 - `customData`: this field may contain any user data, for example parameters corresponding to the configuration of the robot.
 It can be read from the robot controller using the `wb_robot_get_custom_data` function and can be written using the `wb_robot_set_custom_data` function.
@@ -503,30 +510,6 @@ class Robot:
     def getJoystick(self):
     def getKeyboard(self):
     def getMouse(self):
-
-    # deprecated methods (replaced by getDevice):
-    def getAccelerometer(self, name):
-    def getBrake(self, name):
-    def getCamera(self, name):
-    def getCompass(self, name):
-    def getConnector(self, name):
-    def getDisplay(self, name):
-    def getDistanceSensor(self, name):
-    def getEmitter(self, name):
-    def getGPS(self, name):
-    def getGyro(self, name):
-    def getInertialUnit(self, name):
-    def getLED(self, name):
-    def getLidar(self, name):
-    def getLightSensor(self, name):
-    def getMotor(self, name):
-    def getPen(self, name):
-    def getPositionSensor(self, name):
-    def getRadar(self, name):
-    def getRangeFinder(self, name):
-    def getReceiver(self, name):
-    def getSpeaker(self, name):
-    def getTouchSensor(self, name):
     # ...
 ```
 
@@ -2088,7 +2071,7 @@ void wb_robot_wwi_send_text(const char *text);
 
 namespace webots {
   class Robot {
-    const char *wwiReceive();
+    const char *wwiReceive(int *size);
     std::string wwiReceiveText();
     void wwiSend(const char *data, int size);
     void wwiSendText(const std::string &text);

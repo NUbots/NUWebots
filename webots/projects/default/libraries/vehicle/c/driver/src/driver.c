@@ -125,7 +125,7 @@ static double differential_ratio_central() {
 
 static double compute_output_torque() {
   // Compute available torque taking into acount the current gear ratio and engine model
-  double gear_ratio = 0.0;
+  double gear_ratio;
   if (instance->gear > 0)
     gear_ratio = instance->car->gear_ratio[instance->gear];
   else if (instance->gear < 0)  // reverse
@@ -137,7 +137,8 @@ static double compute_output_torque() {
   WbuCarEngineType engine = instance->car->engine_type;
 
   double real_rpm = instance->rpm;
-  if ((instance->gear >= 0) && (real_rpm < 0))
+  // cppcheck-suppress knownConditionTrueFalse
+  if (instance->gear > 0 && real_rpm < 0)
     real_rpm = 0;
   double engine_rpm = real_rpm;
   if ((engine_rpm < instance->car->engine_min_rpm) &&
@@ -269,7 +270,8 @@ static void update_slip_ratio() {
       instance->front_slip_ratio = -1;
     else if (instance->front_slip_ratio > 1)
       instance->front_slip_ratio = 1;
-  } else if (instance->car->type == WBU_CAR_PROPULSION || instance->car->type == WBU_CAR_FOUR_BY_FOUR) {
+  }
+  if (instance->car->type == WBU_CAR_PROPULSION || instance->car->type == WBU_CAR_FOUR_BY_FOUR) {
     // Compute and update the rear slip differential ratio (between -1 and 1)
     double real_rear_ratio = (instance->car->speeds[2] / (instance->car->speeds[2] + instance->car->speeds[3])) * 2 - 1;
     // for better result a PD controller can be used here
@@ -280,9 +282,10 @@ static void update_slip_ratio() {
       instance->rear_slip_ratio = -1;
     else if (instance->rear_slip_ratio > 1)
       instance->rear_slip_ratio = 1;
-  } else if (instance->car->type == WBU_CAR_FOUR_BY_FOUR) {
+  }
+  if (instance->car->type == WBU_CAR_FOUR_BY_FOUR) {
     // Compute and update the central slip differential ratio (between -1 and 1)
-    double front_speed_sum = instance->car->speeds[0] + instance->car->speeds[0];
+    double front_speed_sum = instance->car->speeds[0] + instance->car->speeds[1];
     double rear_speed_sum = instance->car->speeds[2] + instance->car->speeds[3];
     double real_central_ratio = (front_speed_sum / (front_speed_sum + rear_speed_sum)) * 2 - 1;
     // for better result a PD controller can be used here

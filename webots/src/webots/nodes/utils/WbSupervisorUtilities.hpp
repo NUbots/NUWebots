@@ -26,6 +26,7 @@ struct WbUpdatedFieldInfo;
 struct WbFieldGetRequest;
 struct WbTrackedFieldInfo;
 struct WbTrackedPoseInfo;
+struct WbTrackedContactPointInfo;
 class WbFieldSetRequest;
 
 class WbBaseNode;
@@ -79,12 +80,12 @@ private:
   int mFoundNodeParentUniqueId;
   bool mFoundNodeIsProto;
   bool mFoundNodeIsProtoInternal;
-  int mNodeFieldCount;
-  int mFoundFieldId;
+  int mFoundFieldIndex;
   int mFoundFieldType;
   int mFoundFieldCount;
-  QString mFieldName;
+  QString mFoundFieldName;
   bool mFoundFieldIsInternal;
+  int mNodeFieldCount;
   int mGetNodeRequest;
   QList<int> mUpdatedNodeIds;
   WbTransform *mNodeGetPosition;
@@ -92,6 +93,7 @@ private:
   QPair<WbTransform *, WbTransform *> mNodeGetPose;
   WbSolid *mNodeGetCenterOfMass;
   WbSolid *mNodeGetContactPoints;
+  int mNodeIdGetContactPoints;
   bool mGetContactPointsIncludeDescendants;
   WbSolid *mNodeGetStaticBalance;
   WbSolid *mNodeGetVelocity;
@@ -122,6 +124,7 @@ private:
 
   void pushSingleFieldContentToStream(QDataStream &stream, WbField *field);
   void pushRelativePoseToStream(QDataStream &stream, WbTransform *fromNode, WbTransform *toNode);
+  void pushContactPointsToStream(QDataStream &stream, WbSolid *solid, int solidId, bool includeDescendants);
   void initControllerRequests();
   void deleteControllerRequests();
   void writeNode(QDataStream &stream, const WbBaseNode *baseNode, int messageType);
@@ -137,6 +140,7 @@ private:
   QList<int> mLabelIds;
   QVector<WbTrackedFieldInfo> mTrackedFields;
   QVector<WbTrackedPoseInfo> mTrackedPoses;
+  QVector<WbTrackedContactPointInfo> mTrackedContactPoints;
 };
 
 #endif
