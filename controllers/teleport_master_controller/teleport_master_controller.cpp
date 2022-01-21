@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     }
 
     // Get the time step of the current world.
-    int time_step = int(supervisor.getBasicTime_step());
+    int time_step = int(supervisor.getBasicTimeStep());
 
     // Get the cameras
     webots::Camera* left_camera  = supervisor.getCamera("left_camera");
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
         min_distance       = config["min_distance"].as<double>();
         z_height           = config["z_height"].as<double>();
-        image_quality = config["image_quality"].as<double>();
+        image_quality = config["image_quality"].as<int>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
