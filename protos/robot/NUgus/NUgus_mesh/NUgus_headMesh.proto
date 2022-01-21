@@ -1,11 +1,11 @@
-#VRML_SIM R2021a utf8
+#VRML_SIM R2021b utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # tags: hidden
 # Extracted from: NUgus.urdf
 
 PROTO NUgus_headMesh [
-  field  MFString    robotTexture    "textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture    "robot/NUgus/NUgus_textures/NUgus_base_color.jpg"
 ]
 {
   Shape {
