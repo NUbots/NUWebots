@@ -13,7 +13,7 @@ PROTO NUgus [
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
-  field  MFString    robotTexture         "NUgus_textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture         "robot/NUgus/NUgus_textures/NUgus_base_color.jpg"
   # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
   field  SFFloat     MX64-torque          7.30
   field  SFFloat     MX64-vel             8.17
