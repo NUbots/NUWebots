@@ -18,6 +18,9 @@ target_include_directories(nugus_controller SYSTEM PRIVATE "${PROJECT_BINARY_DIR
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE webots::webots)
 
+# Link the libCppController.so path 
+target_link_libraries(nugus_controller PRIVATE ${LD_LIBRARY_PATH})
+
 # Link against the protobuf-lite target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
 
