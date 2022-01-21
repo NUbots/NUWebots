@@ -45,11 +45,10 @@ std::string padLeft(int number, int width) {
     return ss.str();
 }
 
-// Quality of the images we are saving
-const int QUALITY = 100;
 
 int main(int argc, char** argv) {
-
+    // Quality of the images we are saving
+    const int QUALITY = 100;
     // Make sure we have the command line arguments we need. At a minimum we should have the def argument
     // of the robot supervisor. Other arguments are def arguments of robots that should be controlled by
     // this supervisor
