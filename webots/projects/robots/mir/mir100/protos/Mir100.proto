@@ -39,7 +39,7 @@ PROTO Mir100 [
             }
             geometry Mesh {
               url [
-                "meshes/mir_100_base.obj"
+                "webots://projects/robots/mir/mir100/protos/meshes/mir_100_base.obj"
               ]
             }
           }
@@ -47,7 +47,7 @@ PROTO Mir100 [
             appearance USE WHITE
             geometry Mesh {
               url [
-                "meshes/mir_100_inside.obj"
+                "webots://projects/robots/mir/mir100/protos/meshes/mir_100_inside.obj"
               ]
             }
           }
@@ -57,7 +57,7 @@ PROTO Mir100 [
             }
             geometry Mesh {
               url [
-                "meshes/mir_100_logos.dae"
+                "webots://projects/robots/mir/mir100/protos/meshes/mir_100_logos.dae"
               ]
             }
           }
@@ -67,7 +67,7 @@ PROTO Mir100 [
             }
             geometry Mesh {
               url [
-                "meshes/mir_100_base_corners.dae"
+                "webots://projects/robots/mir/mir100/protos/meshes/mir_100_base_corners.dae"
               ]
             }
           }
@@ -77,7 +77,7 @@ PROTO Mir100 [
             }
             geometry Mesh {
               url [
-                "meshes/mir_100_top_plugs.dae"
+                "webots://projects/robots/mir/mir100/protos/meshes/mir_100_top_plugs.dae"
               ]
             }
           }
@@ -128,15 +128,18 @@ PROTO Mir100 [
         rotation -0.5314699172926579 -0.816513872934121 0.22548796490956566 -1.7730453071795864
         scale 1.0003465485345713 0.92893 0.92893
         children [
-          DEF CAMERA_SHAPE Shape {
+          Shape {
             appearance Appearance {
               material Material {
                 emissiveColor 1 1 1
               }
               texture ImageTexture {
                 url [
-                  "textures/camera.png"
+                  "webots://projects/robots/mir/mir100/protos/textures/camera.png"
                 ]
+              }
+              textureTransform TextureTransform {
+                rotation 3.1415926
               }
             }
             geometry Plane {
@@ -150,7 +153,21 @@ PROTO Mir100 [
         rotation 0.6425837390040647 0.41825883011730935 0.6419857392469521 -2.7903353071795864
         scale 1.0003465485345713 0.92893 0.92893
         children [
-          USE CAMERA_SHAPE
+          Shape {
+            appearance Appearance {
+              material Material {
+                emissiveColor 1 1 1
+              }
+              texture ImageTexture {
+                url [
+                  "webots://projects/robots/mir/mir100/protos/textures/camera.png"
+                ]
+              }
+            }
+            geometry Plane {
+              size 0.08 0.015
+            }
+          }
         ]
       }
       Mir100UltrasonicSensor {
@@ -190,7 +207,7 @@ PROTO Mir100 [
         ]
       }
       RangeFinder {
-        translation 0.464 0 0.116
+        translation 0.464 0 0.18
         rotation -0.5773509358560258 0.577349935856137 0.577349935856137 -2.094395307179586
         name "depth_camera"
         fieldOfView 2.05949
@@ -273,25 +290,24 @@ PROTO Mir100 [
         endPoint DEF LEFT_WHEEL_LINK Solid {
           translation 0 0.222604 0.0625
           children [
-            DEF WHEEL Group {
+            Group {
               children [
-                Shape {
+                DEF RIM Shape {
                   appearance CorrodedMetal {
                   }
                   geometry Cylinder {
-                      radius 0.054
+                      radius 0.0465
                       height 0.032
                   }
                 }
-                Shape {
-                  appearance PBRAppearance {
+                SolidTorus {
+                  majorRadius 0.0465
+                  minorRadius 0.016
+                  enableBoundingObject FALSE
+                  appearance DEF WHEEL_RUBBER PBRAppearance {
                     baseColor 0 0 0
                     roughness 1
                     metalness 0
-                  }
-                  geometry DEF WHEEL_BO Cylinder {
-                      radius 0.0625
-                      height 0.0315
                   }
                 }
               ]
@@ -299,13 +315,9 @@ PROTO Mir100 [
           ]
           name "left_wheel_link"
           contactMaterial "wheel"
-          boundingObject Transform {
-            children [
-              DEF WHEEL_BO Cylinder {
-                height 0.032
-                radius 0.0625
-              }
-            ]
+          boundingObject DEF WHEEL_BO Cylinder {
+            radius 0.0625
+            height 0.01
           }
           physics Physics {
             density -1
@@ -338,15 +350,21 @@ PROTO Mir100 [
         endPoint DEF RIGHT_WHEEL_LINK Solid {
           translation 0 -0.222604 0.0625
           children [
-            USE WHEEL
+            Group {
+              children [
+                USE RIM
+                SolidTorus {
+                  majorRadius 0.0465
+                  minorRadius 0.016
+                  enableBoundingObject FALSE
+                  appearance USE WHEEL_RUBBER
+                }
+              ]
+            }
           ]
           name "right_wheel_link"
           contactMaterial "wheel"
-          boundingObject Transform {
-            children [
-              USE WHEEL_BO
-            ]
-          }
+          boundingObject USE WHEEL_BO
           physics Physics {
             density -1
             mass 1
@@ -383,7 +401,7 @@ PROTO Mir100 [
               }
               geometry Mesh {
                 url [
-                  "meshes/caster_wheel_base.dae"
+                  "webots://projects/robots/mir/mir100/protos/meshes/caster_wheel_base.dae"
                 ]
               }
             }
@@ -400,15 +418,21 @@ PROTO Mir100 [
               endPoint DEF FL_CASTER_WHEEL_LINK Solid {
                 translation -0.0382 0 -0.094
                 children [
-                  USE WHEEL
+                  Group {
+                    children [
+                      USE RIM
+                      SolidTorus {
+                        majorRadius 0.0465
+                        minorRadius 0.016
+                        enableBoundingObject FALSE
+                        appearance USE WHEEL_RUBBER
+                      }
+                    ]
+                  }
                 ]
                 name "fl_caster_wheel_link"
                 contactMaterial "wheel"
-                boundingObject Transform {
-                  children [
-                    USE WHEEL_BO
-                  ]
-                }
+                boundingObject USE WHEEL_BO
                 physics Physics {
                   density -1
                   mass 1
@@ -476,15 +500,21 @@ PROTO Mir100 [
               endPoint DEF FR_CASTER_WHEEL_LINK Solid {
                 translation -0.0382 0 -0.094
                 children [
-                  USE WHEEL
+                  Group {
+                    children [
+                      USE RIM
+                      SolidTorus {
+                        majorRadius 0.0465
+                        minorRadius 0.016
+                        enableBoundingObject FALSE
+                        appearance USE WHEEL_RUBBER
+                      }
+                    ]
+                  }
                 ]
                 name "fr_caster_wheel_link"
                 contactMaterial "wheel"
-                boundingObject Transform {
-                  children [
-                    USE WHEEL_BO
-                  ]
-                }
+                boundingObject USE WHEEL_BO
                 physics Physics {
                   density -1
                   mass 1
@@ -549,15 +579,21 @@ PROTO Mir100 [
               endPoint DEF BL_CASTER_WHEEL_LINK Solid {
                 translation -0.0382 0 -0.094
                 children [
-                  USE WHEEL
+                  Group {
+                    children [
+                      USE RIM
+                      SolidTorus {
+                        majorRadius 0.0465
+                        minorRadius 0.016
+                        enableBoundingObject FALSE
+                        appearance USE WHEEL_RUBBER
+                      }
+                    ]
+                  }
                 ]
                 name "bl_caster_wheel_link"
                 contactMaterial "wheel"
-                boundingObject Transform {
-                  children [
-                    USE WHEEL_BO
-                  ]
-                }
+                boundingObject USE WHEEL_BO
                 physics Physics {
                   density -1
                   mass 1
@@ -622,15 +658,21 @@ PROTO Mir100 [
               endPoint DEF BR_CASTER_WHEEL_LINK Solid {
                 translation -0.0382 0 -0.094
                 children [
-                  USE WHEEL
+                  Group {
+                    children [
+                      USE RIM
+                      SolidTorus {
+                        majorRadius 0.0465
+                        minorRadius 0.016
+                        enableBoundingObject FALSE
+                        appearance USE WHEEL_RUBBER
+                      }
+                    ]
+                  }
                 ]
                 name "br_caster_wheel_link"
                 contactMaterial "wheel"
-                boundingObject Transform {
-                  children [
-                    USE WHEEL_BO
-                  ]
-                }
+                boundingObject USE WHEEL_BO
                 physics Physics {
                   density -1
                   mass 1

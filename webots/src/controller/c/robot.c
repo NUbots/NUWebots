@@ -279,10 +279,7 @@ static void robot_send_request(unsigned int step_duration) {
     remote_control_step(step_duration);
   }
 
-  // scheduler_print_request(req);
-  if (scheduler_is_local())
-    scheduler_send_request(req);
-  else if (request_get_size(req) != 8)
+  if (scheduler_is_local() || request_get_size(req) != 8)
     scheduler_send_request(req);
   request_delete(req);
 }
@@ -572,7 +569,7 @@ int robot_step_end() {
   return -1;
 }
 
-WbDeviceTag robot_get_device_tag(WbDevice *d) {
+WbDeviceTag robot_get_device_tag(const WbDevice *d) {
   WbDeviceTag tag;
   for (tag = 0; tag < robot.n_device; tag++) {
     if (robot.device[tag] == d)
@@ -594,9 +591,8 @@ void robot_abort(const char *format, ...) {
 }
 
 WbNodeType robot_get_device_type(WbDeviceTag tag) {
-  int ti = (int)tag;
-  if (ti >= 0 && ti < robot.n_device)
-    return robot.device[ti]->node;
+  if (tag < robot.n_device)
+    return robot.device[tag]->node;
   return WB_NODE_NO_NODE;
 }
 

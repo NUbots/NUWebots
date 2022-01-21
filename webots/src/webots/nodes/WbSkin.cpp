@@ -85,6 +85,16 @@ WbSkin::~WbSkin() {
   }
 }
 
+void WbSkin::downloadAssets() {
+  WbBaseNode::downloadAssets();
+  WbMFIterator<WbMFNode, WbNode *> it(mAppearanceField);
+  while (it.hasNext()) {
+    WbAbstractAppearance *appearance = dynamic_cast<WbAbstractAppearance *>(it.next());
+    assert(appearance);
+    appearance->downloadAssets();
+  }
+}
+
 void WbSkin::preFinalize() {
   WbBaseNode::preFinalize();
 
@@ -348,29 +358,11 @@ void WbSkin::createWrenObjects() {
           &WbSkin::updateOptionalRendering);
 
   // Create bone mesh
-  const float vertices[72] = {0.0f,  0.0f,  0.0f,  -0.1f, 0.1f,  0.25f,
-
-                              0.0f,  0.0f,  0.0f,  -0.1f, -0.1f, 0.25f,
-
-                              0.0f,  0.0f,  0.0f,  0.1f,  -0.1f, 0.25f,
-
-                              0.0f,  0.0f,  0.0f,  0.1f,  0.1f,  0.25f,
-
-                              0.0f,  0.0f,  1.0f,  -0.1f, 0.1f,  0.25f,
-
-                              0.0f,  0.0f,  1.0f,  -0.1f, -0.1f, 0.25f,
-
-                              0.0f,  0.0f,  1.0f,  0.1f,  -0.1f, 0.25f,
-
-                              0.0f,  0.0f,  1.0f,  0.1f,  0.1f,  0.25f,
-
-                              0.1f,  0.1f,  0.25f, 0.1f,  -0.1f, 0.25f,
-
-                              0.1f,  -0.1f, 0.25f, -0.1f, -0.1f, 0.25f,
-
-                              -0.1f, -0.1f, 0.25f, -0.1f, 0.1f,  0.25f,
-
-                              -0.1f, 0.1f,  0.25f, 0.1f,  0.1f,  0.25f};
+  const float vertices[72] = {
+    0.0f, 0.0f,  0.0f,  -0.1f, 0.1f,  0.25f, 0.0f,  0.0f,  0.0f,  -0.1f, -0.1f, 0.25f, 0.0f,  0.0f, 0.0f,  0.1f,  -0.1f, 0.25f,
+    0.0f, 0.0f,  0.0f,  0.1f,  0.1f,  0.25f, 0.0f,  0.0f,  1.0f,  -0.1f, 0.1f,  0.25f, 0.0f,  0.0f, 1.0f,  -0.1f, -0.1f, 0.25f,
+    0.0f, 0.0f,  1.0f,  0.1f,  -0.1f, 0.25f, 0.0f,  0.0f,  1.0f,  0.1f,  0.1f,  0.25f, 0.1f,  0.1f, 0.25f, 0.1f,  -0.1f, 0.25f,
+    0.1f, -0.1f, 0.25f, -0.1f, -0.1f, 0.25f, -0.1f, -0.1f, 0.25f, -0.1f, 0.1f,  0.25f, -0.1f, 0.1f, 0.25f, 0.1f,  0.1f,  0.25f};
 
   mBoneMesh = wr_static_mesh_line_set_new(24, vertices, NULL);
 
@@ -417,7 +409,7 @@ void WbSkin::createWrenSkeleton() {
   }
 
   QString meshFilePath = mModelPath + mModelName->value();
-  QString supportedExtensions[2] = {".fbx", ".mesh"};
+  const QString supportedExtensions[2] = {".fbx", ".mesh"};
 
   for (int i = 0; i < 2; ++i) {
     const QString fullPath = meshFilePath + supportedExtensions[i];

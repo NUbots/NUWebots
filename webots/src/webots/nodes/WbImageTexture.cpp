@@ -15,6 +15,8 @@
 #include "WbImageTexture.hpp"
 
 #include "WbAbstractAppearance.hpp"
+#include "WbApplication.hpp"
+#include "WbApplicationInfo.hpp"
 #include "WbDownloader.hpp"
 #include "WbField.hpp"
 #include "WbFieldChecker.hpp"
@@ -32,6 +34,7 @@
 #include "WbWrenOpenGlContext.hpp"
 
 #include <QtCore/QFileInfo>
+#include <QtCore/QIODevice>
 #include <QtGui/QImageReader>
 
 #include <wren/gl_state.h>
@@ -40,7 +43,10 @@
 #include <wren/texture_2d.h>
 #include <wren/texture_transform.h>
 
+#include <utility>
+
 QSet<QString> WbImageTexture::cQualityChangedTexturesList;
+static QMap<QString, std::pair<QImage *, int>> gImagesMap;
 
 void WbImageTexture::init() {
   mWrenTexture = NULL;
@@ -84,10 +90,12 @@ void WbImageTexture::downloadAssets() {
     return;
   const QString &url(mUrl->item(0));
   if (WbUrl::isWeb(url)) {
-    delete mDownloader;
+    if (mDownloader != NULL && mDownloader->device() != NULL)
+      delete mDownloader;
     mDownloader = new WbDownloader(this);
-    if (isPostFinalizedCalled())  // URL changed from the scene tree or supervisor
+    if (!WbWorld::instance()->isLoading())  // URL changed from the scene tree or supervisor
       connect(mDownloader, &WbDownloader::complete, this, &WbImageTexture::downloadUpdate);
+
     mDownloader->download(QUrl(url));
   }
 }
@@ -121,7 +129,9 @@ void WbImageTexture::postFinalize() {
 
 bool WbImageTexture::loadTexture() {
   if (mDownloader) {
-    assert(mDownloader->device());
+    assert(mDownloader->device() || mDownloader->isCopy());
+    if (mDownloader->isCopy())
+      return false;  // The image should already be in the wren cache.
     if (!mDownloader->error().isEmpty()) {
       warn(mDownloader->error());
       return false;
@@ -164,7 +174,19 @@ bool WbImageTexture::loadTextureData(QIODevice *device) {
       height /= divider;
   }
 
-  delete mImage;
+  if (mUrl->size() == 0)
+    return false;
+  const QString &url(mUrl->item(0));
+  std::pair<QImage *, int> pair = gImagesMap[url];
+  if (pair.first) {
+    int number = pair.second--;
+    if (number == 0) {
+      delete mImage;
+      gImagesMap.remove(url);
+    } else
+      gImagesMap[url] = std::make_pair(pair.first, number);
+  }
+
   mImage = new QImage();
 
   if (!imageReader.read(mImage)) {
@@ -224,12 +246,27 @@ void WbImageTexture::updateWrenTexture() {
       wr_texture_setup(WR_TEXTURE(texture));
 
       WbWrenOpenGlContext::doneWren();
+      if (mUrl->size() == 0)
+        return;
+      const QString &url(mUrl->item(0));
+      gImagesMap[url] = std::make_pair(mImage, 1);
     }
-  } else
+  } else {
+    if (mUrl->size() == 0)
+      return;
+    const QString &url(mUrl->item(0));
+    std::pair<QImage *, int> pair = gImagesMap.value(url);
+    if (pair.first) {
+      mImage = pair.first;
+      int number = pair.second++;
+      gImagesMap[url] = std::make_pair(mImage, number);
+    }
     mIsMainTextureTransparent = wr_texture_is_translucent(WR_TEXTURE(texture));
+  }
 
   mWrenTexture = WR_TEXTURE(texture);
-  delete mDownloader;
+  if (mDownloader != NULL && mDownloader->device() != NULL)
+    delete mDownloader;
   mDownloader = NULL;
 }
 
@@ -242,7 +279,19 @@ void WbImageTexture::destroyWrenTexture() {
   mWrenTexture = NULL;
   mWrenTextureTransform = NULL;
 
-  delete mImage;
+  if (mUrl->size() == 0)
+    return;
+  const QString &url(mUrl->item(0));
+  std::pair<QImage *, int> pair = gImagesMap[url];
+  if (pair.first) {
+    int number = pair.second--;
+    if (number == 0) {
+      delete mImage;
+      gImagesMap.remove(url);
+    } else
+      gImagesMap[url] = std::make_pair(pair.first, number);
+  }
+
   mImage = NULL;
 }
 
@@ -255,7 +304,7 @@ void WbImageTexture::updateUrl() {
   }
   if (n > 0) {
     const QString &url = mUrl->item(0);
-    if (isPostFinalizedCalled() && WbUrl::isWeb(url) && mDownloader == NULL) {
+    if (!WbWorld::instance()->isLoading() && WbUrl::isWeb(url) && mDownloader == NULL) {
       // url was changed from the scene tree or supervisor
       downloadAssets();
       return;
@@ -469,16 +518,26 @@ void WbImageTexture::exportNodeFields(WbVrmlWriter &writer) const {
   // export to ./textures folder relative to writer path
   WbField urlFieldCopy(*findField("url", true));
   for (int i = 0; i < mUrl->size(); ++i) {
-    QString texturePath(WbUrl::computePath(this, "url", mUrl, i));
-    if (writer.isWritingToFile()) {
-      QString newUrl = WbUrl::exportTexture(this, mUrl, i, writer);
-      dynamic_cast<WbMFString *>(urlFieldCopy.value())->setItem(i, newUrl);
-    }
+    if (WbUrl::isLocalUrl(mUrl->value()[i])) {
+      QString newUrl = mUrl->value()[i];
+      dynamic_cast<WbMFString *>(urlFieldCopy.value())
+        ->setItem(i, newUrl.replace("webots://", "https://raw.githubusercontent.com/" + WbApplicationInfo::repo() + "/" +
+                                                   WbApplicationInfo::branch() + "/"));
 
-    const QString &url(mUrl->item(i));
-    if (cQualityChangedTexturesList.contains(texturePath))
-      texturePath = WbStandardPaths::webotsTmpPath() + QFileInfo(url).fileName();
-    writer.addTextureToList(url, texturePath);
+    } else if (WbUrl::isWeb(mUrl->value()[i]))
+      continue;
+    else {
+      QString texturePath(WbUrl::computePath(this, "url", mUrl, i));
+      if (writer.isWritingToFile()) {
+        QString newUrl = WbUrl::exportTexture(this, mUrl, i, writer);
+        dynamic_cast<WbMFString *>(urlFieldCopy.value())->setItem(i, newUrl);
+      }
+
+      const QString &url(mUrl->item(i));
+      if (cQualityChangedTexturesList.contains(texturePath))
+        texturePath = WbStandardPaths::webotsTmpPath() + QFileInfo(url).fileName();
+      writer.addTextureToList(url, texturePath);
+    }
   }
   urlFieldCopy.write(writer);
   findField("repeatS", true)->write(writer);

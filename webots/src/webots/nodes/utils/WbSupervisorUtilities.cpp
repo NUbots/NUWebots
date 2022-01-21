@@ -20,6 +20,8 @@
 #include "WbDictionary.hpp"
 #include "WbField.hpp"
 #include "WbFieldModel.hpp"
+#include "WbJoint.hpp"
+#include "WbJointParameters.hpp"
 #include "WbMFBool.hpp"
 #include "WbMFColor.hpp"
 #include "WbMFDouble.hpp"
@@ -74,6 +76,14 @@ struct WbTrackedFieldInfo {
 struct WbTrackedPoseInfo {
   WbTransform *fromNode;
   WbTransform *toNode;
+  int samplingPeriod;
+  double lastUpdate;
+};
+
+struct WbTrackedContactPointInfo {
+  WbSolid *solid;
+  int solidId;
+  bool includeDescendants;
   int samplingPeriod;
   double lastUpdate;
 };
@@ -293,11 +303,11 @@ void WbSupervisorUtilities::initControllerRequests() {
   mFoundNodeIsProto = false;
   mFoundNodeIsProtoInternal = false;
   mNodeFieldCount = -1;
-  mFoundFieldId = -2;
+  mFoundFieldIndex = -2;
   mFoundFieldType = 0;
   mFoundFieldCount = -1;
   mFoundFieldIsInternal = false;
-  mFieldName.clear();
+  mFoundFieldName.clear();
   mGetNodeRequest = 0;
   mNodeGetPosition = NULL;
   mNodeGetOrientation = NULL;
@@ -389,6 +399,8 @@ void WbSupervisorUtilities::reset() {
     WbWrenLabelOverlay::removeLabel(labelId);
   mLabelIds.clear();
   mTrackedFields.clear();
+  mTrackedPoses.clear();
+  mTrackedContactPoints.clear();
 
   // delete pending requests and reinitialize them
   deleteControllerRequests();
@@ -555,6 +567,42 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       node->save(stateName);
       return;
     }
+    case C_SUPERVISOR_NODE_SET_JOINT_POSITION: {
+      unsigned int nodeId, index;
+      double position;
+      stream >> nodeId >> position >> index;
+      WbNode *const node = getProtoParameterNodeInstance(nodeId, "wb_supervisor_node_set_joint_position()");
+      WbJoint *joint = dynamic_cast<WbJoint *>(node);
+      assert(joint);
+      if (joint) {
+        // check if position is valid
+        const WbJointParameters *parameters;
+        if (index == 1)
+          parameters = joint->parameters();
+        else if (index == 2)
+          parameters = joint->parameters2();
+        else if (index == 3)
+          parameters = joint->parameters3();
+        else {
+          assert(false);
+          parameters = NULL;
+        }
+        if (parameters) {
+          const double userPosition = position;
+          if (parameters->clampPosition(position))
+            mRobot->warn(tr("wb_supervisor_node_set_joint_position() called with a 'position' argument %1 outside hard limits "
+                            "of the joint. Applied position is %2.")
+                           .arg(userPosition)
+                           .arg(position));
+        }
+
+        joint->setPosition(position, index);
+        if (!parameters)
+          // force updating the joint position (this slot is automatically triggered by WbJointParameters node)
+          joint->updatePosition();
+      }
+      return;
+    }
     case C_SUPERVISOR_RELOAD_WORLD:
       WbApplication::instance()->worldReload();
       return;
@@ -716,8 +764,6 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       assert(baseNode);
       mFoundNodeIsProtoInternal =
         baseNode->parentNode() != WbWorld::instance()->root() && !WbNodeUtilities::isVisible(baseNode->parentField());
-      if (mFoundNodeIsProtoInternal)
-        return;
       mGetNodeRequest = C_SUPERVISOR_NODE_GET_FROM_TAG;
       mCurrentDefName = baseNode->defName();
       mFoundNodeUniqueId = baseNode->uniqueId();
@@ -823,6 +869,7 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       WbNode *const node = getProtoParameterNodeInstance(id, "wb_supervisor_node_get_number_of_contact_points()");
       WbSolid *const solid = dynamic_cast<WbSolid *>(node);
       mNodeGetContactPoints = solid;
+      mNodeIdGetContactPoints = id;
       mGetContactPointsIncludeDescendants = includeDescendants == 1;
       if (!solid)
         mRobot->warn(
@@ -929,10 +976,10 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       assert(baseNode);
       if (camera)
         // cppcheck-suppress knownConditionTrueFalse
-        camera->setNodeVisibility(baseNode, visible == 1);
+        camera->setNodesVisibility(baseNode->findClosestDescendantNodesWithDedicatedWrenNode(), visible == 1);
       else if (viewpoint)
         // cppcheck-suppress knownConditionTrueFalse
-        viewpoint->setNodeVisibility(baseNode, visible == 1);
+        viewpoint->setNodesVisibility(baseNode->findClosestDescendantNodesWithDedicatedWrenNode(), visible == 1);
       return;
     }
     case C_SUPERVISOR_NODE_MOVE_VIEWPOINT: {
@@ -1067,14 +1114,16 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       return;
     }
     case C_SUPERVISOR_NODE_GET_FIELD_COUNT: {
-      int node_id;
+      int nodeId;
       unsigned char allowSearchInProto;
-      stream >> node_id;
+      stream >> nodeId;
       stream >> allowSearchInProto;
 
-      WbNode *const node = WbNode::findNode(node_id);
+      WbNode *const node = WbNode::findNode(nodeId);
       if (node)
         mNodeFieldCount = allowSearchInProto == 1 ? node->fields().size() : node->numFields();
+      else
+        mNodeFieldCount = -1;
       return;
     }
     case C_SUPERVISOR_FIELD_GET_FROM_NAME: {
@@ -1084,7 +1133,7 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       const QString name = readString(stream);
       stream >> allowSearchInProto;
 
-      mFoundFieldId = -1;
+      mFoundFieldIndex = -1;
       mFoundFieldType = 0;
       mFoundFieldCount = -1;
       mFoundFieldIsInternal = false;
@@ -1097,10 +1146,10 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
           if (field) {
             WbMultipleValue *mv = dynamic_cast<WbMultipleValue *>(field->value());
             mFoundFieldCount = mv ? mv->size() : -1;
-            mFoundFieldId = id;
+            mFoundFieldIndex = id;
             mFoundFieldType = field->type();
             mFoundFieldIsInternal = allowSearchInProto == 1;
-            mFieldName = field->name();
+            mFoundFieldName = field->name();
             if (mv) {
               mWatchedFields.append(WbUpdatedFieldInfo(node->uniqueId(), field->name(), mFoundFieldCount));
               field->listenToValueSizeChanges();
@@ -1112,27 +1161,27 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
       return;
     }
     case C_SUPERVISOR_FIELD_GET_FROM_INDEX: {
-      int node_id, field_index;
+      int nodeId, fieldIndex;
       unsigned char allowSearchInProto;
-      stream >> node_id;
-      stream >> field_index;
+      stream >> nodeId;
+      stream >> fieldIndex;
       stream >> allowSearchInProto;
 
-      mFoundFieldId = -1;
+      mFoundFieldIndex = -1;
       mFoundFieldType = 0;
       mFoundFieldCount = -1;
       mFoundFieldIsInternal = false;
 
-      WbNode *const node = WbNode::findNode(node_id);
+      WbNode *const node = WbNode::findNode(nodeId);
       if (node) {
-        WbField *field = node->field(field_index, allowSearchInProto == 1);
+        WbField *field = node->field(fieldIndex, allowSearchInProto == 1);
         if (field) {
           WbMultipleValue *mv = dynamic_cast<WbMultipleValue *>(field->value());
           mFoundFieldCount = mv ? mv->size() : -1;
-          mFoundFieldId = field_index;
+          mFoundFieldIndex = fieldIndex;
           mFoundFieldType = field->type();
           mFoundFieldIsInternal = allowSearchInProto == 1;
-          mFieldName = field->name();
+          mFoundFieldName = field->name();
           if (mv) {
             mWatchedFields.append(WbUpdatedFieldInfo(node->uniqueId(), field->name(), mFoundFieldCount));
             field->listenToValueSizeChanges();
@@ -1140,6 +1189,44 @@ void WbSupervisorUtilities::handleMessage(QDataStream &stream) {
           }
         }
       }
+      return;
+    }
+    case C_SUPERVISOR_CONTACT_POINTS_CHANGE_TRACKING_STATE: {
+      unsigned int nodeId;
+      unsigned char includeDescendants;
+      unsigned char enable;
+      unsigned int samplingPeriod;
+
+      stream >> nodeId;
+      stream >> includeDescendants;
+      stream >> enable;
+      if (enable)
+        stream >> samplingPeriod;
+
+      WbNode *const node = WbNode::findNode(nodeId);
+      WbSolid *const solid = dynamic_cast<WbSolid *>(node);
+      if (!solid)
+        return;
+
+      int trackingInfoIndex = -1;
+      for (int i = 0; i < mTrackedContactPoints.size(); i++)
+        if (mTrackedContactPoints[i].solid == solid && mTrackedContactPoints[i].includeDescendants == includeDescendants) {
+          trackingInfoIndex = i;
+          break;
+        }
+
+      if (enable) {
+        if (trackingInfoIndex == -1) {
+          WbTrackedContactPointInfo trackedContactPoint;
+          trackedContactPoint.solid = solid;
+          trackedContactPoint.solidId = nodeId;
+          trackedContactPoint.includeDescendants = includeDescendants;
+          trackedContactPoint.samplingPeriod = samplingPeriod;
+          trackedContactPoint.lastUpdate = -INFINITY;
+          mTrackedContactPoints.append(trackedContactPoint);
+        }
+      } else if (trackingInfoIndex != -1)
+        mTrackedContactPoints.removeAt(trackingInfoIndex);
       return;
     }
     case C_SUPERVISOR_POSE_CHANGE_TRACKING_STATE: {
@@ -1666,6 +1753,25 @@ void WbSupervisorUtilities::pushRelativePoseToStream(QDataStream &stream, WbTran
   stream << (double)m(3, 0) << (double)m(3, 1) << (double)m(3, 2) << (double)m(3, 3);
 }
 
+void WbSupervisorUtilities::pushContactPointsToStream(QDataStream &stream, WbSolid *solid, int solidId,
+                                                      bool includeDescendants) {
+  const QVector<WbVector3> &contactPoints = solid->computedContactPoints(includeDescendants);
+  const QVector<const WbSolid *> &solids = solid->computedSolidPerContactPoints();
+  const int size = contactPoints.size();
+  stream << (short unsigned int)0;
+  stream << (unsigned char)C_SUPERVISOR_NODE_GET_CONTACT_POINTS;
+  stream << (int)solidId;
+  stream << (unsigned char)includeDescendants;
+  stream << (int)size;
+  for (int i = 0; i < size; ++i) {
+    const WbVector3 &v = contactPoints.at(i);
+    stream << (double)v.x();
+    stream << (double)v.y();
+    stream << (double)v.z();
+    stream << (int)(includeDescendants ? solids.at(i)->uniqueId() : solid->uniqueId());
+  }
+}
+
 void WbSupervisorUtilities::writeAnswer(QDataStream &stream) {
   if (!mUpdatedNodeIds.isEmpty()) {
     foreach (int id, mUpdatedNodeIds) {
@@ -1707,17 +1813,17 @@ void WbSupervisorUtilities::writeAnswer(QDataStream &stream) {
     stream.writeRawData(s.constData(), s.size() + 1);
     mFoundNodeUniqueId = -1;
   }
-  if (mFoundFieldId != -2) {  // enabled, -1 means not found
+  if (mFoundFieldIndex != -2) {  // enabled, -1 means not found
     stream << (short unsigned int)0;
     stream << (unsigned char)C_SUPERVISOR_FIELD_GET_FROM_NAME;
-    stream << (int)mFoundFieldId;
+    stream << (int)mFoundFieldIndex;
     stream << (int)mFoundFieldType;
     stream << (unsigned char)mFoundFieldIsInternal;
     if (mFoundFieldCount != -1)
       stream << (int)mFoundFieldCount;
-    const QByteArray ba = mFieldName.toUtf8();
+    const QByteArray ba = mFoundFieldName.toUtf8();
     stream.writeRawData(ba.constData(), ba.size() + 1);
-    mFoundFieldId = -2;
+    mFoundFieldIndex = -2;
   }
   if (mIsProtoRegenerated) {
     stream << (short unsigned int)0;
@@ -1756,7 +1862,7 @@ void WbSupervisorUtilities::writeAnswer(QDataStream &stream) {
   }
   for (WbTrackedPoseInfo &pose : mTrackedPoses) {
     const double time = WbSimulationState::instance()->time();
-    if (time >= pose.lastUpdate + pose.samplingPeriod) {
+    if (time < pose.lastUpdate || time >= pose.lastUpdate + pose.samplingPeriod) {
       pushRelativePoseToStream(stream, pose.fromNode, pose.toNode);
       pose.lastUpdate = time;
     }
@@ -1773,20 +1879,15 @@ void WbSupervisorUtilities::writeAnswer(QDataStream &stream) {
     stream << (double)com.x() << (double)com.y() << (double)com.z();
     mNodeGetCenterOfMass = NULL;
   }
-  if (mNodeGetContactPoints) {
-    const QVector<WbVector3> &contactPoints = mNodeGetContactPoints->computedContactPoints(mGetContactPointsIncludeDescendants);
-    const QVector<const WbSolid *> &solids = mNodeGetContactPoints->computedSolidPerContactPoints();
-    const int size = contactPoints.size();
-    stream << (short unsigned int)0;
-    stream << (unsigned char)C_SUPERVISOR_NODE_GET_CONTACT_POINTS;
-    stream << (int)size;
-    for (int i = 0; i < size; ++i) {
-      const WbVector3 &v = contactPoints.at(i);
-      stream << (double)v.x();
-      stream << (double)v.y();
-      stream << (double)v.z();
-      stream << (int)(mGetContactPointsIncludeDescendants ? solids.at(i)->uniqueId() : mNodeGetContactPoints->uniqueId());
+  for (WbTrackedContactPointInfo &info : mTrackedContactPoints) {
+    const double time = WbSimulationState::instance()->time();
+    if (time < info.lastUpdate || time >= info.lastUpdate + info.samplingPeriod) {
+      pushContactPointsToStream(stream, info.solid, info.solidId, info.includeDescendants);
+      info.lastUpdate = time;
     }
+  }
+  if (mNodeGetContactPoints) {
+    pushContactPointsToStream(stream, mNodeGetContactPoints, mNodeIdGetContactPoints, mGetContactPointsIncludeDescendants);
     mNodeGetContactPoints = NULL;
   }
   if (mNodeGetStaticBalance) {
@@ -1830,7 +1931,7 @@ void WbSupervisorUtilities::writeAnswer(QDataStream &stream) {
   }
   for (WbTrackedFieldInfo &field : mTrackedFields) {
     const double time = WbSimulationState::instance()->time();
-    if (time >= field.lastUpdate + field.samplingPeriod) {
+    if (time < field.lastUpdate || time >= field.lastUpdate + field.samplingPeriod) {
       stream << (short unsigned int)0;
       stream << (unsigned char)C_SUPERVISOR_FIELD_GET_VALUE;
       stream << (int)field.field->type();

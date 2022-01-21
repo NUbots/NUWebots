@@ -49,6 +49,7 @@
 #include "WbTreeItem.hpp"
 #include "WbTreeView.hpp"
 #include "WbUndoStack.hpp"
+#include "WbUrl.hpp"
 #include "WbValueEditor.hpp"
 #include "WbVariant.hpp"
 #include "WbViewpoint.hpp"
@@ -218,6 +219,7 @@ void WbSceneTree::setWorld(WbWorld *world) {
   connect(mTreeView, &WbTreeView::collapsed, this, &WbSceneTree::stopWatching);
   connect(mModel, &WbSceneTreeModel::itemInserted, mTreeView, &WbTreeView::itemInserted);
   connect(mModel, &WbSceneTreeModel::rowsAboutToBeRemovedSoon, this, &WbSceneTree::handleRowRemoval);
+  connect(mTreeView, &WbTreeView::beforeContextMenuShowed, this, &WbSceneTree::updateSelection);
 
   connect(mTreeView, &WbTreeView::selectionHasChanged, this, &WbSceneTree::updateSelection);
   connect(WbSelection::instance(), &WbSelection::selectionChangedFromSceneTree, this, &WbSceneTree::updateSelection);
@@ -727,10 +729,12 @@ void WbSceneTree::convertProtoToBaseNode(bool rootOnly) {
     while (it.hasNext()) {
       it.next();
       const QString destination(WbProject::current()->worldsPath() + it.key());
-      const QFileInfo fileInfo(destination);
-      if (!QDir(fileInfo.absolutePath()).exists())
-        QDir().mkpath(fileInfo.absolutePath());
-      QFile::copy(it.value(), destination);
+      if (!(WbUrl::isLocalUrl(it.key()) || WbUrl::isWeb(it.key()))) {
+        const QFileInfo fileInfo(destination);
+        if (!QDir(fileInfo.absolutePath()).exists())
+          QDir().mkpath(fileInfo.absolutePath());
+        QFile::copy(it.value(), destination);
+      }
     }
     // import new node
     if (WbNodeOperations::instance()->importNode(parentNode, parentField, index, "", nodeString) == WbNodeOperations::SUCCESS) {

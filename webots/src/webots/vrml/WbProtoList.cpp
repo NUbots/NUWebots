@@ -176,7 +176,7 @@ WbProtoModel *WbProtoList::findModel(const QString &modelName, const QString &wo
   foreach (const QFileInfo &fi, availableProtoFiles) {
     if (fi.baseName() == modelName) {
       WbProtoModel *model = readModel(fi.absoluteFilePath(), worldPath, baseTypeList);
-      if (model == NULL)  // can occur if the PROTO contains errors
+      if (model == NULL)  // can occur if the PROTO contains errors
         return NULL;
       mModels << model;
       model->ref();

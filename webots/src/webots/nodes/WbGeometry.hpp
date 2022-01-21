@@ -70,6 +70,10 @@ public:
   virtual void setWrenMaterial(WrMaterial *material, bool castShadows);
   void destroyWrenObjects();
 
+  QList<const WbBaseNode *> findClosestDescendantNodesWithDedicatedWrenNode() const override {
+    return QList<const WbBaseNode *>() << this;
+  }
+
   // Create ODE dGeom (for a WbGeometry lying into a boundingObject)
   virtual dGeomID createOdeGeom(dSpaceID space);
   void destroyOdeObjects();
@@ -122,6 +126,10 @@ public:
 
   static int maxIndexNumberToCastShadows();
   int triangleCount() const;
+
+  // visibility
+  void setTransparent(bool isTransparent);
+  bool isTransparent() const { return mIsTransparent; }
 
 signals:
   void changed();
@@ -203,6 +211,7 @@ private:
   WbMatrix3 mOdeOffsetRotation;
 
   bool mPickable;
+  bool mIsTransparent;
 
 private slots:
   virtual void updateBoundingObjectVisibility(int optionalRendering);

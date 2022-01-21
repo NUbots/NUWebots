@@ -26,6 +26,14 @@
 
 void WbTransform::init() {
   mPoseChangedSignalEnabled = false;
+
+  // store position
+  // note: this cannot be put into the preFinalize function because
+  //       of the copy constructor last initialization
+  if (nodeModelName() != "TrackWheel") {
+    mSavedTranslations[stateId()] = translation();
+    mSavedRotations[stateId()] = rotation();
+  }
 }
 
 WbTransform::WbTransform(WbTokenizer *tokenizer) : WbGroup("Transform", tokenizer), WbAbstractTransform(this) {
@@ -52,6 +60,24 @@ WbTransform::~WbTransform() {
     wr_node_delete(WR_NODE(wrenNode()));
 }
 
+void WbTransform::reset(const QString &id) {
+  WbGroup::reset(id);
+  // note: for solids, the set of these parameters has to occur only if mJointParents.size() == 0 and it is handled in
+  // WbSolid::reset, otherwise it breaks the reset of hinge based joints
+  if (nodeType() != WB_NODE_TRACK_WHEEL && !dynamic_cast<WbSolid *>(this)) {
+    setTranslation(mSavedTranslations[id]);
+    setRotation(mSavedRotations[id]);
+  }
+}
+
+void WbTransform::save(const QString &id) {
+  WbGroup::save(id);
+  if (nodeType() != WB_NODE_TRACK_WHEEL) {
+    mSavedTranslations[id] = translation();
+    mSavedRotations[id] = rotation();
+  }
+}
+
 void WbTransform::preFinalize() {
   WbGroup::preFinalize();
 
@@ -66,8 +92,7 @@ void WbTransform::postFinalize() {
   if (!isInBoundingObject())
     connect(this, &WbTransform::translationOrRotationChangedByUser, this, &WbTransform::notifyJerk);
   connect(mRotation, &WbSFRotation::changed, this, &WbTransform::updateRotation);
-  // The following connection may be interesting to add in the future, but it is not used yet.
-  // connect(mRotation, &WbSFRotation::changedByUser, this, &WbTransform::translationOrRotationChangedByUser);
+  connect(mRotation, &WbSFRotation::changedByUser, this, &WbTransform::translationOrRotationChangedByUser);
   connect(mScale, SIGNAL(changed()), this, SLOT(updateScale()));
 }
 

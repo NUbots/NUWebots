@@ -42,6 +42,7 @@ WRAPPER         = $(addprefix $(SWIG_OUTPUT_PATH)/,$(INTERFACE:.i=_wrap.cpp))
 WRAPPER_OBJECT  = $(WRAPPER:.cpp=.o)
 JAR_FILE        = $(WEBOTS_CONTROLLER_LIB_PATH)/java/Controller.jar
 JAVA_FILES      = Accelerometer.java \
+                  Altimeter.java \
                   AnsiCodes.java \
                   Brake.java \
                   Camera.java \
@@ -162,7 +163,7 @@ $(WEBOTS_CONTROLLER_LIB_PATH)/java/$(LIBNAME).dll: $(WRAPPER_OBJECT)
 
 $(JAR_FILE): $(WRAPPER)
 	@echo "# compiling  Java sources"
-	javac -target 1.8 -source 1.8 $(SWIG_OUTPUT_PATH)/*.java -d .
+	javac --release 8 $(SWIG_OUTPUT_PATH)/*.java -d .
 	@echo "# creating   "$@
 	@mkdir -p $(WEBOTS_CONTROLLER_LIB_PATH)/java
 	jar cfv $(JAR_FILE) $(CONTROLLERPATH)/*.class > /dev/null

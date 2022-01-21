@@ -41,7 +41,7 @@ WB_PLUGINS_INCLUDE       = $(QT_CORE_INCLUDE) $(ODE_INCLUDE) -Icore -Imaths -Ino
 WB_ENGINE_INCLUDE        = $(QT_CORE_INCLUDE) $(QT_NETWORK_INCLUDE) $(ODE_INCLUDE) $(WREN_INCLUDE) -Icore -Imaths -Inodes -Inodes/utils -Iplugins -Isound -Iuser_commands -Iutil -Ivrml
 WB_CONTROL_INCLUDE       = $(QT_CORE_INCLUDE) $(QT_NETWORK_INCLUDE) -Icore -Iengine -Imaths -Inodes -Inodes/utils -Iode -Ivrml -Iutil
 # dependency of NODES on QT_GUI is necessary in WbImageTexture to retrieve the size of a texture before loading it in Wren
-WB_NODES_INCLUDE         = $(QT_CORE_INCLUDE) $(QT_GUI_INCLUDE) $(ODE_INCLUDE) $(CONTROLLER_INCLUDE) $(OIS_INCLUDE) $(FREETYPE_INCLUDE) $(WREN_INCLUDE) $(STB_INCLUDE) $(ASSIMP_INCLUDE) -Iapp -Icore -isystem external/siphash -Imaths -Inodes -Inodes/utils -Iode -Iplugins -Isound -Iutil -Ivrml
+WB_NODES_INCLUDE         = $(QT_CORE_INCLUDE) $(QT_NETWORK_INCLUDE) $(QT_GUI_INCLUDE) $(ODE_INCLUDE) $(CONTROLLER_INCLUDE) $(OIS_INCLUDE) $(FREETYPE_INCLUDE) $(WREN_INCLUDE) $(STB_INCLUDE) $(ASSIMP_INCLUDE) -Iapp -Icore -isystem external/siphash -Imaths -Inodes -Inodes/utils -Iode -Iplugins -Isound -Iutil -Ivrml
 WB_APP_INCLUDE           = $(QT_CORE_INCLUDE) $(QT_NETWORK_INCLUDE) $(ODE_INCLUDE) $(WREN_INCLUDE) -Icontrol -Icore -Ieditor -Iengine -Imaths -Inodes -Inodes/utils -Iplugins -Iscene_tree -Ivrml
 WB_SCENE_TREE_INCLUDE    = $(QT_CORE_INCLUDE) $(QT_GUI_INCLUDE) $(QT_WIDGETS_INCLUDE) -isystem external/siphash -Iapp -Icore -Iwidgets -Imaths -Inodes -Inodes/utils -Iode -Iuser_commands -Ivrml
 WB_SOUND_INCLUDE         = $(QT_CORE_INCLUDE) $(QT_XML_INCLUDE) $(ODE_INCLUDE) $(OPENAL_INCLUDE) $(PICO_INCLUDE) -Icore -Imaths -Inodes -Inodes/utils -Isound -Ivrml
@@ -125,7 +125,7 @@ TARGET             = $(WEBOTS_PATH)/bin/webots-bin
 CFLAGS             = -fPIC
 CXXFLAGS           = -std=c++11
 MOC                = $(WEBOTS_PATH)/bin/qt/moc
-LIBS              += $(WEBOTS_DEPENDENCY_PATH)/lua-5.2.3/src/liblua.a $(LIB_WREN) -Wl,-rpath $(WEBOTS_LIB_PATH) -L$(WEBOTS_LIB_PATH) -lQt5Core -lQt5Network -lQt5Gui -lQt5OpenGL -lQt5WebSockets -lQt5Widgets -lQt5PrintSupport -lQt5Qml -lQt5WebEngine -lQt5WebEngineCore -lQt5WebEngineWidgets -lQt5Multimedia -lQt5MultimediaWidgets -lQt5Sql -lQt5Sensors -lQt5WebChannel -lQt5Xml -lopenal -lGL -lusb -lGLU -ldl -lOIS -lcrypto -lpico -lfreetype -lassimp -lrt
+LIBS              += $(WEBOTS_DEPENDENCY_PATH)/lua-5.2.3/src/liblua.a $(LIB_WREN) -Wl,-rpath $(WEBOTS_LIB_PATH) -L$(WEBOTS_LIB_PATH) -lQt5Core -lQt5Network -lQt5Gui -lQt5OpenGL -lQt5WebSockets -lQt5Widgets -lQt5PrintSupport -lQt5Qml -lQt5WebEngine -lQt5WebEngineCore -lQt5WebEngineWidgets -lQt5Multimedia -lQt5MultimediaWidgets -lQt5Sql -lQt5Sensors -lQt5WebChannel -lQt5Xml -lopenal -lGL -lGLU -ldl -lOIS -lcrypto -lpico -lfreetype -lassimp -lrt
 LD_FLAGS           = -rdynamic
 EXTRA_CMD          = cp launcher/webots-linux.sh $(WEBOTS_PATH)/webots && chmod 755 $(WEBOTS_PATH)/webots
 FILES_TO_REMOVE    = $(WEBOTS_PATH)/webots
@@ -237,6 +237,7 @@ QT_SOURCES += \
   WbActionManager.cpp \
   WbAddInertiaMatrixDialog.cpp \
   WbAddNodeDialog.cpp \
+  WbAltimeter.cpp \
   WbAnimationRecorder.cpp \
   WbAppearance.cpp \
   WbApplication.cpp \
@@ -375,6 +376,7 @@ QT_SOURCES += \
   WbProjectRelocationDialog.cpp \
   WbProtoModel.cpp \
   WbProtoTemplateEngine.cpp \
+  WbQjsFile.cpp \
   WbRadar.cpp \
   WbRadio.cpp \
   WbRadioPlugin.cpp \
@@ -637,11 +639,11 @@ launcher/launcher.o: launcher/launcher.rc
 
 $(LAUNCHERW): launcher/launcher.c launcher/launcher.o
 	@echo "# compiling webotsw.exe launcher"
-	@gcc $(CFLAGS) -mwindows -DWEBOTSW launcher/launcher.o launcher/launcher.c -o $@
+	@gcc $(CFLAGS) -mwindows -DWEBOTSW launcher/launcher.o launcher/launcher.c -lshlwapi -o $@
 
 $(LAUNCHER): launcher/launcher.c
 	@echo "# compiling webots.exe launcher"
-	@gcc $(CFLAGS) launcher/launcher.c -o $@
+	@gcc $(CFLAGS) launcher/launcher.c -lshlwapi -o $@
 
 webots.o:gui/webots.rc gui/webots.ico gui/manifest.xml
 	@echo "# compiling gui/"$@

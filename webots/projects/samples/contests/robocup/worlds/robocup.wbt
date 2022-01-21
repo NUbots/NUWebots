@@ -37,12 +37,6 @@ Viewpoint {
   orientation 0.8938498316033444 -0.2697810913064417 -0.35812098698090605 1.4005817359063022
   position -8.658964597484593 -10.448717096347492 4.001015029323764
 }
-TexturedBackground {
-  texture "stadium_dry"
-}
-TexturedBackgroundLight {
-  texture "stadium_dry"
-}
 Robot {
   supervisor TRUE
   controller "referee"
