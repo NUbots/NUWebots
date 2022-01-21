@@ -18,6 +18,7 @@ target_include_directories(collect_vision_data PRIVATE "${PROJECT_SOURCE_DIR}/sh
 target_link_libraries(collect_vision_data PRIVATE webots::webots)
 target_link_libraries(collect_vision_data PRIVATE ${YAML_CPP_LIBRARIES})
 target_link_libraries(collect_vision_data PRIVATE Eigen3::Eigen)
+target_link_libraries(collect_vision_data PRIVATE ${LD_LIBRARY_PATH})
 
 # Generate binary in controller source directory
 set_target_properties(
