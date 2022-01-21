@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
     // Load def argument which will be used to identify the soccer field using the webots getFromDef function
     std::string fieldDef = argv[1];
     // Load def argument which will be used to identify the current robot using the webots getFromDef function
-    std::string selfDef = argv[2];
+    const std::string selfDef = argv[2];
 
     // Load def arguments of other robots in the field into a vector
     std::vector<webots::Node*> robotNodes;
@@ -73,11 +73,11 @@ int main(int argc, char** argv) {
     }
 
     // Get the time step of the current world.
-    int timeStep = int(supervisor.getBasicTimeStep());
+    const int timeStep = int(supervisor.getBasicTimeStep());
 
     // Get the cameras
-    webots::Camera* leftCamera  = supervisor.getCamera("left_camera");
-    webots::Camera* rightCamera = supervisor.getCamera("right_camera");
+    const webots::Camera* leftCamera  = supervisor.getCamera("left_camera");
+    const webots::Camera* rightCamera = supervisor.getCamera("right_camera");
     leftCamera->enable(timeStep);
     rightCamera->enable(timeStep);
     leftCamera->recognitionEnable(timeStep);
@@ -86,8 +86,8 @@ int main(int argc, char** argv) {
     rightCamera->enableRecognitionSegmentation();
 
     // Calculate camera field of view
-    int cameraWidth             = leftCamera->getWidth();
-    int cameraHeight            = leftCamera->getHeight();
+    const int cameraWidth             = leftCamera->getWidth();
+    const int cameraHeight            = leftCamera->getHeight();
     const double cameraDiagonal = std::sqrt(cameraWidth * cameraWidth + cameraHeight * cameraHeight);
     const double horizontalFov  = leftCamera->getFov();
     const double verticalFov    = 2 * std::atan(std::tan(horizontalFov * 0.5) * (double(cameraHeight) / cameraWidth));
@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
 
     // Grab the size of the field from the soccer field proto to restrict the bounds of
     // where the robots can teleport
-    webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
+    const webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
     const double xSize      = fieldNode->getField("xSize")->getSFFloat();
     const double ySize      = fieldNode->getField("ySize")->getSFFloat();
 
@@ -255,11 +255,11 @@ int main(int argc, char** argv) {
         // Run a number of iterations after the robot has moved equal to the value of modulo
         if (moduloCounter % MODULO == 0) {
             //----------GET TRANSLATION OF ROBOT------------//
-            webots::Field* robotTranslationField = supervisor.getFromDef(selfDef)->getField("translation");
+            const webots::Field* robotTranslationField = supervisor.getFromDef(selfDef)->getField("translation");
             const double* robot_position         = robotTranslationField->getSFVec3f();
 
             // ---------GET ROTATION OF ROBOT--------//
-            webots::Field* robotRotationField = supervisor.getFromDef(selfDef)->getField("rotation");
+            const webots::Field* robotRotationField = supervisor.getFromDef(selfDef)->getField("rotation");
             const double* rotation            = robotRotationField->getSFRotation();
 
             /**************************************************************
@@ -321,11 +321,11 @@ int main(int argc, char** argv) {
                 -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
             // Calculate the left and right camera to world transformation matrices
-            Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
-            Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
+            const Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
+            const Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
 
             //-----------SAVE DATA-----------//
-            std::string countPadded = padLeft(count, 7);
+            const std::string countPadded = padLeft(count, 7);
 
             // Save mono images
             leftCamera->saveImage("./data/data_mono/image" + countPadded + ".jpg", QUALITY);
