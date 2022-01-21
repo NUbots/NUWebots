@@ -100,6 +100,24 @@ if(NOT DEFINED WEBOTS_HOME)
   endif()
 endif()
 
+# If LD_LIBRARY_PATH is not already set, set it to the value of the LD_LIBRARY_PATH environment variable. If the environment
+# variable is not defined, then choose some sort of sane default
+if(NOT DEFINED LD_LIBRARY_PATH)
+  if(DEFINED ENV{LD_LIBRARY_PATH})
+    set(LD_LIBRARY_PATH
+        $ENV{LD_LIBRARY_PATH}
+        CACHE PATH "The path to libCppController.so."
+    )
+  else()
+    if(NOT WIN32)
+      set(LD_LIBRARY_PATH
+          "${WEBOTS_HOME}/lib/controller/libCppController.so"
+          CACHE PATH "The path to libCppController.so."
+      )
+    endif()
+  endif()
+endif()
+
 # RPath variables use, i.e. don't skip the full RPATH for the build tree
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 
