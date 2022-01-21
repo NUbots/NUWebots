@@ -39,7 +39,7 @@
 #include <yaml-cpp/yaml.h>
 
 
-std::string padLeft(int number, int width) {
+std::string pad_left(int number, int width) {
     std::stringstream ss;
     ss << std::setw(width) << std::setfill('0') << number;
     return ss.str();
@@ -47,8 +47,6 @@ std::string padLeft(int number, int width) {
 
 
 int main(int argc, char** argv) {
-    // Quality of the images we are saving
-    const int QUALITY = 100;
     // Make sure we have the command line arguments we need. At a minimum we should have the def argument
     // of the robot supervisor. Other arguments are def arguments of robots that should be controlled by
     // this supervisor
@@ -57,48 +55,48 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     // Load def argument which will be used to identify the soccer field using the webots getFromDef function
-    std::string fieldDef = argv[1];
+    std::string field_def = argv[1];
     // Load def argument which will be used to identify the current robot using the webots getFromDef function
-    const std::string selfDef = argv[2];
+    std::string self_def = argv[2];
 
     // Load def arguments of other robots in the field into a vector
-    std::vector<webots::Node*> robotNodes;
+    std::vector<webots::Node*> robot_nodes;
     // Only one supervisor instance can exist in a single controller. As such the same one will be used
     // every time
     webots::Supervisor supervisor = webots::Supervisor();
     for (int i = 2; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
-        robotNodes.emplace_back(supervisor.getFromDef(argv[i]));
+        robot_nodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
 
     // Get the time step of the current world.
-    const int timeStep = int(supervisor.getBasicTimeStep());
+    int time_step = int(supervisor.getBasicTime_step());
 
     // Get the cameras
-    const webots::Camera* leftCamera  = supervisor.getCamera("left_camera");
-    const webots::Camera* rightCamera = supervisor.getCamera("right_camera");
-    leftCamera->enable(timeStep);
-    rightCamera->enable(timeStep);
-    leftCamera->recognitionEnable(timeStep);
-    rightCamera->recognitionEnable(timeStep);
-    leftCamera->enableRecognitionSegmentation();
-    rightCamera->enableRecognitionSegmentation();
+    webots::Camera* left_camera  = supervisor.getCamera("left_camera");
+    webots::Camera* right_camera = supervisor.getCamera("right_camera");
+    left_camera->enable(time_step);
+    right_camera->enable(time_step);
+    left_camera->recognitionEnable(time_step);
+    right_camera->recognitionEnable(time_step);
+    left_camera->enableRecognitionSegmentation();
+    right_camera->enableRecognitionSegmentation();
 
     // Calculate camera field of view
-    const int cameraWidth             = leftCamera->getWidth();
-    const int cameraHeight            = leftCamera->getHeight();
-    const double cameraDiagonal = std::sqrt(cameraWidth * cameraWidth + cameraHeight * cameraHeight);
-    const double horizontalFov  = leftCamera->getFov();
-    const double verticalFov    = 2 * std::atan(std::tan(horizontalFov * 0.5) * (double(cameraHeight) / cameraWidth));
-    const double focalLengthPx  = 0.5 * cameraHeight / std::tan(verticalFov / 2.0);
-    const double diagonalFov    = 2 * std::atan(cameraDiagonal / (2 * focalLengthPx));
+    int camera_width             = left_camera->getWidth();
+    int camera_height            = left_camera->getHeight();
+    const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
+    const double horizontal_fov  = left_camera->getFov();
+    const double vertical_fov    = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
+    const double focal_length_px  = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
+    const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
 
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
     // Get a handle to our head and neck motors
-    webots::Motor* neckYaw   = supervisor.getMotor("neck_yaw");
+    webots::Motor* neck_yaw   = supervisor.getMotor("neck_yaw");
     webots::Motor* headPitch = supervisor.getMotor("head_pitch");
-    webots::PositionSensor* neckYawSensor   = supervisor.getPositionSensor("neck_yaw_sensor");
-    webots::PositionSensor* headPitchSensor = supervisor.getPositionSensor("head_pitch_sensor");
+    webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
+    webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
     // Get a handle to or shoulder motors
     webots::Motor* right_shoulder_pitch     = supervisor.getMotor("right_shoulder_pitch [shoulder]");
     webots::Motor* left_shoulder_pitch      = supervisor.getMotor("left_shoulder_pitch [shoulder]");
@@ -106,8 +104,8 @@ int main(int argc, char** argv) {
     webots::Motor* right_elbow      = supervisor.getMotor("right_elbow_pitch");
 
 
-    neckYawSensor->enable(timeStep);
-    headPitchSensor->enable(timeStep);
+    neck_yaw_sensor->enable(time_step);
+    head_pitch_sensor->enable(time_step);
 
 
     // Create directories for saving data
@@ -118,14 +116,17 @@ int main(int argc, char** argv) {
 
     // AxisAngle rotations will be read from a config file and saved here
     std::vector<std::array<double, 4>> rotations;
-    double minDistance = 0.0;
-    double zHeight     = 0.0;
+    double min_distance = 0.0;
+    double z_height     = 0.0;
+    int image_quality = 0;
+
     // Load config file
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
-        minDistance       = config["minDistance"].as<double>();
-        zHeight           = config["zHeight"].as<double>();
+        min_distance       = config["min_distance"].as<double>();
+        z_height           = config["z_height"].as<double>();
+        image_quality = config["image_quality"].as<double>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -142,124 +143,124 @@ int main(int argc, char** argv) {
 
     // Grab the size of the field from the soccer field proto to restrict the bounds of
     // where the robots can teleport
-    const webots::Node* fieldNode = supervisor.getFromDef(fieldDef);
-    const double xSize      = fieldNode->getField("xSize")->getSFFloat();
-    const double ySize      = fieldNode->getField("ySize")->getSFFloat();
+    webots::Node* field_node = supervisor.getFromDef(field_def);
+    const double x_size      = field_node->getField("x_size")->getSFFloat();
+    const double y_size      = field_node->getField("y_size")->getSFFloat();
 
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 
     // Generate distributions for random number systems in the following loop
-    std::uniform_real_distribution<> xDistrib(-xSize * 0.5, xSize * 0.5);
-    std::uniform_real_distribution<> yDistrib(-ySize * 0.5, ySize * 0.5);
+    std::uniform_real_distribution<> x_distrib(-x_size * 0.5, x_size * 0.5);
+    std::uniform_real_distribution<> y_distrib(-y_size * 0.5, y_size * 0.5);
     // The RNG for the index of the rotation selected this round
-    std::uniform_int_distribution<size_t> rotDistrib(0, rotations.size() - 1);
+    std::uniform_int_distribution<size_t> rot_distrib(0, rotations.size() - 1);
     // Move servos in the range [-PI/2, PI/2]
-    std::uniform_real_distribution<> headPitchDistrib(0.0, 1.0);
-    std::uniform_real_distribution<> neckYawDistrib(-M_PI_2, M_PI_2);
-    std::uniform_real_distribution<> shoulderDistrib(0, M_PI_2);
-    std::uniform_real_distribution<> elbowDistrib(-M_PI_2, 0);
+    std::uniform_real_distribution<> head_pitch_distrib(0.0, 1.0);
+    std::uniform_real_distribution<> neck_yaw_distrib(-M_PI_2, M_PI_2);
+    std::uniform_real_distribution<> shoulder_distrib(0, M_PI_2);
+    std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0);
     
     // In order to remove blurry images, images will only be saved on a disjointed
-    // number of timesteps using a modulo operation
-    int moduloCounter    = 0;
+    // number of time_steps using a modulo operation
+    int modulo_counter    = 0;
     constexpr int MODULO = 3;
 
-    while (supervisor.step(timeStep) != -1) {
-        moduloCounter++;
+    while (supervisor.step(time_step) != -1) {
+        modulo_counter++;
         // Reset physics of the robot running this controller to stabilise the image
-        supervisor.getFromDef(selfDef)->resetPhysics();
+        supervisor.getFromDef(self_def)->resetPhysics();
 
         // Move the robot on the iteration immediately after saving an image
-        if (moduloCounter % MODULO == 1) {
+        if (modulo_counter % MODULO == 1) {
             //-----------TRANSLATE ROBOTS-----------//
 
             // Declare a vector of positions that will be saved as they are randomly generated, to be later
             // applied to each robot
             std::vector<std::array<double, 3>> positions;
             // Loop through every robot
-            for (auto& robots : robotNodes) {
+            for (auto& robots : robot_nodes) {
                 // Assume there is no collision
                 bool collision = false;
-                // newPos will be a "Proposed location" for a robot to teleport to
-                std::array<double, 3> newPos{};
+                // new_pos will be a "Proposed location" for a robot to teleport to
+                std::array<double, 3> new_pos{};
                 do {
                     collision = false;
                     // Generate a new random location
-                    newPos[0] = xDistrib(gen);
-                    newPos[1] = yDistrib(gen);
+                    new_pos[0] = x_distrib(gen);
+                    new_pos[1] = y_distrib(gen);
 
                     if (robots->getTypeName() == "RobocupSoccerBall") {
-                        newPos[2] = 0.08;
+                        new_pos[2] = 0.08;
                     }
                     else if (robots->getTypeName() == "Darwin-opHinge2Seg") {
-                        newPos[2] = 0.24;
+                        new_pos[2] = 0.24;
                     }
                     else if (robots->getTypeName() == "RobotisOP3") {
-                        newPos[2] = 0.29;
+                        new_pos[2] = 0.29;
                     }
                     else if (robots->getTypeName() == "Wolfgang") {
-                        newPos[2] = 0.45;
+                        new_pos[2] = 0.45;
                     }
                     else {
-                        newPos[2] = zHeight;
+                        new_pos[2] = z_height;
                     }
 
                     // Loop through the vector of existing proposed locations and see if the new one is going to
                     // collide with any of them
                     for (const auto& testPos : positions) {
                         const double distance =
-                            std::sqrt(std::pow((newPos[1] - testPos[1]), 2) + std::pow((newPos[0] - testPos[0]), 2));
-                        if (distance < minDistance) {
+                            std::sqrt(std::pow((new_pos[1] - testPos[1]), 2) + std::pow((new_pos[0] - testPos[0]), 2));
+                        if (distance < min_distance) {
                             collision = true;
                         }
                     }
                     // Loop until a proposed location has been found that doesn't clash with the existing ones
                 } while (collision);
                 // Finally add the proposed location in as a confirmed position
-                positions.emplace_back(newPos);
+                positions.emplace_back(new_pos);
             }
 
             // Loop through every robot
-            for (size_t i = 0; i < robotNodes.size(); i++) {
+            for (size_t i = 0; i < robot_nodes.size(); i++) {
                 // Grab translation field of the robot to modify
                 // There will be a position for every robot in the positions vector
-                robotNodes[i]->getField("translation")->setSFVec3f(positions[i].data());
+                robot_nodes[i]->getField("translation")->setSFVec3f(positions[i].data());
                 // Apply new rotation
-                robotNodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rotDistrib(gen))].data());
+                robot_nodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rot_distrib(gen))].data());
 
                 // Reset physics to avoid robot tearing itself apart
-                robotNodes[i]->resetPhysics();
+                robot_nodes[i]->resetPhysics();
             }
             // Set random positions for the head and neck servos
-            const double neckYawPosition         = neckYawDistrib(gen);
-            const double headPitchPosition       = headPitchDistrib(gen);
-            const double right_shoulder_position = shoulderDistrib(gen);
-            const double left_shoulder_position  = shoulderDistrib(gen);
-            const double right_elbow_position = elbowDistrib(gen);
-            const double left_elbow_position  = elbowDistrib(gen);
+            const double neck_yaw_position         = neck_yaw_distrib(gen);
+            const double head_pitch_position       = head_pitch_distrib(gen);
+            const double right_shoulder_position = shoulder_distrib(gen);
+            const double left_shoulder_position  = shoulder_distrib(gen);
+            const double right_elbow_position = elbow_distrib(gen);
+            const double left_elbow_position  = elbow_distrib(gen);
 
-            neckYaw->setPosition(neckYawPosition);
-            headPitch->setPosition(headPitchPosition);
+            neck_yaw->setPosition(neck_yaw_position);
+            headPitch->setPosition(head_pitch_position);
             right_shoulder_pitch->setPosition(right_shoulder_position);
             left_shoulder_pitch->setPosition(left_shoulder_position);
             right_elbow->setPosition(right_elbow_position);
             left_elbow->setPosition(left_elbow_position);
 
             // Update physics step enough that the motors will move
-            supervisor.step(timeStep * 20);
+            supervisor.step(time_step * 20);
         }
 
         // Run a number of iterations after the robot has moved equal to the value of modulo
-        if (moduloCounter % MODULO == 0) {
+        if (modulo_counter % MODULO == 0) {
             //----------GET TRANSLATION OF ROBOT------------//
-            const webots::Field* robotTranslationField = supervisor.getFromDef(selfDef)->getField("translation");
-            const double* robot_position         = robotTranslationField->getSFVec3f();
+            webots::Field* robot_translation_field = supervisor.getFromDef(self_def)->getField("translation");
+            const double* robot_position         = robot_translation_field->getSFVec3f();
 
             // ---------GET ROTATION OF ROBOT--------//
-            const webots::Field* robotRotationField = supervisor.getFromDef(selfDef)->getField("rotation");
-            const double* rotation            = robotRotationField->getSFRotation();
+            webots::Field* robot_rotation_field = supervisor.getFromDef(self_def)->getField("rotation");
+            const double* rotation            = robot_rotation_field->getSFRotation();
 
             /**************************************************************
              * From the NUbots repo                                       *
@@ -277,7 +278,7 @@ int main(int argc, char** argv) {
             // Rotate to face out of base of neck
             Htx = Htx.rotate(Eigen::AngleAxisd(-M_PI_2, Eigen::Vector3d::UnitY()));
             // Rotate head in yaw axis
-            Htx = Htx.rotate(Eigen::AngleAxisd(neckYawSensor->getValue(), Eigen::Vector3d::UnitX()));
+            Htx = Htx.rotate(Eigen::AngleAxisd(neck_yaw_sensor->getValue(), Eigen::Vector3d::UnitX()));
             // Translate to top of neck (i.e. next motor axle)
             Htx = Htx.translate(Eigen::Vector3d(NECK_LENGTH, 0.0, 0.0));
 
@@ -288,7 +289,7 @@ int main(int argc, char** argv) {
             // Rotate to face forward direction of neck
             Htx = Htx.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitY()));
             // Rotate pitch
-            Htx = Htx.rotate(Eigen::AngleAxisd(headPitchSensor->getValue(), Eigen::Vector3d::UnitY()));
+            Htx = Htx.rotate(Eigen::AngleAxisd(head_pitch_sensor->getValue(), Eigen::Vector3d::UnitY()));
             // PITCH
             // Return basis pointing along camera vector (ie x is camera vector, z out of top of head). Pos at
             // camera position
@@ -320,84 +321,84 @@ int main(int argc, char** argv) {
                 -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
             // Calculate the left and right camera to world transformation matrices
-            const Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
-            const Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
+            Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
+            Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
 
             //-----------SAVE DATA-----------//
-            const std::string countPadded = padLeft(count, 7);
+            std::string count_padded = pad_left(count, 7);
 
             // Save mono images
-            leftCamera->saveImage("./data/data_mono/image" + countPadded + ".jpg", QUALITY);
-            leftCamera->saveRecognitionSegmentationImage("./data/data_mono/image" + countPadded + "_mask.png", QUALITY);
+            left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", image_quality);
+            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", image_quality);
             // Save stereo images
-            leftCamera->saveImage("./data/data_stereo/image" + countPadded + "_L.jpg", QUALITY);
-            rightCamera->saveImage("./data/data_stereo/image" + countPadded + "_R.jpg", QUALITY);
-            leftCamera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + countPadded + "_L.png", QUALITY);
-            rightCamera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + countPadded + "_R.png", QUALITY);
+            left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", image_quality);
+            right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", image_quality);
+            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", image_quality);
+            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png", image_quality);
 
             // Prepare the mono lens data
-            YAML::Emitter monoLens;
-            monoLens << YAML::BeginMap;
-            monoLens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            monoLens << YAML::Key << "focal_length" << YAML::Value << focalLengthPx;
-            monoLens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            monoLens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            monoLens << YAML::Key << "fov" << YAML::Value << diagonalFov;
-            monoLens << YAML::Key << "Hoc" << YAML::Value;
-            monoLens << YAML::BeginSeq;
-            monoLens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
-            monoLens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
-            monoLens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
-            monoLens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
-            monoLens << YAML::EndSeq;
-            monoLens << YAML::EndMap;
+            YAML::Emitter mono_lens;
+            mono_lens << YAML::BeginMap;
+            mono_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            mono_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            mono_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            mono_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            mono_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            mono_lens << YAML::Key << "Hoc" << YAML::Value;
+            mono_lens << YAML::BeginSeq;
+            mono_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+            mono_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+            mono_lens << YAML::EndSeq;
+            mono_lens << YAML::EndMap;
 
             // Write the mono lens data
-            std::ofstream ofsMono("./data/data_mono/lens" + countPadded + ".yaml");
-            ofsMono << monoLens.c_str();
-            ofsMono.close();
+            std::ofstream ofs_mono("./data/data_mono/lens" + count_padded + ".yaml");
+            ofs_mono << mono_lens.c_str();
+            ofs_mono.close();
 
             // Prepare the stereo lens data
-            YAML::Emitter stereoLens;
-            stereoLens << YAML::BeginMap;
+            YAML::Emitter stereo_lens;
+            stereo_lens << YAML::BeginMap;
 
-            stereoLens << YAML::Key << "left";
-            stereoLens << YAML::BeginMap;
-            stereoLens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            stereoLens << YAML::Key << "focal_length" << YAML::Value << focalLengthPx;
-            stereoLens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereoLens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereoLens << YAML::Key << "fov" << YAML::Value << diagonalFov;
-            stereoLens << YAML::Key << "Hoc" << YAML::Value;
-            stereoLens << YAML::BeginSeq;
-            stereoLens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
-            stereoLens << YAML::EndSeq;
-            stereoLens << YAML::EndMap;
+            stereo_lens << YAML::Key << "left";
+            stereo_lens << YAML::BeginMap;
+            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+            stereo_lens << YAML::BeginSeq;
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(0, 0), Hwc_l(0, 1), Hwc_l(0, 2), Hwc_l(0, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(1, 0), Hwc_l(1, 1), Hwc_l(1, 2), Hwc_l(1, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
+            stereo_lens << YAML::EndSeq;
+            stereo_lens << YAML::EndMap;
 
-            stereoLens << YAML::Key << "right";
-            stereoLens << YAML::BeginMap;
-            stereoLens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
-            stereoLens << YAML::Key << "focal_length" << YAML::Value << focalLengthPx;
-            stereoLens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereoLens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
-            stereoLens << YAML::Key << "fov" << YAML::Value << diagonalFov;
-            stereoLens << YAML::Key << "Hoc" << YAML::Value;
-            stereoLens << YAML::BeginSeq;
-            stereoLens << YAML::Flow << std::vector({Hwc_r(0, 0), Hwc_r(0, 1), Hwc_r(0, 2), Hwc_r(0, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_r(1, 0), Hwc_r(1, 1), Hwc_r(1, 2), Hwc_r(1, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_r(2, 0), Hwc_r(2, 1), Hwc_r(2, 2), Hwc_r(2, 3)});
-            stereoLens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
-            stereoLens << YAML::EndSeq;
-            stereoLens << YAML::EndMap;
-            stereoLens << YAML::EndMap;
+            stereo_lens << YAML::Key << "right";
+            stereo_lens << YAML::BeginMap;
+            stereo_lens << YAML::Key << "projection" << YAML::Value << "RECTILINEAR";
+            stereo_lens << YAML::Key << "focal_length" << YAML::Value << focal_length_px;
+            stereo_lens << YAML::Key << "centre" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "k" << YAML::Flow << YAML::BeginSeq << 0 << 0 << YAML::EndSeq;
+            stereo_lens << YAML::Key << "fov" << YAML::Value << diagonal_fov;
+            stereo_lens << YAML::Key << "Hoc" << YAML::Value;
+            stereo_lens << YAML::BeginSeq;
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(0, 0), Hwc_r(0, 1), Hwc_r(0, 2), Hwc_r(0, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(1, 0), Hwc_r(1, 1), Hwc_r(1, 2), Hwc_r(1, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(2, 0), Hwc_r(2, 1), Hwc_r(2, 2), Hwc_r(2, 3)});
+            stereo_lens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
+            stereo_lens << YAML::EndSeq;
+            stereo_lens << YAML::EndMap;
+            stereo_lens << YAML::EndMap;
 
             // Write the stereo lens data
-            std::ofstream ofsStereo("./data/data_stereo/lens" + countPadded + ".yaml");
-            ofsStereo << stereoLens.c_str();
-            ofsStereo.close();
+            std::ofstream ofs_stereo("./data/data_stereo/lens" + count_padded + ".yaml");
+            ofs_stereo << stereo_lens.c_str();
+            ofs_stereo.close();
 
             count++;
         }
