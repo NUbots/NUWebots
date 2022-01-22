@@ -157,8 +157,8 @@ int main(int argc, char** argv) {
     // Move servos in the range [-PI/2, PI/2]
     std::uniform_real_distribution<> head_pitch_distrib(0.0, 1.0);
     std::uniform_real_distribution<> neck_yaw_distrib(-M_PI_2, M_PI_2);
-    std::uniform_real_distribution<> shoulder_distrib(0, M_PI_2);
-    std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0);
+    std::uniform_real_distribution<> shoulder_distrib(0.0, M_PI_2);
+    std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0.0);
     
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of time_steps using a modulo operation
