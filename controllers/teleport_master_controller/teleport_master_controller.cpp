@@ -144,8 +144,8 @@ int main(int argc, char** argv) {
     // Grab the size of the field from the soccer field proto to restrict the bounds of
     // where the robots can teleport
     webots::Node* field_node = supervisor.getFromDef(field_def);
-    const double x_size      = field_node->getField("x_size")->getSFFloat();
-    const double y_size      = field_node->getField("y_size")->getSFFloat();
+    const double x_size      = field_node->getField("xSize")->getSFFloat();
+    const double y_size      = field_node->getField("ySize")->getSFFloat();
 
     // Generate random seed
     std::random_device rd;   // Will be used to obtain a seed for the random number engine
