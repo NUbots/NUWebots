@@ -55,9 +55,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     // Load def argument which will be used to identify the soccer field using the webots getFromDef function
-    std::string field_def = argv[1];
+    const std::string field_def = argv[1];
     // Load def argument which will be used to identify the current robot using the webots getFromDef function
-    std::string self_def = argv[2];
+    const std::string self_def = argv[2];
 
     // Load def arguments of other robots in the field into a vector
     std::vector<webots::Node*> robot_nodes;
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     // Get the time step of the current world.
     int time_step = int(supervisor.getBasicTimeStep());
 
-    // Get the cameras
+    // Get the cameras, set their update time step and enable segmentation
     webots::Camera* left_camera  = supervisor.getCamera("left_camera");
     webots::Camera* right_camera = supervisor.getCamera("right_camera");
     left_camera->enable(time_step);
@@ -83,8 +83,8 @@ int main(int argc, char** argv) {
     right_camera->enableRecognitionSegmentation();
 
     // Calculate camera field of view
-    int camera_width             = left_camera->getWidth();
-    int camera_height            = left_camera->getHeight();
+    const int camera_width             = left_camera->getWidth();
+    const int camera_height            = left_camera->getHeight();
     const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
     const double horizontal_fov  = left_camera->getFov();
     const double vertical_fov    = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     //-----------GET HANDLES TO NODES AND SERVOS-----------//
     // Get a handle to our head and neck motors
     webots::Motor* neck_yaw   = supervisor.getMotor("neck_yaw");
-    webots::Motor* headPitch = supervisor.getMotor("head_pitch");
+    webots::Motor* head_pitch = supervisor.getMotor("head_pitch");
     webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
     // Get a handle to or shoulder motors
@@ -103,10 +103,8 @@ int main(int argc, char** argv) {
     webots::Motor* left_elbow      = supervisor.getMotor("left_elbow_pitch");
     webots::Motor* right_elbow      = supervisor.getMotor("right_elbow_pitch");
 
-
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
-
 
     // Create directories for saving data
     std::filesystem::create_directories("./data/data_mono");
@@ -115,7 +113,7 @@ int main(int argc, char** argv) {
     int count = 0;
 
     // AxisAngle rotations will be read from a config file and saved here
-    std::vector<std::array<double, 4>> rotations;
+    std::vector<std::array<double, 4>> rotations = {};
     double min_distance = 0.0;
     double z_height     = 0.0;
     int image_quality = 0;
@@ -242,7 +240,7 @@ int main(int argc, char** argv) {
             const double left_elbow_position  = elbow_distrib(gen);
 
             neck_yaw->setPosition(neck_yaw_position);
-            headPitch->setPosition(head_pitch_position);
+            head_pitch->setPosition(head_pitch_position);
             right_shoulder_pitch->setPosition(right_shoulder_position);
             left_shoulder_pitch->setPosition(left_shoulder_position);
             right_elbow->setPosition(right_elbow_position);
