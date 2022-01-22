@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
             // applied to each robot
             std::vector<std::array<double, 3>> positions;
             // Loop through every robot
-            for (auto& robots : robot_nodes) {
+            for (auto& robot : robot_nodes) {
                 // Assume there is no collision
                 bool collision = false;
                 // new_pos will be a "Proposed location" for a robot to teleport to
@@ -188,22 +188,7 @@ int main(int argc, char** argv) {
                     // Generate a new random location
                     new_pos[0] = x_distrib(gen);
                     new_pos[1] = y_distrib(gen);
-
-                    if (robots->getTypeName() == "RobocupSoccerBall") {
-                        new_pos[2] = 0.08;
-                    }
-                    else if (robots->getTypeName() == "Darwin-opHinge2Seg") {
-                        new_pos[2] = 0.24;
-                    }
-                    else if (robots->getTypeName() == "RobotisOP3") {
-                        new_pos[2] = 0.29;
-                    }
-                    else if (robots->getTypeName() == "Wolfgang") {
-                        new_pos[2] = 0.45;
-                    }
-                    else {
-                        new_pos[2] = z_height;
-                    }
+                    new_pos[2] = robot->getField("height");
 
                     // Loop through the vector of existing proposed locations and see if the new one is going to
                     // collide with any of them

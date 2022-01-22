@@ -38,7 +38,8 @@ PROTO Wolfgang [
   field  SFFloat     spring-constant 0.76
   field  SFVec3f     pid             10 0 0
   field  SFFloat     encoderResolution 0.00153398078
-  field  MFColor     recognitionColors 0 0 1  # blue segmentation
+  field  MFColor     recognitionColors [0 0 1]  # blue segmentation
+  field  SFFloat     height            0.45   # Height of the robot from ground to center 
 ]
 {
   Robot {
@@ -50,9 +51,9 @@ PROTO Wolfgang [
     supervisor IS supervisor
     synchronization IS synchronization
     selfCollision IS selfCollision
-    recognitionColors [
-      0.2 0.2 0.2
-    ]
+    recognitionColors IS recognitionColors
+    height IS height
+
     %{
       if fields.name.value ~= '' then
         local color = "none"
