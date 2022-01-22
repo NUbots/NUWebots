@@ -52,7 +52,6 @@ PROTO Wolfgang [
     synchronization IS synchronization
     selfCollision IS selfCollision
     recognitionColors IS recognitionColors
-    height IS height
 
     %{
       if fields.name.value ~= '' then

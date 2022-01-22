@@ -43,5 +43,4 @@ rotations:
     - 0.785398
 
 min_distance: 0.5
-z_height: 0.51
 image_quality: 100

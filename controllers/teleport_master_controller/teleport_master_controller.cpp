@@ -115,7 +115,6 @@ int main(int argc, char** argv) {
     // AxisAngle rotations will be read from a config file and saved here
     std::vector<std::array<double, 4>> rotations = {};
     double min_distance = 0.0;
-    double z_height     = 0.0;
     int image_quality = 0;
 
     // Load config file
@@ -123,7 +122,6 @@ int main(int argc, char** argv) {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
         min_distance       = config["min_distance"].as<double>();
-        z_height           = config["z_height"].as<double>();
         image_quality = config["image_quality"].as<int>();
     }
     catch (const YAML::BadFile& e) {
@@ -188,7 +186,7 @@ int main(int argc, char** argv) {
                     // Generate a new random location
                     new_pos[0] = x_distrib(gen);
                     new_pos[1] = y_distrib(gen);
-                    new_pos[2] = robot->getField("height");
+                    new_pos[2] = robot->getField("height")->getSFFloat();
 
                     // Loop through the vector of existing proposed locations and see if the new one is going to
                     // collide with any of them
