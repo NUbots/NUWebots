@@ -90,8 +90,8 @@ int main(int argc, char** argv) {
     const int camera_height      = left_camera->getHeight();
     const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
     const double horizontal_fov  = left_camera->getFov();
-    const double vertical_fov    = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
-    const double focal_length_px  = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
+    const double vertical_fov = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
+    const double focal_length_px = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
     const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
 
     // GET HANDLES TO NODES AND SERVOS
@@ -103,10 +103,10 @@ int main(int argc, char** argv) {
     webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
     // Get a handle to or shoulder motors
-    webots::Motor* right_shoulder_pitch     = supervisor.getMotor("right_shoulder_pitch [shoulder]");
-    webots::Motor* left_shoulder_pitch      = supervisor.getMotor("left_shoulder_pitch [shoulder]");
-    webots::Motor* left_elbow      = supervisor.getMotor("left_elbow_pitch");
-    webots::Motor* right_elbow      = supervisor.getMotor("right_elbow_pitch");
+    webots::Motor* right_shoulder_pitch = supervisor.getMotor("right_shoulder_pitch [shoulder]");
+    webots::Motor* left_shoulder_pitch  = supervisor.getMotor("left_shoulder_pitch [shoulder]");
+    webots::Motor* left_elbow           = supervisor.getMotor("left_elbow_pitch");
+    webots::Motor* right_elbow          = supervisor.getMotor("right_elbow_pitch");
 
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
@@ -149,8 +149,8 @@ int main(int argc, char** argv) {
     const double y_size      = field_node->getField("ySize")->getSFFloat();
 
     // Generate random seed
-    std::random_device rd;  // will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd()); // standard mersenne_twister_engine seeded with rd()
+    std::random_device rd;   // will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd());  // standard mersenne_twister_engine seeded with rd()
 
     // Generate distributions for random number systems
     std::uniform_real_distribution<> x_distrib(-x_size * 0.5, x_size * 0.5);  // robot's x position on the field
@@ -202,9 +202,7 @@ int main(int argc, char** argv) {
                     for (const auto& testPos : positions) {
                         const double distance =
                             std::sqrt(std::pow((new_pos[1] - testPos[1]), 2) + std::pow((new_pos[0] - testPos[0]), 2));
-                        if (distance < min_distance) {
-                            collision = true;
-                        }
+                        collision = distance < min_distance ? true : collision;
                     }
                     // Loop until a proposed location has been found that doesn't clash with the existing ones
                 } while (collision);
@@ -240,17 +238,16 @@ int main(int argc, char** argv) {
         else if (modulo_counter == 0) {
             // GET TRANSLATION AND ROTATION OF ROBOT
             webots::Field* robot_translation_field = supervisor.getFromDef(self_def)->getField("translation");
-            const double* robot_position         = robot_translation_field->getSFVec3f();
-
-            // ---------GET ROTATION OF ROBOT--------//
-            webots::Field* robot_rotation_field = supervisor.getFromDef(self_def)->getField("rotation");
-            const double* rotation            = robot_rotation_field->getSFRotation();
+            const double* robot_position           = robot_translation_field->getSFVec3f();
+            webots::Field* robot_rotation_field    = supervisor.getFromDef(self_def)->getField("rotation");
+            const double* rotation                 = robot_rotation_field->getSFRotation();
 
             /**************************************************************
              * From the NUbots repo                                       *
              * File: ForwardKinematics.hpp                                *
              * Function: calculateHeadJointPosition                       *
              **************************************************************/
+            // CALCULATE FORWARD KINEMATICS
             Eigen::Affine3d Htx = Eigen::Affine3d::Identity();
 
             // From Kinematics Configuration
@@ -266,17 +263,10 @@ int main(int argc, char** argv) {
             // Translate to top of neck (i.e. next motor axle)
             Htx = Htx.translate(Eigen::Vector3d(NECK_LENGTH, 0.0, 0.0));
 
-            // YAW
-            // Return the basis pointing out of the top of the torso with z pointing out the back of the neck. Pos
-            // is top of neck (at hip pitch motor)
-
             // Rotate to face forward direction of neck
             Htx = Htx.rotate(Eigen::AngleAxisd(M_PI_2, Eigen::Vector3d::UnitY()));
             // Rotate pitch
             Htx = Htx.rotate(Eigen::AngleAxisd(head_pitch_sensor->getValue(), Eigen::Vector3d::UnitY()));
-            // PITCH
-            // Return basis pointing along camera vector (ie x is camera vector, z out of top of head). Pos at
-            // camera position
 
             /**************************************************************
              * From the NUbots repo                                       *
@@ -296,7 +286,7 @@ int main(int argc, char** argv) {
                             0.0,                   0.0,                   0.0,                  1.0;
             // clang-format on
 
-            // Htw
+            // Get world to torso transform
             Eigen::Affine3d Htw = Eigen::Affine3d::Identity();
             Htw.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
                                .toRotationMatrix()
@@ -313,12 +303,15 @@ int main(int argc, char** argv) {
 
             // Save mono images
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", image_quality);
-            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png", image_quality);
+            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
+                                                          image_quality);
             // Save stereo images
             left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", image_quality);
             right_camera->saveImage("./data/data_stereo/image" + count_padded + "_R.jpg", image_quality);
-            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png", image_quality);
-            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png", image_quality);
+            left_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_L.png",
+                                                          image_quality);
+            right_camera->saveRecognitionSegmentationImage("./data/data_stereo/mask" + count_padded + "_R.png",
+                                                           image_quality);
 
             // Prepare the mono lens data
             YAML::Emitter mono_lens;
