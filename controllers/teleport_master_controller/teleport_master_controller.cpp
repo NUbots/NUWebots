@@ -38,7 +38,8 @@
 #include <webots/Supervisor.hpp>
 #include <yaml-cpp/yaml.h>
 
-
+// Create a string padded with 0's on the left and the given number on the right
+// This is used to create file names
 std::string pad_left(int number, int width) {
     std::stringstream ss;
     ss << std::setw(width) << std::setfill('0') << number;
@@ -47,6 +48,7 @@ std::string pad_left(int number, int width) {
 
 
 int main(int argc, char** argv) {
+    // COMMAND LINE ARGUMENTS
     // Make sure we have the command line arguments we need. At a minimum we should have the def argument
     // of the robot supervisor. Other arguments are def arguments of robots that should be controlled by
     // this supervisor
@@ -59,6 +61,7 @@ int main(int argc, char** argv) {
     // Load def argument which will be used to identify the current robot using the webots getFromDef function
     const std::string self_def = argv[2];
 
+    // GET SUPERVISOR, ROBOTS AND TIME STEP
     // Load def arguments of other robots in the field into a vector
     std::vector<webots::Node*> robot_nodes;
     // Only one supervisor instance can exist in a single controller. As such the same one will be used
@@ -72,6 +75,7 @@ int main(int argc, char** argv) {
     // Get the time step of the current world.
     int time_step = int(supervisor.getBasicTimeStep());
 
+    // GET AND ENABLE CAMERAS AND CALCULATE CAMERA PROPERTIES
     // Get the cameras, set their update time step and enable segmentation
     webots::Camera* left_camera  = supervisor.getCamera("left_camera");
     webots::Camera* right_camera = supervisor.getCamera("right_camera");
@@ -91,10 +95,12 @@ int main(int argc, char** argv) {
     const double focal_length_px  = 0.5 * camera_height / std::tan(vertical_fov / 2.0);
     const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
 
-    //-----------GET HANDLES TO NODES AND SERVOS-----------//
-    // Get a handle to our head and neck motors
+    // GET HANDLES TO NODES AND SERVOS
+    // Get a handle to specific motors that will be changed later
     webots::Motor* neck_yaw   = supervisor.getMotor("neck_yaw");
     webots::Motor* head_pitch = supervisor.getMotor("head_pitch");
+    // Get sensors so that their joint angle can be retrieved when determining the camera to world transform
+    // This transform is created and saved later when the data is saved
     webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
     webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
     // Get a handle to or shoulder motors
@@ -106,18 +112,18 @@ int main(int argc, char** argv) {
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
 
+    // SET UP DATA DIRECTORIES
     // Create directories for saving data
-    std::filesystem::create_directories("./data/data_mono");
-    std::filesystem::create_directories("./data/data_stereo");
-    // Counter for saving images
-    int count = 0;
+    std::filesystem::create_directories("./data/data_mono");    // single camera dataset
+    std::filesystem::create_directories("./data/data_stereo");  // two camera dataset
+    int count = 0;                                              // counter for saving images
 
-    // AxisAngle rotations will be read from a config file and saved here
-    std::vector<std::array<double, 4>> rotations = {};
-    double min_distance = 0.0;
-    int image_quality = 0;
+    // GET CONFIGURATION VALUES
+    // Configuration values that will be loaded in from a yaml file
+    double min_distance = 0.0;  // minimum distance allowed between robots
+    int image_quality   = 0;    // quality of the saved image [0,100]
 
-    // Load config file
+    // Load config file and handle errors
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
         rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
@@ -137,6 +143,7 @@ int main(int argc, char** argv) {
         return 3;
     }
 
+    // GET RANDOM DISTRIBUTIONS FOR ROBOT LOCATION AND POSES
     // Grab the size of the field from the soccer field proto to restrict the bounds of
     // where the robots can teleport
     webots::Node* field_node = supervisor.getFromDef(field_def);
@@ -144,7 +151,7 @@ int main(int argc, char** argv) {
     const double y_size      = field_node->getField("ySize")->getSFFloat();
 
     // Generate random seed
-    std::random_device rd;   // Will be used to obtain a seed for the random number engine
+    std::random_device rd;    // will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
 
     // Generate distributions for random number systems in the following loop
@@ -176,6 +183,7 @@ int main(int argc, char** argv) {
             // applied to each robot
             std::vector<std::array<double, 3>> positions;
             // Loop through every robot
+            // Loop through every robot and find valid teleport locations
             for (auto& robot : robot_nodes) {
                 // Assume there is no collision
                 bool collision = false;
@@ -203,7 +211,7 @@ int main(int argc, char** argv) {
                 positions.emplace_back(new_pos);
             }
 
-            // Loop through every robot
+            // Loop through every robot and teleport it
             for (size_t i = 0; i < robot_nodes.size(); i++) {
                 // Grab translation field of the robot to modify
                 // There will be a position for every robot in the positions vector
@@ -222,7 +230,7 @@ int main(int argc, char** argv) {
             const double right_elbow_position = elbow_distrib(gen);
             const double left_elbow_position  = elbow_distrib(gen);
 
-            neck_yaw->setPosition(neck_yaw_position);
+            // Set random positions for the head and neck servos of the main robot
             head_pitch->setPosition(head_pitch_position);
             right_shoulder_pitch->setPosition(right_shoulder_position);
             left_shoulder_pitch->setPosition(left_shoulder_position);
