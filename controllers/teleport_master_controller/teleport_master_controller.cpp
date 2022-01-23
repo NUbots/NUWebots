@@ -216,7 +216,8 @@ int main(int argc, char** argv) {
                 // There will be a position for every robot in the positions vector
                 robot_nodes[i]->getField("translation")->setSFVec3f(positions[i].data());
                 // Apply new rotation
-                robot_nodes[i]->getField("rotation")->setSFRotation({0, 0, 1, rotations(gen)});
+                const std::array<double,4> angle_axis_rot = {0.0, 0.0, 1.0, rot_distrib(gen)};
+                robot_nodes[i]->getField("rotation")->setSFRotation(angle_axis_rot.data());
 
                 // Reset physics to avoid robot tearing itself apart
                 robot_nodes[i]->resetPhysics();
