@@ -6,7 +6,7 @@ This controller is used in the vision collection world, `vision_collection.wbt`.
 
 The `vision_collection.wbt` world is an example of how to use this controller.
 
-In the world file, add a NUgus robot. This robot will be the robot that collects vision data. Specify the controller as this controller (`vision_teleport_controller`). The controllerArgs need to include the objects used in the controller. The first arg should be the DEF of the RobocupSoccerField (make sure you give it a DEF in your world file!). The second is this robot's DEF. After this arg, add all of the other objects that you want to teleport around the scene (i.e. the ball, other robots) and by naming their DEF individually. Any robots listed, including this robot should have `supervisor` set to `TRUE`.
+In the world file, add a NUgus robot. This robot will be the robot that collects vision data. Specify the controller as this controller (`vision_teleport_controller`). The controllerArgs need to include the objects used in the controller. The first arg should be the DEF of the RobocupSoccerField (make sure you give it a DEF in your world file!). The second is this robot's DEF. After this arg, add all of the other objects that you want to teleport around the scene (i.e. the ball, other robots) and by naming their DEF individually. Any robots listed, including this robot, should have `supervisor` set to `TRUE` in the world file.
 
 ```vrml
 controller "vision_teleport_controller"
@@ -17,6 +17,8 @@ controllerArgs [
 ]
 supervisor TRUE
 ```
+
+Play the world and vision data will be created in a `data` folder next to this `README` file. There will be folders for mono and stereo images. Each data sample consists of a `imageXXXXXXX.jpg` image from the robots cameras, a `imageXXXXXXX_mask.png` segmentation image for the corresponding `jpg` image, and a `lensXXXXXXX.yaml` file with meta data about the corresponding `jpg` image. The stereo data includes the suffix `_R` or `_L` depending on if it is for the left camera or the right camera.
 
 # Colours
 
