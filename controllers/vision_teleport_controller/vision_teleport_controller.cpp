@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with the NUbots Codebase.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2021 NUbots <nubots@nubots.net>
+ * Copyright 2022 NUbots <nubots@nubots.net>
  */
 
 // Special thanks to Hamburg Bit-Bots for ideas for this controller
@@ -40,7 +40,7 @@
 
 // Create a string padded with 0's on the left and the given number on the right
 // This is used to create file names
-std::string pad_left(int number, int width) {
+std::string pad_left(const int number, const int width) {
     std::stringstream ss;
     ss << std::setw(width) << std::setfill('0') << number;
     return ss.str();
@@ -51,7 +51,7 @@ std::vector<std::array<double, 3>> find_robot_positions(const std::vector<webots
                                                         std::uniform_real_distribution<> x_distrib,
                                                         std::uniform_real_distribution<> y_distrib,
                                                         std::mt19937 gen,
-                                                        double min_distance) {
+                                                        const double min_distance) {
     // Loop through every robot and find valid teleport locations
     std::vector<std::array<double, 3>> positions = {};
 
@@ -106,7 +106,6 @@ int main(int argc, char** argv) {
         // Load the Node of the robot by def argument and add to vector
         robot_nodes.emplace_back(supervisor.getFromDef(argv[i]));
     }
-
     // Get the time step of the current world.
     int time_step = int(supervisor.getBasicTimeStep());
 
@@ -131,19 +130,17 @@ int main(int argc, char** argv) {
     const double diagonal_fov    = 2 * std::atan(camera_diagonal / (2 * focal_length_px));
 
     // GET HANDLES TO NODES AND SERVOS
-    // Get a handle to specific motors that will be changed later
+    // Get a handle to specific motors that will be moved later
     webots::Motor* neck_yaw   = supervisor.getMotor("neck_yaw");
     webots::Motor* head_pitch = supervisor.getMotor("head_pitch");
-    // Get sensors so that their joint angle can be retrieved when determining the camera to world transform
-    // This transform is created and saved later when the data is saved
-    webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
-    webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
-    // Get a handle to or shoulder motors
     webots::Motor* right_shoulder_pitch = supervisor.getMotor("right_shoulder_pitch [shoulder]");
     webots::Motor* left_shoulder_pitch  = supervisor.getMotor("left_shoulder_pitch [shoulder]");
     webots::Motor* left_elbow           = supervisor.getMotor("left_elbow_pitch");
     webots::Motor* right_elbow          = supervisor.getMotor("right_elbow_pitch");
-
+    // Get sensors so that their joint angle can be retrieved when determining the camera to world transform
+    // This transform is created and saved later when the data is saved
+    webots::PositionSensor* neck_yaw_sensor   = supervisor.getPositionSensor("neck_yaw_sensor");
+    webots::PositionSensor* head_pitch_sensor = supervisor.getPositionSensor("head_pitch_sensor");
     neck_yaw_sensor->enable(time_step);
     head_pitch_sensor->enable(time_step);
 
@@ -207,7 +204,6 @@ int main(int argc, char** argv) {
     constexpr int MODULO = 3;
 
     while (supervisor.step(time_step) != -1) {
-        modulo_counter++;          // start with moving the robots
         modulo_counter %= MODULO;  // prevents overflow error from counter
 
         // Reset physics of the robot running this controller to stabilise the image
@@ -217,9 +213,9 @@ int main(int argc, char** argv) {
         // Find valid random locations for the robots to teleport to, without collisions,
         // and move the robots to those locations with random rotations around the z-axis.
         // Move the head and arms of the main robot that is collecting data
-        if (modulo_counter == 1) {
+        if (modulo_counter == 0) {
             // Get the positions to teleport the robots to
-            std::vector<std::array<double, 3>> positions =
+            const std::vector<std::array<double, 3>> positions =
                 find_robot_positions(robot_nodes, x_distrib, y_distrib, gen, min_distance);
 
             // Loop through every robot and teleport it
@@ -247,8 +243,10 @@ int main(int argc, char** argv) {
             supervisor.step(time_step * 20);
         }
 
+        // Modulo 1 just advances the time
+
         // Collect vision data for the current environment
-        else if (modulo_counter == 0) {
+        else if (modulo_counter == 2) {
             // GET TRANSLATION AND ROTATION OF ROBOT
             webots::Field* robot_translation_field = supervisor.getFromDef(self_def)->getField("translation");
             const double* robot_position           = robot_translation_field->getSFVec3f();
@@ -308,11 +306,11 @@ int main(int argc, char** argv) {
                 -Htw.linear() * Eigen::Vector3d(robot_position[0], robot_position[1], robot_position[2]);
 
             // Calculate the left and right camera to world transformation matrices
-            Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
-            Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
+            const Eigen::Affine3d Hwc_l = Htw.inverse() * Htx * Hxl;
+            const Eigen::Affine3d Hwc_r = Htw.inverse() * Htx * Hxr;
 
             //-----------SAVE DATA-----------//
-            std::string count_padded = pad_left(count, 7);
+            const std::string count_padded = pad_left(count, file_name_length);
 
             // Save mono images
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", image_quality);
@@ -390,13 +388,16 @@ int main(int argc, char** argv) {
             ofs_stereo << stereo_lens.c_str();
             ofs_stereo.close();
 
+            // Increase the file naming count
             count++;
         }
         // Find the largest possible number for the file that the data can be saved as and restrict going above this
         if (count > (std::pow(10, file_name_length) - 1)) {
             std::cout << "Collected maximum number of data samples given file naming convention." << std::endl;
-            return 0;
+            return 0;   // not really an error, just the program's natural end
         }
+        // Advance the counter to perform a different function on the next loop
+        modulo_counter++;
     };
     return 0;
 }
