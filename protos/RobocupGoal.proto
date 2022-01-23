@@ -9,9 +9,11 @@ PROTO RobocupGoal [
   field SFVec3f    translation        0 0 0
   field SFRotation rotation           0 1 0 0
   field SFString   name               "robotstadium goal"
-  field SFColor    netColor           0.3 0.3 0.3         # Defines the color of the net.
-  field SFString{"adult", "kid"} size "kid"               # Defines the size of the field.
+  field SFColor    netColor           0.3 0.3 0.3                       # Defines the color of the net.
+  field SFString{"adult", "kid"} size "kid"                             # Defines the size of the field.
   field MFColor                  recognitionColors [1 1 0]              # Goals are yellow
+  field MFColor                  smallPostRecognitionColors [0.5 0.5 0] # Small goals are dark yellow
+
   field SFBool                   isRecognition     FALSE                # Defines whether we hide the net or not 
 ]
 {
@@ -157,7 +159,7 @@ PROTO RobocupGoal [
         }
         %{ end }%
       Solid {
-        recognitionColors IS recognitionColors/2
+        recognitionColors IS smallPostRecognitionColors
         name "small posts"
         children [
           Transform {

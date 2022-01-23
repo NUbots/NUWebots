@@ -45,6 +45,7 @@ TexturedBackgroundLight {
 }
 DEF soccerField RobocupSoccerField {
   size "kid"
+  isRecognition TRUE
 }
 DEF ball RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
@@ -95,7 +96,7 @@ DEF RED_3 RobotisOp3 {
 # Red player 4
 DEF RED_4 Wolfgang {
   translation -0.9 -0.53 0.43
-  rotation 0.07816887083191468 0.8618619091723926 -0.5010825053327864 0.347
+  rotation 0 0 1 0.31415
   name "red player 4"
   controller ""
   controllerArgs [
