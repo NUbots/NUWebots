@@ -120,13 +120,15 @@ int main(int argc, char** argv) {
     // GET CONFIGURATION VALUES
     // Configuration values that will be loaded in from a yaml file
     double min_distance = 0.0;  // minimum distance allowed between robots
-    int image_quality   = 0;    // quality of the saved image [0,100]
+    int image_quality   = 100;  // quality of the saved image [0,100]
+    int file_name_length = 7;   // when saving data, e.g. 0000001.jpg has a length of 7 numbers identifying it
 
     // Load config file and handle errors
     try {
         YAML::Node config = YAML::LoadFile("teleport_master_controller.yaml");
         min_distance      = config["min_distance"].as<double>();
         image_quality     = config["image_quality"].as<int>();
+        file_name_length     = config["file_name_length"].as<int>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -380,7 +382,8 @@ int main(int argc, char** argv) {
 
             count++;
         }
-        if (count > 9999999) {
+        // Find the largest possible number for the file that the data can be saved as and restrict going above this
+        if (count > (std::pow(10, file_name_length) - 1)) {
             std::cout << "Collected maximum number of data samples given file naming convention." << std::endl;
             return 0;
         }
