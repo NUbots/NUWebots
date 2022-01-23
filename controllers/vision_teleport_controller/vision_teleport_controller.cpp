@@ -54,7 +54,7 @@ std::vector<std::array<double, 3>> find_robot_positions(const std::vector<webots
                                                         double min_distance) {
     // Loop through every robot and find valid teleport locations
     std::vector<std::array<double, 3>> positions = {};
-    
+
     for (const auto& robot : robot_nodes) {
         // Assume there is no collision
         bool collision = false;
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
 
     // Load config file and handle errors
     try {
-        YAML::Node config = YAML::LoadFile("teleport_master_controller.yaml");
+        YAML::Node config = YAML::LoadFile("vision_teleport_controller.yaml");
         min_distance      = config["min_distance"].as<double>();
         image_quality     = config["image_quality"].as<int>();
         file_name_length  = config["file_name_length"].as<int>();

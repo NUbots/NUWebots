@@ -110,7 +110,7 @@ DEF BLUE_1 NUgus {
   translation 2.688 -0.3985 0.5249
   rotation 0 0 1 0.31415
   name "blue player 1"
-  controller "teleport_master_controller"
+  controller "vision_teleport_controller"
   controllerArgs [
     "soccerField"
     "BLUE_1"
