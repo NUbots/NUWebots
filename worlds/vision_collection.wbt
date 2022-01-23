@@ -56,7 +56,7 @@ DEF RED_1 Darwin-opHinge2Seg {
   translation -4.03 -0.028 0.237
   rotation 0.5784606380748865 0.38230443554430216 0.7205738052143914 0.136
   name "player red 1"
-  controller ""
+  controller "void"
   controllerArgs [
     "RED_1"
   ]
@@ -72,7 +72,7 @@ DEF RED_1 Darwin-opHinge2Seg {
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
   name "red player 2"
-  controller ""
+  controller "void"
   controllerArgs [
     "RED_2"
   ]
@@ -84,7 +84,7 @@ DEF RED_3 RobotisOp3 {
   translation -1.358 1.11 0.289
   rotation 0 0 -1 1
   name "player red 3"
-  controller ""
+  controller "void"
   controllerArgs [
     "RED_3"
   ]
@@ -98,7 +98,7 @@ DEF RED_4 Wolfgang {
   translation -0.9 -0.53 0.43
   rotation 0 0 1 0.31415
   name "red player 4"
-  controller ""
+  controller "void"
   controllerArgs [
     "RED_4"
   ]
@@ -132,7 +132,7 @@ DEF BLUE_2 Wolfgang {
   translation 2.3 -1 0.5
   rotation 0 0 1 0.31415
   name "blue player 2"
-  controller ""
+  controller "void"
   controllerArgs [
     "BLUE_2"
   ]
@@ -144,7 +144,7 @@ DEF BLUE_3 RobotisOp3 {
   translation 1.5 0.5 0.3
   rotation 0 0 1 0
   name "player blue 3"
-  controller ""
+  controller "void"
   controllerArgs [
     "BLUE_3"
   ]
@@ -158,7 +158,7 @@ DEF BLUE_4 Wolfgang {
   translation 2.3 2 0.5
   rotation 0 0 1 0.31415
   name "blue player 4"
-  controller ""
+  controller "void"
   controllerArgs [
     "BLUE_4"
   ]
