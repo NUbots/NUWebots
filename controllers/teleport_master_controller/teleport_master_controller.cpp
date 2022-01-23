@@ -46,6 +46,42 @@ std::string pad_left(int number, int width) {
     return ss.str();
 }
 
+// Randomly find robot positions that do not clash and return those positions
+std::vector<std::array<double, 3>> find_robot_positions(const std::vector<webots::Node*>& robot_nodes,
+                                                        std::uniform_real_distribution<> x_distrib,
+                                                        std::uniform_real_distribution<> y_distrib,
+                                                        std::mt19937 gen,
+                                                        double min_distance) {
+    // Loop through every robot and find valid teleport locations
+    std::vector<std::array<double, 3>> positions = {};
+    
+    for (const auto& robot : robot_nodes) {
+        // Assume there is no collision
+        bool collision = false;
+        // new_pos will be a "Proposed location" for a robot to teleport to
+        std::array<double, 3> new_pos{};
+        do {
+            collision = false;
+            // Generate a new random location
+            new_pos[0] = x_distrib(gen);
+            new_pos[1] = y_distrib(gen);
+            new_pos[2] = robot->getField("height")->getSFFloat();
+
+            // Loop through the vector of existing proposed locations and see if the new one is going to
+            // collide with any of them
+            for (const auto& testPos : positions) {
+                const double distance =
+                    std::sqrt(std::pow((new_pos[1] - testPos[1]), 2) + std::pow((new_pos[0] - testPos[0]), 2));
+                collision = distance < min_distance ? true : collision;
+            }
+            // Loop until a proposed location has been found that doesn't clash with the existing ones
+        } while (collision);
+        // Finally add the proposed location in as a confirmed position
+        positions.emplace_back(new_pos);
+    }
+    return positions;
+}
+
 int main(int argc, char** argv) {
     // COMMAND LINE ARGUMENTS
     // Make sure we have the command line arguments we need. At a minimum we should have the def argument
@@ -119,16 +155,16 @@ int main(int argc, char** argv) {
 
     // GET CONFIGURATION VALUES
     // Configuration values that will be loaded in from a yaml file
-    double min_distance = 0.0;  // minimum distance allowed between robots
-    int image_quality   = 100;  // quality of the saved image [0,100]
-    int file_name_length = 7;   // when saving data, e.g. 0000001.jpg has a length of 7 numbers identifying it
+    double min_distance  = 0.0;  // minimum distance allowed between robots
+    int image_quality    = 100;  // quality of the saved image [0,100]
+    int file_name_length = 7;    // when saving data, e.g. 0000001.jpg has a length of 7 numbers identifying it
 
     // Load config file and handle errors
     try {
         YAML::Node config = YAML::LoadFile("teleport_master_controller.yaml");
         min_distance      = config["min_distance"].as<double>();
         image_quality     = config["image_quality"].as<int>();
-        file_name_length     = config["file_name_length"].as<int>();
+        file_name_length  = config["file_name_length"].as<int>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -182,35 +218,9 @@ int main(int argc, char** argv) {
         // and move the robots to those locations with random rotations around the z-axis.
         // Move the head and arms of the main robot that is collecting data
         if (modulo_counter == 1) {
-            // Declare a vector of positions that will be saved as they are randomly generated, to be later
-            // applied to each robot
-            std::vector<std::array<double, 3>> positions;
-
-            // Loop through every robot and find valid teleport locations
-            for (auto& robot : robot_nodes) {
-                // Assume there is no collision
-                bool collision = false;
-                // new_pos will be a "Proposed location" for a robot to teleport to
-                std::array<double, 3> new_pos{};
-                do {
-                    collision = false;
-                    // Generate a new random location
-                    new_pos[0] = x_distrib(gen);
-                    new_pos[1] = y_distrib(gen);
-                    new_pos[2] = robot->getField("height")->getSFFloat();
-
-                    // Loop through the vector of existing proposed locations and see if the new one is going to
-                    // collide with any of them
-                    for (const auto& testPos : positions) {
-                        const double distance =
-                            std::sqrt(std::pow((new_pos[1] - testPos[1]), 2) + std::pow((new_pos[0] - testPos[0]), 2));
-                        collision = distance < min_distance ? true : collision;
-                    }
-                    // Loop until a proposed location has been found that doesn't clash with the existing ones
-                } while (collision);
-                // Finally add the proposed location in as a confirmed position
-                positions.emplace_back(new_pos);
-            }
+            // Get the positions to teleport the robots to
+            std::vector<std::array<double, 3>> positions =
+                find_robot_positions(robot_nodes, x_distrib, y_distrib, gen, min_distance);
 
             // Loop through every robot and teleport it
             for (size_t i = 0; i < robot_nodes.size(); i++) {
@@ -218,7 +228,7 @@ int main(int argc, char** argv) {
                 // There will be a position for every robot in the positions vector
                 robot_nodes[i]->getField("translation")->setSFVec3f(positions[i].data());
                 // Apply new rotation
-                const std::array<double,4> angle_axis_rot = {0.0, 0.0, 1.0, rot_distrib(gen)};
+                const std::array<double, 4> angle_axis_rot = {0.0, 0.0, 1.0, rot_distrib(gen)};
                 robot_nodes[i]->getField("rotation")->setSFRotation(angle_axis_rot.data());
 
                 // Reset physics to avoid robot tearing itself apart
