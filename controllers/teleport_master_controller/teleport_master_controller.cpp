@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 
     // Load config file and handle errors
     try {
-        YAML::Node config = YAML::LoadFile("config.yaml");
+        YAML::Node config = YAML::LoadFile("teleport_master_controller.yaml");
         min_distance      = config["min_distance"].as<double>();
         image_quality     = config["image_quality"].as<int>();
     }
