@@ -125,9 +125,8 @@ int main(int argc, char** argv) {
     // Load config file and handle errors
     try {
         YAML::Node config = YAML::LoadFile("config.yaml");
-        rotations         = config["rotations"].as<std::vector<std::array<double, 4>>>();
-        min_distance       = config["min_distance"].as<double>();
-        image_quality = config["image_quality"].as<int>();
+        min_distance      = config["min_distance"].as<double>();
+        image_quality     = config["image_quality"].as<int>();
     }
     catch (const YAML::BadFile& e) {
         std::cerr << e.msg << std::endl;
@@ -150,20 +149,20 @@ int main(int argc, char** argv) {
     const double y_size      = field_node->getField("ySize")->getSFFloat();
 
     // Generate random seed
-    std::random_device rd;    // will be used to obtain a seed for the random number engine
-    std::mt19937 gen(rd());  // Standard mersenne_twister_engine seeded with rd()
+    std::random_device rd;  // will be used to obtain a seed for the random number engine
+    std::mt19937 gen(rd()); // standard mersenne_twister_engine seeded with rd()
 
-    // Generate distributions for random number systems in the following loop
-    std::uniform_real_distribution<> x_distrib(-x_size * 0.5, x_size * 0.5);
-    std::uniform_real_distribution<> y_distrib(-y_size * 0.5, y_size * 0.5);
-    // The RNG for the index of the rotation selected this round
-    std::uniform_int_distribution<size_t> rot_distrib(0, rotations.size() - 1);
-    // Move servos in the range [-PI/2, PI/2]
-    std::uniform_real_distribution<> head_pitch_distrib(0.0, 1.0);
-    std::uniform_real_distribution<> neck_yaw_distrib(-M_PI_2, M_PI_2);
-    std::uniform_real_distribution<> shoulder_distrib(0.0, M_PI_2);
-    std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0.0);
-    
+    // Generate distributions for random number systems
+    std::uniform_real_distribution<> x_distrib(-x_size * 0.5, x_size * 0.5);  // robot's x position on the field
+    std::uniform_real_distribution<> y_distrib(-y_size * 0.5, y_size * 0.5);  // robot's y position on the field
+    std::uniform_real_distribution<> rot_distrib(0, 2 * M_PI);                // robot's z-axis rotation
+    std::uniform_real_distribution<> head_pitch_distrib(0.0, 1.0);            // head pitch joint angle
+    std::uniform_real_distribution<> neck_yaw_distrib(-M_PI_2, M_PI_2);       // neck yaw joint angle
+    std::uniform_real_distribution<> shoulder_distrib(0.0, M_PI_2);           // shoulder pitch joint angle
+    std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0.0);             // elbow joint angle
+
+    // MAIN UPDATE LOOP
+
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of time_steps using a modulo operation
     int modulo_counter   = 0;
@@ -219,25 +218,19 @@ int main(int argc, char** argv) {
                 // There will be a position for every robot in the positions vector
                 robot_nodes[i]->getField("translation")->setSFVec3f(positions[i].data());
                 // Apply new rotation
-                robot_nodes[i]->getField("rotation")->setSFRotation(rotations[size_t(rot_distrib(gen))].data());
+                robot_nodes[i]->getField("rotation")->setSFRotation({0, 0, 1, rotations(gen)});
 
                 // Reset physics to avoid robot tearing itself apart
                 robot_nodes[i]->resetPhysics();
             }
-            // Set random positions for the head and neck servos
-            const double neck_yaw_position         = neck_yaw_distrib(gen);
-            const double head_pitch_position       = head_pitch_distrib(gen);
-            const double right_shoulder_position = shoulder_distrib(gen);
-            const double left_shoulder_position  = shoulder_distrib(gen);
-            const double right_elbow_position = elbow_distrib(gen);
-            const double left_elbow_position  = elbow_distrib(gen);
 
             // Set random positions for the head and neck servos of the main robot
-            head_pitch->setPosition(head_pitch_position);
-            right_shoulder_pitch->setPosition(right_shoulder_position);
-            left_shoulder_pitch->setPosition(left_shoulder_position);
-            right_elbow->setPosition(right_elbow_position);
-            left_elbow->setPosition(left_elbow_position);
+            neck_yaw->setPosition(neck_yaw_distrib(gen));
+            head_pitch->setPosition(head_pitch_distrib(gen));
+            right_shoulder_pitch->setPosition(shoulder_distrib(gen));
+            left_shoulder_pitch->setPosition(shoulder_distrib(gen));
+            right_elbow->setPosition(elbow_distrib(gen));
+            left_elbow->setPosition(elbow_distrib(gen));
 
             // Update physics step enough that the motors will move
             supervisor.step(time_step * 20);
