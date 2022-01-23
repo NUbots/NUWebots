@@ -46,7 +46,6 @@ std::string pad_left(int number, int width) {
     return ss.str();
 }
 
-
 int main(int argc, char** argv) {
     // COMMAND LINE ARGUMENTS
     // Make sure we have the command line arguments we need. At a minimum we should have the def argument
@@ -87,8 +86,8 @@ int main(int argc, char** argv) {
     right_camera->enableRecognitionSegmentation();
 
     // Calculate camera field of view
-    const int camera_width             = left_camera->getWidth();
-    const int camera_height            = left_camera->getHeight();
+    const int camera_width       = left_camera->getWidth();
+    const int camera_height      = left_camera->getHeight();
     const double camera_diagonal = std::sqrt(camera_width * camera_width + camera_height * camera_height);
     const double horizontal_fov  = left_camera->getFov();
     const double vertical_fov    = 2 * std::atan(std::tan(horizontal_fov * 0.5) * (double(camera_height) / camera_width));
@@ -167,22 +166,25 @@ int main(int argc, char** argv) {
     
     // In order to remove blurry images, images will only be saved on a disjointed
     // number of time_steps using a modulo operation
-    int modulo_counter    = 0;
+    int modulo_counter   = 0;
     constexpr int MODULO = 3;
 
     while (supervisor.step(time_step) != -1) {
-        modulo_counter++;
+        modulo_counter++;          // start with moving the robots
+        modulo_counter %= MODULO;  // prevents overflow error from counter
+
         // Reset physics of the robot running this controller to stabilise the image
         supervisor.getFromDef(self_def)->resetPhysics();
 
         // Move the robot on the iteration immediately after saving an image
-        if (modulo_counter % MODULO == 1) {
-            //-----------TRANSLATE ROBOTS-----------//
-
+        // Find valid random locations for the robots to teleport to, without collisions,
+        // and move the robots to those locations with random rotations around the z-axis.
+        // Move the head and arms of the main robot that is collecting data
+        if (modulo_counter == 1) {
             // Declare a vector of positions that will be saved as they are randomly generated, to be later
             // applied to each robot
             std::vector<std::array<double, 3>> positions;
-            // Loop through every robot
+
             // Loop through every robot and find valid teleport locations
             for (auto& robot : robot_nodes) {
                 // Assume there is no collision
@@ -241,9 +243,9 @@ int main(int argc, char** argv) {
             supervisor.step(time_step * 20);
         }
 
-        // Run a number of iterations after the robot has moved equal to the value of modulo
-        if (modulo_counter % MODULO == 0) {
-            //----------GET TRANSLATION OF ROBOT------------//
+        // Collect vision data for the current environment
+        else if (modulo_counter == 0) {
+            // GET TRANSLATION AND ROTATION OF ROBOT
             webots::Field* robot_translation_field = supervisor.getFromDef(self_def)->getField("translation");
             const double* robot_position         = robot_translation_field->getSFVec3f();
 
@@ -390,6 +392,10 @@ int main(int argc, char** argv) {
             ofs_stereo.close();
 
             count++;
+        }
+        if (count > 9999999) {
+            std::cout << "Collected maximum number of data samples given file naming convention." << std::endl;
+            return 0;
         }
     };
     return 0;
