@@ -12,7 +12,7 @@ target_include_directories(teleport_master_controller PRIVATE "${PROJECT_SOURCE_
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(teleport_master_controller PRIVATE webots::webots)
 target_link_libraries(teleport_master_controller PRIVATE ${YAML_CPP_LIBRARIES})
-target_link_libraries(teleport_master_controller PRIVATE ${LD_LIBRARY_PATH})
+target_link_libraries(teleport_master_controller PRIVATE "${WEBOTS_HOME}/lib/controller/libCppController.so")
 # Generate binary in controller source directory
 set_target_properties(
   teleport_master_controller PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"

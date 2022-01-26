@@ -22,7 +22,7 @@ target_include_directories(
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(teleport_controller PRIVATE webots::webots)
 target_link_libraries(teleport_controller PRIVATE ${YAML_CPP_LIBRARIES})
-target_link_libraries(teleport_controller PRIVATE ${LD_LIBRARY_PATH})
+target_link_libraries(teleport_controller PRIVATE "${WEBOTS_HOME}/lib/controller/libCppController.so")
 
 target_link_libraries(
   teleport_controller PRIVATE ${WEBOTS_HOME}/projects/robots/robotis/darwin-op/libraries/robotis-op2/librobotis-op2.so
