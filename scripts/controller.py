@@ -54,6 +54,9 @@ def run(controller, **kwargs):
         # Link against the webots target (this will also add any necessary include directories to our target)
         target_link_libraries({controller} PRIVATE webots::webots)
 
+        # Link the libCppController.so library
+        target_link_libraries(teleport_master_controller PRIVATE "${WEBOTS_HOME}/lib/controller/libCppController.so")
+
         # Generate binary in controller source directory
         set_target_properties({controller} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${{CMAKE_CURRENT_SOURCE_DIR}}"
                                                 OUTPUT_NAME {controller})
