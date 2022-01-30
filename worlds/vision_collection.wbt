@@ -37,12 +37,19 @@ Viewpoint {
   orientation 0.6457405086939408 -0.4385980234769798 -0.6250207750417401 1.7278551203695756
   position -1.1879739019707811 -2.005152782349234 1.9421929878503073
 }
-TexturedBackground {
+DEF background RoboCupBackground {
   texture "stadium_dry"
 }
-TexturedBackgroundLight {
+DEF main_light RoboCupMainLight {
   texture "stadium_dry"
 }
+DEF off_light RoboCupOffLight {
+  texture "stadium_dry"
+}
+DEF top_light RoboCupTopLight {
+  texture "stadium_dry"
+}
+
 DEF soccerField RobocupSoccerField {
   size "kid"
   isRecognition TRUE

@@ -196,6 +196,7 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<> shoulder_distrib(0.0, M_PI_2);           // shoulder pitch joint angle
     std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0.0);             // elbow joint angle
 
+    // For randomizing the ball and background values
     // MAIN UPDATE LOOP
 
     // In order to remove blurry images, images will only be saved on a disjointed
@@ -394,7 +395,7 @@ int main(int argc, char** argv) {
         // Find the largest possible number for the file that the data can be saved as and restrict going above this
         if (count > (std::pow(10, file_name_length) - 1)) {
             std::cout << "Collected maximum number of data samples given file naming convention." << std::endl;
-            return 0;   // not really an error, just the program's natural end
+            return 0;  // not really an error, just the program's natural end
         }
         // Advance the counter to perform a different function on the next loop
         modulo_counter++;
