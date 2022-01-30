@@ -217,6 +217,7 @@ int main(int argc, char** argv) {
     webots::Field* main_light_tex = supervisor.getFromDef("main_light")->getField("texture");
     webots::Field* off_light_tex  = supervisor.getFromDef("off_light")->getField("texture");
     webots::Field* top_light_tex  = supervisor.getFromDef("top_light")->getField("texture");
+    webots::Field* ball_tex       = supervisor.getFromDef("ball")->getField("texture");
     webots::Field* background_lum = supervisor.getFromDef("background")->getField("luminosity");
     webots::Field* main_light_lum = supervisor.getFromDef("main_light")->getField("luminosity");
     webots::Field* off_light_lum  = supervisor.getFromDef("off_light")->getField("luminosity");
@@ -267,21 +268,20 @@ int main(int argc, char** argv) {
             left_elbow->setPosition(elbow_distrib(gen));
 
             // Randomize the ball and background
-            const char* bg_tex = backgrounds[bg_distrib(gen)];
-            double luminosity  = lum_distrib(gen);
+            const char* bg_choice = backgrounds[bg_distrib(gen)];
+            double luminosity     = lum_distrib(gen);
 
-            background_tex->setSFString(bg_tex);
-            main_light_tex->setSFString(bg_tex);
-            off_light_tex->setSFString(bg_tex);
-            top_light_tex->setSFString(bg_tex);
+            background_tex->setSFString(bg_choice);
+            main_light_tex->setSFString(bg_choice);
+            off_light_tex->setSFString(bg_choice);
+            top_light_tex->setSFString(bg_choice);
             background_lum->setSFFloat(luminosity);
             main_light_lum->setSFFloat(luminosity);
             off_light_lum->setSFFloat(luminosity);
             top_light_lum->setSFFloat(luminosity);
 
-            //  These lines should work once a texture field is added to the ball
-            // const char* ball_tex = balls[ball_distrib(gen)];
-            // supervisor.getFromDef("ball")->getField("texture")->setSFString(ball_tex);
+            const char* ball_choice = balls[ball_distrib(gen)];
+            ball_tex->setSFString(ball_choice);
 
             // Update physics step enough that the motors will move
             supervisor.step(time_step * 20);

@@ -54,9 +54,10 @@ DEF soccerField RobocupSoccerField {
   size "kid"
   isRecognition TRUE
 }
-DEF ball RobocupSoccerBall {
+DEF ball RobocupTexturedSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
   rotation 0.9999999999999999 0 0 1.8715596617048374e-06
+  texture "telstar"
 }
 # Red player 1: Darwin-OP
 DEF RED_1 Darwin-opHinge2Seg {
