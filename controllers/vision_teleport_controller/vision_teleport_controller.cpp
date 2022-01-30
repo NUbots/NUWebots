@@ -131,8 +131,8 @@ int main(int argc, char** argv) {
 
     // GET HANDLES TO NODES AND SERVOS
     // Get a handle to specific motors that will be moved later
-    webots::Motor* neck_yaw   = supervisor.getMotor("neck_yaw");
-    webots::Motor* head_pitch = supervisor.getMotor("head_pitch");
+    webots::Motor* neck_yaw             = supervisor.getMotor("neck_yaw");
+    webots::Motor* head_pitch           = supervisor.getMotor("head_pitch");
     webots::Motor* right_shoulder_pitch = supervisor.getMotor("right_shoulder_pitch [shoulder]");
     webots::Motor* left_shoulder_pitch  = supervisor.getMotor("left_shoulder_pitch [shoulder]");
     webots::Motor* left_elbow           = supervisor.getMotor("left_elbow_pitch");
@@ -197,6 +197,32 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<> elbow_distrib(-M_PI_2, 0.0);             // elbow joint angle
 
     // For randomizing the ball and background values
+    std::uniform_real_distribution<> lum_distrib(0.75, 1.25);
+    std::uniform_int_distribution<unsigned int> ball_distrib(0, 4);
+    std::uniform_int_distribution<unsigned int> bg_distrib(0, 6);
+
+    // Ball and background textures
+    std::vector<const char*> backgrounds{"stadium_dry",
+                                         "shanghai_riverside",
+                                         "ulmer_muenster",
+                                         "sunset_jhbcentral",
+                                         "sepulchral_chapel_rotunda",
+                                         "paul_lobe_haus",
+                                         "kiara_1_dawn"};
+
+    std::vector<const char*> balls{"telstar", "teamgeist", "europass", "jabulani", "tango"};
+
+    // Get handles for fields that will be changed
+    webots::Field* background_tex = supervisor.getFromDef("background")->getField("texture");
+    webots::Field* main_light_tex = supervisor.getFromDef("main_light")->getField("texture");
+    webots::Field* off_light_tex  = supervisor.getFromDef("off_light")->getField("texture");
+    webots::Field* top_light_tex  = supervisor.getFromDef("top_light")->getField("texture");
+    webots::Field* background_lum = supervisor.getFromDef("background")->getField("luminosity");
+    webots::Field* main_light_lum = supervisor.getFromDef("main_light")->getField("luminosity");
+    webots::Field* off_light_lum  = supervisor.getFromDef("off_light")->getField("luminosity");
+    webots::Field* top_light_lum  = supervisor.getFromDef("top_light")->getField("luminosity");
+
+
     // MAIN UPDATE LOOP
 
     // In order to remove blurry images, images will only be saved on a disjointed
@@ -239,6 +265,23 @@ int main(int argc, char** argv) {
             left_shoulder_pitch->setPosition(shoulder_distrib(gen));
             right_elbow->setPosition(elbow_distrib(gen));
             left_elbow->setPosition(elbow_distrib(gen));
+
+            // Randomize the ball and background
+            const char* bg_tex = backgrounds[bg_distrib(gen)];
+            double luminosity  = lum_distrib(gen);
+
+            background_tex->setSFString(bg_tex);
+            main_light_tex->setSFString(bg_tex);
+            off_light_tex->setSFString(bg_tex);
+            top_light_tex->setSFString(bg_tex);
+            background_lum->setSFFloat(luminosity);
+            main_light_lum->setSFFloat(luminosity);
+            off_light_lum->setSFFloat(luminosity);
+            top_light_lum->setSFFloat(luminosity);
+
+            //  These lines should work once a texture field is added to the ball
+            // const char* ball_tex = balls[ball_distrib(gen)];
+            // supervisor.getFromDef("ball")->getField("texture")->setSFString(ball_tex);
 
             // Update physics step enough that the motors will move
             supervisor.step(time_step * 20);
