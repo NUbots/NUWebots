@@ -5,7 +5,7 @@
 # Extracted from: NUgus.urdf
 
 PROTO NUgus_headMesh [
-  field  MFString    robotTexture    "robot/NUgus/NUgus_textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture    "./NUgus_textures/NUgus_base_color.jpg"
 ]
 {
   Shape {
