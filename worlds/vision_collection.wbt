@@ -67,9 +67,6 @@ DEF RED_1 Darwin-opHinge2Seg {
 }
 DEF RED_2 NUgus {
   translation -2.207 -0.71576 0.517
-  robotTexture [
-    "robot/NUgus_textures/NUgus_base_color.jpg"
-  ]
   name "red player 2"
   controller "collect_vision_data"
   controllerArgs [
@@ -101,9 +98,6 @@ DEF RED_4 Wolfgang {
 }
 DEF BLUE_1 NUgus {
   translation 2.688 -0.3985 0.5249
-  robotTexture [
-    "robot/NUgus_textures/NUgus_base_color.jpg"
-  ]
   name "blue player 1"
   controller "collect_vision_data"
   controllerArgs [
