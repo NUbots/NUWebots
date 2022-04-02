@@ -35,8 +35,8 @@
 #include <webots/Node.hpp>
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
-#include <webots/TouchSensor.hpp>
 #include <webots/Supervisor.hpp>
+#include <webots/TouchSensor.hpp>
 
 extern "C" {
 #include <sys/ioctl.h>
@@ -64,9 +64,22 @@ using controller::nugus::Vector3;
 
 class NUgus : public webots::Robot {
 public:
-    NUgus(const int& time_step_, const uint16_t& server_port_)
-        : time_step(time_step_), server_port(server_port_), supervisor(webots::Supervisor()), tcp_fd(create_socket_server(server_port_), Hwx(Eigen::Affine3d::Identity())) {
+    NUgus(const int& time_step_, const uint16_t& server_port_, const std::string& robot_def_)
+        : time_step(time_step_)
+        , server_port(server_port_)
+        , robot_def(robot_def_)
+        , supervisor(webots::Supervisor())
+        , tcp_fd(create_socket_server(server_port_)) {
         send(tcp_fd, "Welcome", 8, 0);
+        // World (starting position of robot) [w] to webots environment reference point [x]
+        double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        Hwx.translation()   = Eigen::Vector3d(translation[0], translation[1], translation[2]);
+        // World is on the ground, not in the torso
+        // Assuming the robot starts standing up, this should be world
+        Hwx.translation().z() = 0.0;
+        double* rotation      = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        Hwx.linear() =
+            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix()
     }
     ~NUgus() override {
         close_socket(tcp_fd);
@@ -81,12 +94,6 @@ public:
     void run() {
         int controller_time = 0;
 
-        // World (starting position of robot) [w] to webots environment reference point [x]
-        Hwx.translation() = Eigen::Vector3d(supervisor.getFromDef(argv[3])->getField("translation")->getSFVec3f());
-        // World is on the ground, not in the torso
-        // Assuming the robot starts standing up, this should be world
-        Hwx.translation().z() = 0.0f;
-        Hwx.rotation() = Eigen::AngleAxis(supervisor.getFromDef(argv[3])->getField("rotation")->getSFRotation()).toRotationMatrix();
 
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
@@ -357,18 +364,21 @@ public:
                     std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
                     break;
             }
-
         }
 
         // Get odometry ground truth data to send
         sensorMeasurements->odometry_ground_truth.exists = true;
 
         // Webots absolute reference [x] to torso
-        Htx.translation() = Eigen::Vector3d(supervisor.getFromDef(argv[3])->getField("translation")->getSFVec3f());
-        Htx.rotation() = Eigen::AngleAxis(supervisor.getFromDef(argv[3])->getField("rotation")->getSFRotation()).toRotationMatrix();
+        Eigen::Affine3d Htx;
+        double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        Htx.translation()   = Eigen::Vector3d(translation[0], translation[1], translation[2]);
+        double* rotation    = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        Htx.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
+                           .toRotationMatrix()
 
-        // Get world to torso using the transformations relative to Webots absolute reference
-        Eigen::Affine3d Htw = Htx * Hwx.inverse();
+                       // Get world to torso using the transformations relative to Webots absolute reference
+                       Eigen::Affine3d Htw = Htx * Hwx.inverse();
 
         sensorMeasurements->odometry_ground_truth.Htw = Htw.matrix();
 
@@ -512,6 +522,7 @@ private:
     Eigen::Affine3d Hwx;
     /// Supervisor to get ground truth robot data
     webots::Supervisor supervisor;
+    std::string robot_def;
     std::vector<uint8_t> buffer;
 };
 
@@ -551,7 +562,7 @@ int main(int argc, char** argv) {
     }
 
     // Create the Robot instance and initialise the TCP connection
-    std::unique_ptr<NUgus> nugus = std::make_unique<NUgus>(time_step, server_port);
+    std::unique_ptr<NUgus> nugus = std::make_unique<NUgus>(time_step, server_port, argv[3]);
 
     // Run the robot controller
     nugus->run();

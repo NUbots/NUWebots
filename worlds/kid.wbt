@@ -60,5 +60,6 @@ DEF BLUE_1 NUgus {
     "10020"
     # Simulator timestep [ms]
     "8"
+    "BLUE_1"
   ]
 }
