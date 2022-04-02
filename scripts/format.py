@@ -47,7 +47,8 @@ def run(**kwargs):
     os.chdir(b.project_dir)
 
     # Use git to get all of the files that are committed to the repository
-    files = check_output(["git", "ls-files"]).decode("utf-8")
+    # Do not format files in the webots directory
+    files = check_output(["git", "ls-files", "--", ".", ":!:webots/*"]).decode("utf-8")
 
     with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
         for r in pool.imap_unordered(partial(_do_format), files.splitlines()):
