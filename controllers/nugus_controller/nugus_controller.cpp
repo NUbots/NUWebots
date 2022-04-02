@@ -20,7 +20,8 @@
  * 2021 by Cyberbotics.
  */
 
-
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -35,6 +36,7 @@
 #include <webots/PositionSensor.hpp>
 #include <webots/Robot.hpp>
 #include <webots/TouchSensor.hpp>
+#include <webots/Supervisor.hpp>
 
 extern "C" {
 #include <sys/ioctl.h>
@@ -63,7 +65,7 @@ using controller::nugus::Vector3;
 class NUgus : public webots::Robot {
 public:
     NUgus(const int& time_step_, const uint16_t& server_port_)
-        : time_step(time_step_), server_port(server_port_), tcp_fd(create_socket_server(server_port_)) {
+        : time_step(time_step_), server_port(server_port_), supervisor(webots::Supervisor()), tcp_fd(create_socket_server(server_port_), Hwx(Eigen::Affine3d::Identity())) {
         send(tcp_fd, "Welcome", 8, 0);
     }
     ~NUgus() override {
@@ -78,6 +80,13 @@ public:
 
     void run() {
         int controller_time = 0;
+
+        // World (starting position of robot) [w] to webots environment reference point [x]
+        Hwx.translation() = Eigen::Vector3d(supervisor.getFromDef(argv[3])->getField("translation")->getSFVec3f());
+        // World is on the ground, not in the torso
+        // Assuming the robot starts standing up, this should be world
+        Hwx.translation().z() = 0.0f;
+        Hwx.rotation() = Eigen::AngleAxis(supervisor.getFromDef(argv[3])->getField("rotation")->getSFRotation()).toRotationMatrix();
 
         while (step(time_step) != -1) {
             // Don't bother doing anything unless we have an active TCP connection
@@ -348,7 +357,21 @@ public:
                     std::cerr << "Switch had no case. Unexpected WbNodeType: " << device->getNodeType() << std::endl;
                     break;
             }
+
         }
+
+        // Get odometry ground truth data to send
+        sensorMeasurements->odometry_ground_truth.exists = true;
+
+        // Webots absolute reference [x] to torso
+        Htx.translation() = Eigen::Vector3d(supervisor.getFromDef(argv[3])->getField("translation")->getSFVec3f());
+        Htx.rotation() = Eigen::AngleAxis(supervisor.getFromDef(argv[3])->getField("rotation")->getSFRotation()).toRotationMatrix();
+
+        // Get world to torso using the transformations relative to Webots absolute reference
+        Eigen::Affine3d Htw = Htx * Hwx.inverse();
+
+        sensorMeasurements->odometry_ground_truth.Htw = Htw.matrix();
+
 
 #ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging
         std::cout << std::endl << std::endl << std::endl << "SensorMeasurements: " << std::endl;
@@ -485,7 +508,10 @@ private:
     int tcp_fd;
     /// Set of robot sensors
     std::set<webots::Device*> sensors;
-
+    /// World (starting position of robot) [w] to webots environment reference point [x]
+    Eigen::Affine3d Hwx;
+    /// Supervisor to get ground truth robot data
+    webots::Supervisor supervisor;
     std::vector<uint8_t> buffer;
 };
 
@@ -499,8 +525,8 @@ private:
 // "controllerArgs" field of the Robot node
 int main(int argc, char** argv) {
     // Make sure we have the command line arguments we need
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <TCP PORT> <CONTROLLER_TIME_STEP>" << std::endl;
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <TCP PORT> <CONTROLLER_TIME_STEP> <ROBOT_NAME>" << std::endl;
         return EXIT_FAILURE;
     }
 

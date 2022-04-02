@@ -3,6 +3,8 @@ find_package(webots REQUIRED)
 
 find_package(Protobuf REQUIRED)
 
+find_package(Eigen3 REQUIRED)
+
 # Find/list all of the source files
 set(controller_sources nugus_controller.cpp)
 
@@ -17,6 +19,8 @@ target_include_directories(nugus_controller SYSTEM PRIVATE "${PROJECT_BINARY_DIR
 
 # Link against the webots target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE webots::webots)
+
+target_link_libraries(nugus_controller PRIVATE Eigen3::Eigen)
 
 # Link against the protobuf-lite target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
