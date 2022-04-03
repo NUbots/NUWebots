@@ -72,19 +72,19 @@ public:
         , tcp_fd(create_socket_server(server_port_)) {
         send(tcp_fd, "Welcome", 8, 0);
         // World (starting position of robot) [w] to webots environment reference point [x]
-        double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
-        Hwx.translation()   = Eigen::Vector3d(translation[0], translation[1], translation[2]);
+        const double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        Hwx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
         // World is on the ground, not in the torso
         // Assuming the robot starts standing up, this should be world
-        Hwx.translation().z() = 0.0;
-        double* rotation      = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        Hwx.translation().z()  = 0.0;
+        const double* rotation = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
         Hwx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix()
+            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
     }
     ~NUgus() override {
         close_socket(tcp_fd);
     }
-    // We want to prevent multiple NUguses connecting with the same port
+    // We want to prevent multiple NUguses connecting with the same port.
     NUgus(NUgus& other) = delete;
     NUgus& operator=(NUgus& other) = delete;
     // Disable moving NUgus objects until we have tested that doing it doesn't break things
@@ -367,20 +367,22 @@ public:
         }
 
         // Get odometry ground truth data to send
-        sensorMeasurements->odometry_ground_truth.exists = true;
+        controller::nugus::OdometryGroundTruth odometry_ground_truth;
+        odometry_ground_truth.set_exists(true);
 
         // Webots absolute reference [x] to torso
         Eigen::Affine3d Htx;
-        double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
-        Htx.translation()   = Eigen::Vector3d(translation[0], translation[1], translation[2]);
-        double* rotation    = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
-        Htx.linear()        = Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]))
-                           .toRotationMatrix()
+        const double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        Htx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
+        const double* rotation    = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        Htx.linear() =
+            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
 
-                       // Get world to torso using the transformations relative to Webots absolute reference
-                       Eigen::Affine3d Htw = Htx * Hwx.inverse();
+        // Get world to torso using the transformations relative to Webots absolute reference
+        Eigen::Affine3d Htw = Htx * Hwx.inverse();
 
-        sensorMeasurements->odometry_ground_truth.Htw = Htw.matrix();
+        odometry_ground_truth.set_Htw(Htw.matrix());
+        sensorMeasurements.set_odometry_ground_truth(odometry_ground_truth);
 
 
 #ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging
@@ -522,7 +524,7 @@ private:
     Eigen::Affine3d Hwx;
     /// Supervisor to get ground truth robot data
     webots::Supervisor supervisor;
-    std::string robot_def;
+    const std::string robot_def;
     std::vector<uint8_t> buffer;
 };
 
