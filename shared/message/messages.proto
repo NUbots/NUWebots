@@ -21,8 +21,6 @@ syntax = "proto3";
 
 package controller.nugus;
 
-import "Matrix.proto";
-
 // Copy of cyberbotics/webots projects/samples/contests/robocup/controllers/player/messages.proto
 
 
@@ -94,6 +92,20 @@ message OdometryGroundTruth {
     mat4 Htw = 2;
     // /// Torso to Centre of Mass (CoM) in torso space
     // vec4 rMTt = 17;
+}
+
+message mat4 {
+    vec4 x = 1;
+    vec4 y = 2;
+    vec4 z = 3;
+    vec4 t = 4;
+}
+
+message vec4 {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+    double t = 4;
 }
 
 message SensorMeasurements {

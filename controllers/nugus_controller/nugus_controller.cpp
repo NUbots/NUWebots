@@ -57,9 +57,11 @@ using controller::nugus::CameraMeasurement;
 using controller::nugus::Force3DMeasurement;
 using controller::nugus::ForceMeasurement;
 using controller::nugus::GyroMeasurement;
+using controller::nugus::mat4;
 using controller::nugus::MotorPID;
 using controller::nugus::PositionSensorMeasurement;
 using controller::nugus::SensorMeasurements;
+using controller::nugus::vec4;
 using controller::nugus::Vector3;
 
 class NUgus : public webots::Robot {
@@ -381,8 +383,35 @@ public:
         // Get world to torso using the transformations relative to Webots absolute reference
         Eigen::Affine3d Htw = Htx * Hwx.inverse();
 
-        odometry_ground_truth.set_Htw(Htw.matrix());
-        sensorMeasurements.set_odometry_ground_truth(odometry_ground_truth);
+        vec4 r0;
+        r0.set_x(Htw(0, 0));
+        r0.set_y(Htw(0, 1));
+        r0.set_z(Htw(0, 2));
+        r0.set_t(Htw(0, 3));
+        vec4 r1;
+        r1.set_x(Htw(1, 0));
+        r1.set_y(Htw(1, 1));
+        r1.set_z(Htw(1, 2));
+        r1.set_t(Htw(1, 3));
+        vec4 r2;
+        r2.set_x(Htw(2, 0));
+        r2.set_y(Htw(2, 1));
+        r2.set_z(Htw(2, 2));
+        r2.set_t(Htw(2, 3));
+        vec4 r3;
+        r3.set_x(Htw(3, 0));
+        r3.set_y(Htw(3, 1));
+        r3.set_z(Htw(3, 2));
+        r3.set_t(Htw(3, 3));
+
+        mat4 htw;
+        htw.set_allocated_x(&r0);
+        htw.set_allocated_y(&r1);
+        htw.set_allocated_z(&r2);
+        htw.set_allocated_t(&r3);
+
+        odometry_ground_truth.set_allocated_htw(&htw);
+        sensorMeasurements->set_allocated_odometry_ground_truth(&odometry_ground_truth);
 
 
 #ifndef NDEBUG  // set to print the created SensorMeasurements message for debugging

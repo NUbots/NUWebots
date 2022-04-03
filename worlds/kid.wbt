@@ -57,7 +57,7 @@ DEF BLUE_1 NUgus {
   controller "nugus_controller"
   controllerArgs [
     # TCP port to listen on
-    "10020"
+    "10001"
     # Simulator timestep [ms]
     "8"
     "BLUE_1"
