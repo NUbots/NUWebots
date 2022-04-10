@@ -54,6 +54,7 @@ DEF BLUE_1 NUgus {
   name "blue player 1"
   translation 2.688 -0.3985 0.51
   rotation 0 0 1 3.1415
+  supervisor TRUE
   controller "nugus_controller"
   controllerArgs [
     # TCP port to listen on

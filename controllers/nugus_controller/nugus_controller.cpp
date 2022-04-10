@@ -64,22 +64,21 @@ using controller::nugus::SensorMeasurements;
 using controller::nugus::vec4;
 using controller::nugus::Vector3;
 
-class NUgus : public webots::Robot {
+class NUgus : public webots::Supervisor {
 public:
     NUgus(const int& time_step_, const uint16_t& server_port_, const std::string& robot_def_)
         : time_step(time_step_)
         , server_port(server_port_)
         , robot_def(robot_def_)
-        , supervisor(webots::Supervisor())
         , tcp_fd(create_socket_server(server_port_)) {
         send(tcp_fd, "Welcome", 8, 0);
         // World (starting position of robot) [w] to webots environment reference point [x]
-        const double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        const double* translation = getFromDef(robot_def)->getField("translation")->getSFVec3f();
         Hwx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
         // World is on the ground, not in the torso
         // Assuming the robot starts standing up, this should be world
         Hwx.translation().z()  = 0.0;
-        const double* rotation = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        const double* rotation = getFromDef(robot_def)->getField("rotation")->getSFRotation();
         Hwx.linear() =
             Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
     }
@@ -374,9 +373,9 @@ public:
 
         // Webots absolute reference [x] to torso
         Eigen::Affine3d Htx;
-        const double* translation = supervisor.getFromDef(robot_def)->getField("translation")->getSFVec3f();
+        const double* translation = getFromDef(robot_def)->getField("translation")->getSFVec3f();
         Htx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
-        const double* rotation    = supervisor.getFromDef(robot_def)->getField("rotation")->getSFRotation();
+        const double* rotation    = getFromDef(robot_def)->getField("rotation")->getSFRotation();
         Htx.linear() =
             Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
 
@@ -551,8 +550,6 @@ private:
     std::set<webots::Device*> sensors;
     /// World (starting position of robot) [w] to webots environment reference point [x]
     Eigen::Affine3d Hwx;
-    /// Supervisor to get ground truth robot data
-    webots::Supervisor supervisor;
     const std::string robot_def;
     std::vector<uint8_t> buffer;
 };
