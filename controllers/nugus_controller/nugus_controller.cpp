@@ -265,6 +265,8 @@ public:
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
+
+        // SET UP GROUND TRUTH DATA FOR TESTING
         // World (starting position of robot) [w] to webots environment reference point [x]
         const double* translation = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
         Hwx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
@@ -764,32 +766,19 @@ public:
         // Get world to torso using the transformations relative to Webots absolute reference
         Eigen::Affine3d Htw = Htx * Hwx.inverse();
 
+        // clang-format off
         vec4* r0 = new vec4();
-        r0->set_x(Htw(0, 0));
-        r0->set_y(Htw(1, 0));
-        r0->set_z(Htw(2, 0));
-        r0->set_t(Htw(3, 0));
+        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
         vec4* r1 = new vec4();
-        r1->set_x(Htw(0, 1));
-        r1->set_y(Htw(1, 1));
-        r1->set_z(Htw(2, 1));
-        r1->set_t(Htw(3, 1));
+        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
         vec4* r2 = new vec4();
-        r2->set_x(Htw(0, 2));
-        r2->set_y(Htw(1, 2));
-        r2->set_z(Htw(2, 2));
-        r2->set_t(Htw(3, 2));
+        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
         vec4* r3 = new vec4();
-        r3->set_x(Htw(0, 3));
-        r3->set_y(Htw(1, 3));
-        r3->set_z(Htw(2, 3));
-        r3->set_t(Htw(3, 3));
-
+        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
+        
         mat4* htw = new mat4();
-        htw->set_allocated_x(r0);
-        htw->set_allocated_y(r1);
-        htw->set_allocated_z(r2);
-        htw->set_allocated_t(r3);
+        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
+        // clang-format on
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
