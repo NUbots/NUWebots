@@ -59,9 +59,9 @@ DEF BLUE_1 NUgus {
   controllerArgs [
     # TCP port to listen on
     "10020"
+    # Number of hosts
     "1"
+    # Host address
     "127.0.0.1"
-    # Simulator timestep [ms]
-    # "8"
   ]
 }
