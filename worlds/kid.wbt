@@ -43,10 +43,10 @@ TexturedBackground {
 TexturedBackgroundLight {
   texture "stadium_dry"
 }
-RobocupSoccerField {
+DEF FIELD RobocupSoccerField {
   size "kid"
 }
-RobocupSoccerBall {
+DEF BALL RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
   rotation 0.9999999999999999 0 0 1.8715596617048374e-06
 }
@@ -59,9 +59,15 @@ DEF BLUE_1 NUgus {
   controllerArgs [
     # TCP port to listen on
     "10020"
+    # Number of players
     "1"
-    "127.0.0.1"
+    # Host ip
+    #"127.0.0.1"
+    #"172.28.240.1"
+    #"172.25.152.115"
+    "172.29.208.1"
+    # Cannot connect to server: 172.28.252.78:10020
     # Simulator timestep [ms]
-    # "8"
+    # "8" 172.29.216.110
   ]
 }
