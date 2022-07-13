@@ -51,7 +51,7 @@ DEF RED_PLAYER_1 NUgus {
   controller "nuoptimiser"
   name "red player 1"
   translation -7.0 -3.0 0.4
-  rotation 0 1 0 1.5
+  rotation 0 0 0 1
   controllerArgs [
     "10001"
     "1",
