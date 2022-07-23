@@ -50,39 +50,6 @@ RobocupSoccerBall {
   translation 0 -1.2605840975378444e-07 0.07852943586495187
   rotation 0.9999999999999999 0 0 1.8715596617048374e-06
 }
-DEF RED_1 Darwin-opHinge2 {
-  translation -4.03 -0.028 0.237
-  rotation 0.578 0.382 0.72 0.136
-  name "player red 1"
-  cameraWidth 320
-  cameraHeight 240
-  jersey RobotisJersey {
-    jerseyTexture [
-      "textures/robotis-op2_1_red.png"
-    ]
-  }
-  backlash TRUE
-  controller ""
-}
-
-DEF RED_2 NUgus {
-  translation -2.207 -0.71576 0.51
-  name "red player 2"
-}
-
-DEF RED_3 RobotisOp3 {
-  translation -1.358 1.11 0.289
-  rotation 0 0 -1 1
-  name "player red 3"
-  cameraWidth 320
-  cameraHeight 240
-}
-
-DEF RED_4 Wolfgang {
-  translation -0.9 -0.53 0.43
-  rotation 0.078 0.86 -0.5 0.347
-  name "player red 4"
-}
 DEF BLUE_1 NUgus {
   name "blue player 1"
   translation 2.688 -0.3985 0.51
