@@ -267,15 +267,16 @@ public:
         set_blocking(server_fd, false);
 
         // SET UP GROUND TRUTH DATA FOR TESTING
-        // World (starting position of robot) [w] to webots environment reference point [x]
-        const double* translation = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        Hwx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
+        // Webots environment reference point [x] to world (starting position of robot) [w]
+        const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
         // World is on the ground, not in the torso
         // Assuming the robot starts standing up, this should be world
-        Hwx.translation().z()  = 0.0;
-        const double* rotation = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        rWXx[2] = 0.0;
+        // Get rotation and use it to set up the translation
+        const double* Rwx = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
         Hwx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
+            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix();
+        Hwx.translation()         = Hwx.linear() * -Eigen::Vector3d(rWXx[0], rWXx[1], rWXx[2]);
     }
 
     int accept_client(int server_fd) {
@@ -757,11 +758,11 @@ public:
 
         // Webots absolute reference [x] to torso
         Eigen::Affine3d Htx;
-        const double* translation = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        Htx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
-        const double* rotation    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+        const double* Rtx    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
         Htx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
+            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix();
+        Htx.translation()         = Htx.linear() * -Eigen::Vector3d(translation[0], translation[1], translation[2]);
 
         // Get world to torso using the transformations relative to Webots absolute reference
         Eigen::Affine3d Htw = Htx * Hwx.inverse();
