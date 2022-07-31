@@ -15,11 +15,9 @@ target_include_directories(nugus_controller PRIVATE "${PROJECT_SOURCE_DIR}/share
 # Make sure we can find the generated protobuf header files
 target_include_directories(nugus_controller SYSTEM PRIVATE "${PROJECT_BINARY_DIR}/shared/message")
 
-# Link against the webots target (this will also add any necessary include directories to our target)
+# Use webots, Eigen and protobuf libraries
 target_link_libraries(nugus_controller PRIVATE webots::webots)
-# target_link_libraries(nugus_controller PRIVATE "${WEBOTS_HOME}/lib/controller/libCppController.so")
 target_link_libraries(nugus_controller PRIVATE Eigen3::Eigen)
-# Link against the protobuf-lite target (this will also add any necessary include directories to our target)
 target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
 
 # Generate binary in controller source directory
