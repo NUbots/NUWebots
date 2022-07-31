@@ -267,16 +267,15 @@ public:
         set_blocking(server_fd, false);
 
         // SET UP GROUND TRUTH DATA FOR TESTING
-        // Webots environment reference point [x] to world (starting position of robot) [w]
+        // Get position data from the robot
         const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        // World is on the ground, not in the torso
-        // Assuming the robot starts standing up, this should be world
-        rWXx[2] = 0.0;
-        // Get rotation and use it to set up the translation
         const double* Rwx = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        Hwx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix();
-        Hwx.translation()         = Hwx.linear() * -Eigen::Vector3d(rWXx[0], rWXx[1], rWXx[2]);
+
+        // Rotation is an angle axis so convert it to a rotation matrix
+        Hxw.linear() =
+            Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix().inverse();
+        // Set z to 0.0 since world is on the ground, not in the torso
+        Hxw.translation()         = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
     }
 
     int accept_client(int server_fd) {
@@ -756,16 +755,19 @@ public:
         OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
         odometry_ground_truth->set_exists(true);
 
-        // Webots absolute reference [x] to torso
-        Eigen::Affine3d Htx;
+        // Torso to Webots absolute reference [x]
+        Eigen::Affine3d Hxt;
+
+        // Get values from the robot model
         const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
         const double* Rtx    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        Htx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix();
-        Htx.translation()         = Htx.linear() * -Eigen::Vector3d(translation[0], translation[1], translation[2]);
+
+        // Set values - need to convert angle axis to a rotation matrix
+        Hxt.linear() = Eigen::AngleAxisd(Rtx[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix().inverse();
+        Hxt.translation() = Eigen::Vector3d(rTXx[0], rTXx[1], rTXx[2]);
 
         // Get world to torso using the transformations relative to Webots absolute reference
-        Eigen::Affine3d Htw = Htx * Hwx.inverse();
+        Eigen::Affine3d Htw = Hxt.inverse() * Hxw;
 
         // clang-format off
         vec4* r0 = new vec4();
@@ -899,7 +901,7 @@ private:
     static double team_rendering_quota;
 
     /// World (starting position of robot) [w] to webots environment reference point [x]
-    Eigen::Affine3d Hwx;
+    Eigen::Affine3d Hxw;
     const std::string robot_def;
 
 public:
