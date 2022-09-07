@@ -800,7 +800,6 @@ public:
 
         // Get ball position in world space
         const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        const double* ball_position    = robot->getFromDef("BALL")->getPosition();
         Eigen::Vector3d rBXx           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
         Eigen::Vector3d rBWw           = Hwx * rBXx;
 
@@ -870,7 +869,7 @@ public:
         printMessage(msg + " " + std::to_string(elapsed_ms) + " ms");
     }
 
-    void printMessage(const std::string& msg) {       
+    void printMessage(const std::string& msg) {
         const char* team_name = team == RED ? "RED" : "BLUE";
         printf("%s %d: %s\n", team_name, player_id, msg.c_str());
     }
