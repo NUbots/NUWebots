@@ -50,13 +50,13 @@ DEF RED_PLAYER_1 NUgus {
   supervisor TRUE
   controller "nuoptimiser"
   name "red player 1"
-  translation -7.0 -3.0 0.4
-  rotation 0 0 0 1
+  translation -7.0 -3.0 0.51  # 0.0 0.0 0.51 
+  rotation 0 0 1 0
   controllerArgs [
     "10001"
     "1",
-    "127.0.0.1",
-    "10.1.0.207"
+    "127.0.1.1",
+    "10.1.0.102"
     ]
   }
 #1.571592653589793
