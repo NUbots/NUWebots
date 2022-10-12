@@ -265,15 +265,17 @@ public:
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
-        // World (starting position of robot) [w] to webots environment reference point [x]
-        const double* translation = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        Hwx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
-        // World is on the ground, not in the torso
-        // Assuming the robot starts standing up, this should be world
-        Hwx.translation().z()  = 0.0;
-        const double* rotation = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        Hwx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
+
+        // SET UP GROUND TRUTH DATA FOR TESTING
+        // Get position data from the robot
+        const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+        const double* Rwx = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+
+        // Rotation is an angle axis so convert it to a rotation matrix
+        Hxw.linear() =
+            Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix().inverse();
+        // Set z to 0.0 since world is on the ground, not in the torso
+        Hxw.translation()         = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
     }
 
     int accept_client(int server_fd) {
@@ -753,73 +755,36 @@ public:
         OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
         odometry_ground_truth->set_exists(true);
 
-        // Webots absolute reference [x] to torso
-        Eigen::Affine3d Htx;
-        const double* translation = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        Htx.translation()         = Eigen::Vector3d(translation[0], translation[1], translation[2]);
-        const double* rotation    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        Htx.linear() =
-            Eigen::AngleAxisd(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2])).toRotationMatrix();
+        // Torso to Webots absolute reference [x]
+        Eigen::Affine3d Hxt;
+
+        // Get values from the robot model
+        const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+        const double* Rtx    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+
+        // Set values - need to convert angle axis to a rotation matrix
+        Hxt.linear() = Eigen::AngleAxisd(Rtx[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix().inverse();
+        Hxt.translation() = Eigen::Vector3d(rTXx[0], rTXx[1], rTXx[2]);
 
         // Get world to torso using the transformations relative to Webots absolute reference
-        Eigen::Affine3d Htw = Htx * Hwx.inverse();
+        Eigen::Affine3d Htw = Hxt.inverse() * Hxw;
 
+        // clang-format off
         vec4* r0 = new vec4();
-        r0->set_x(Htw(0, 0));
-        r0->set_y(Htw(1, 0));
-        r0->set_z(Htw(2, 0));
-        r0->set_t(Htw(3, 0));
+        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
         vec4* r1 = new vec4();
-        r1->set_x(Htw(0, 1));
-        r1->set_y(Htw(1, 1));
-        r1->set_z(Htw(2, 1));
-        r1->set_t(Htw(3, 1));
+        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
         vec4* r2 = new vec4();
-        r2->set_x(Htw(0, 2));
-        r2->set_y(Htw(1, 2));
-        r2->set_z(Htw(2, 2));
-        r2->set_t(Htw(3, 2));
+        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
         vec4* r3 = new vec4();
-        r3->set_x(Htw(0, 3));
-        r3->set_y(Htw(1, 3));
-        r3->set_z(Htw(2, 3));
-        r3->set_t(Htw(3, 3));
-
+        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
+        
         mat4* htw = new mat4();
-        htw->set_allocated_x(r0);
-        htw->set_allocated_y(r1);
-        htw->set_allocated_z(r2);
-        htw->set_allocated_t(r3);
+        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
+        // clang-format on
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
-
-        // Start Vision Ground truth
-        VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
-        vision_ground_truth->set_exists(true);
-
-        // Get ball position in world space
-        const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        Eigen::Vector3d rBXx           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
-        Eigen::Vector3d rBWw           = Hwx * rBXx;
-
-        // Get field position in world space
-        const double* field_position = robot->getFromDef("FIELD")->getPosition();
-        Eigen::Vector3d rFXx         = Eigen::Vector3d(field_position[0], field_position[1], field_position[2]);
-        Eigen::Vector3d rFWw         = Hwx * rFXx;
-
-        fvec3* rbww = new fvec3();
-        rbww->set_x(rBWw(0, 0));
-        rbww->set_y(rBWw(1, 0));
-        rbww->set_z(rBWw(2, 0));
-        vision_ground_truth->set_allocated_rbww(rbww);
-
-        fvec3* rfww = new fvec3();
-        rfww->set_x(rFWw(0, 0));
-        rfww->set_y(rFWw(1, 0));
-        rfww->set_z(rFWw(2, 0));
-        vision_ground_truth->set_allocated_rfww(rfww);
-        sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
     }
 
     void updateDevices() {
@@ -936,7 +901,7 @@ private:
     static double team_rendering_quota;
 
     /// World (starting position of robot) [w] to webots environment reference point [x]
-    Eigen::Affine3d Hwx;
+    Eigen::Affine3d Hxw;
     const std::string robot_def;
 
 public:
