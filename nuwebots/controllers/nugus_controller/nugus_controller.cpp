@@ -794,22 +794,12 @@ public:
         Eigen::Vector3d rBXx           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
         Eigen::Vector3d rBWw           = Hxw.inverse() * rBXx;
 
-        // Get field position in world space
-        // const double* field_position = robot->getFromDef("FIELD")->getPosition();
-        // Eigen::Vector3d rFXx         = Eigen::Vector3d(field_position[0], field_position[1], field_position[2]);
-        // Eigen::Vector3d rFWw         = Hwx * rFXx;
-
         fvec3* rbww = new fvec3();
         rbww->set_x(rBWw(0, 0));
         rbww->set_y(rBWw(1, 0));
         rbww->set_z(rBWw(2, 0));
         vision_ground_truth->set_allocated_rbww(rbww);
 
-        // fvec3* rfww = new fvec3();
-        // rfww->set_x(rFWw(0, 0));
-        // rfww->set_y(rFWw(1, 0));
-        // rfww->set_z(rFWw(2, 0));
-        // vision_ground_truth->set_allocated_rfww(rfww);
         sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
     }
 
