@@ -269,13 +269,12 @@ public:
         // SET UP GROUND TRUTH DATA FOR TESTING
         // Get position data from the robot
         const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rwx = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* Rwx  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
         // Rotation is an angle axis so convert it to a rotation matrix
-        Hxw.linear() =
-            Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix().inverse();
+        Hxw.linear() = Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix().inverse();
         // Set z to 0.0 since world is on the ground, not in the torso
-        Hxw.translation()         = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
+        Hxw.translation() = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
     }
 
     int accept_client(int server_fd) {
@@ -760,7 +759,7 @@ public:
 
         // Get values from the robot model
         const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rtx    = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* Rtx  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
         // Set values - need to convert angle axis to a rotation matrix
         Hxt.linear() = Eigen::AngleAxisd(Rtx[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix().inverse();
@@ -785,6 +784,23 @@ public:
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
+
+        // Start Vision Ground truth
+        VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
+        vision_ground_truth->set_exists(true);
+
+        // Get ball position in world space
+        const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
+        Eigen::Vector3d rBXx           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
+        Eigen::Vector3d rBWw           = Hxw.inverse() * rBXx;
+
+        fvec3* rbww = new fvec3();
+        rbww->set_x(rBWw(0, 0));
+        rbww->set_y(rBWw(1, 0));
+        rbww->set_z(rBWw(2, 0));
+        vision_ground_truth->set_allocated_rbww(rbww);
+
+        sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
     }
 
     void updateDevices() {
