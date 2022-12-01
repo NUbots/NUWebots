@@ -3,8 +3,6 @@ find_package(webots REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Protobuf REQUIRED)
 
-find_package(Eigen3 REQUIRED)
-
 # Find/list all of the source files
 set(controller_sources nugus_controller.cpp)
 
