@@ -10,6 +10,8 @@ PROTO RobocupSoccerBall [
   field SFString   name         "robocup soccer ball"
   field SFInt32{1,2,3,4,5}      size 1 # Defines the ball size and mass according to FIFA standards.
   field MFColor    recognitionColors [1 0 0]  # ball is red
+  field  SFFloat   height            0.08   # Height of the ball from ground to center 
+
 ]
 {
   %{

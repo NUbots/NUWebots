@@ -33,6 +33,7 @@ PROTO RobotisOp3 [
   field MFNode     leftHandSlot        []                             # Extends the robot with new nodes in the left hand slot.
   field MFNode     rightHandSlot       []                             # Extends the robot with new nodes in the righthand slot.
   field MFColor    recognitionColors   [0 0 1]                        # blue segmentation
+  field SFFloat    height              0.29                           # Height of the robot from ground to center                           
 ]
 {
   Robot {
