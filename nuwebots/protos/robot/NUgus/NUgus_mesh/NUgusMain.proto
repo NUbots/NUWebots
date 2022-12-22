@@ -1,8 +1,34 @@
-#VRML_SIM R2021b utf8
+#VRML_SIM R2022b utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # This is a proto file for Webots for the NUgus
 # Extracted from: NUgus.urdf
+
+EXTERNPROTO "HingeJointWithBacklash.proto"
+EXTERNPROTO "NUgus_right_lower_legMesh.proto"
+EXTERNPROTO "NUgus_torsoMesh.proto"
+EXTERNPROTO "NUgus_left_hip_yawMesh.proto"
+EXTERNPROTO "NUgus_headMesh.proto"
+EXTERNPROTO "NUgus_right_ankleMesh.proto"
+EXTERNPROTO "NUgus_left_footMesh.proto"
+EXTERNPROTO "NUgus_right_hip_yawMesh.proto"
+EXTERNPROTO "NUgus_left_upper_armMesh.proto"
+EXTERNPROTO "NUgus_right_upper_armMesh.proto"
+EXTERNPROTO "NUgus_neckMesh.proto"
+EXTERNPROTO "NUgus_right_shoulderMesh.proto"
+EXTERNPROTO "NUgus_left_hip_rollMesh.proto"
+EXTERNPROTO "NUgus_left_lower_armMesh.proto"
+EXTERNPROTO "NUgus_right_upper_legMesh.proto"
+EXTERNPROTO "NUgus_right_footMesh.proto"
+EXTERNPROTO "NUgus_right_hip_rollMesh.proto"
+EXTERNPROTO "NUgus_left_upper_legMesh.proto"
+EXTERNPROTO "NUgus_left_shoulderMesh.proto"
+EXTERNPROTO "NUgus_left_lower_legMesh.proto"
+EXTERNPROTO "NUgus_left_ankleMesh.proto"
+EXTERNPROTO "NUgus_right_lower_armMesh.proto"
+EXTERNPROTO "JerseyBack.proto"
+EXTERNPROTO "JerseyFront.proto"
+
 PROTO NUgusMain [
   field  SFVec3f     translation          0 0 0
   field  SFRotation  rotation             0 1 0 0
@@ -13,7 +39,7 @@ PROTO NUgusMain [
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
-  field  MFString    robotTexture         "./NUgus_textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture         "../NUgus_textures/NUgus_base_color.jpg"
   # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
   field  SFFloat     MX64-torque          7.30
   field  SFFloat     MX64-vel             8.17
@@ -62,7 +88,7 @@ PROTO NUgusMain [
         children [
           JerseyFront {
             jerseyFrontTexture [
-             %{='"./NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"../NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]
@@ -74,7 +100,7 @@ PROTO NUgusMain [
         children [
           JerseyBack {
             jerseyBackTexture [
-             %{='"./NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+             %{='"../NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
             ]
           }
         ]

@@ -1,4 +1,7 @@
-
+#VRML_SIM R2022b utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# tags: hidden
 PROTO JerseyFront [
   field MFString jerseyFrontTexture "textures/NUgus_front_red_1.jpg"
   field SFColor  jerseyFrontColor   0.5 0.5 0.5

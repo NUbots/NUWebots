@@ -1,11 +1,10 @@
-#VRML_SIM R2021b utf8
+#VRML_SIM R2022b utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # tags: hidden
 # Extracted from: NUgus.urdf
-
 PROTO NUgus_left_ankleMesh [
-  field  MFString    robotTexture    "./NUgus_textures/NUgus_base_color.jpg"
+  field  MFString    robotTexture    "../NUgus_textures/NUgus_base_color.jpg"
 ]
 {
   Shape {
