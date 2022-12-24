@@ -93,7 +93,7 @@ if(NOT DEFINED WEBOTS_HOME)
   else()
     if(NOT WIN32)
       set(WEBOTS_HOME
-          "${PROJECT_SOURCE_DIR}/../webots"
+          "/usr/local/bin"
           CACHE PATH "The path to the webots folder."
       )
     endif()
