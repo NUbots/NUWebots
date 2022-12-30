@@ -1537,7 +1537,7 @@ PROTO NUgusMain [
                       DEF left_camera Camera {
                         name "left_camera"
                         translation 0.0889361 0.0352991 0.0713675
-                        rotation 0.577322 -0.595552 -0.558585 2.06587
+                        rotation 0.0 0.0 1.0 0.0
 
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
@@ -1556,7 +1556,7 @@ PROTO NUgusMain [
                       DEF right_camera Camera {
                         name "right_camera"
                         translation 0.0889361 -0.0352991 0.0713675
-                        rotation 0.577322 -0.595552 -0.558585 2.06587
+                        rotation 0.0 0.0 1.0 0.0
 
                         # Set parameters from fields
                         fieldOfView IS fieldOfView
