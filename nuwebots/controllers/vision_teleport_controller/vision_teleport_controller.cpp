@@ -56,7 +56,7 @@ std::vector<std::array<double, 3>> find_robot_positions(const std::vector<webots
     std::vector<std::array<double, 3>> positions = {};
 
     for (const auto& robot : robot_nodes) {
-        // Assume there is no collision
+        // Flag for if robots have collided. Start by assuming no collision, and then update if there is any collision.
         bool collision = false;
         // new_pos will be a "Proposed location" for a robot to teleport to
         std::array<double, 3> new_pos{};
