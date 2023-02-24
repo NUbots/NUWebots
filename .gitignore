@@ -10,14 +10,11 @@ worlds/robot
 build/
 
 # Vision data collection
-nuwebots/controllers/vision_teleport_controller/data
+controllers/vision_teleport_controller/data
 
 # Binaries
-nuwebots/controllers/nugus_controller/nugus_controller
-nuwebots/controllers/vision_teleport_controller/vision_teleport_controller
+controllers/nugus_controller/nugus_controller
+controllers/vision_teleport_controller/vision_teleport_controller
 
 # Logs
 *.log
-
-# Symlink
-webots/projects/samples/contests/robocup/protos/NUgus

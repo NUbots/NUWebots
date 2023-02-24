@@ -1,4 +1,4 @@
-#VRML_SIM R2021b utf8
+#VRML_SIM R2022b utf8
 # license: Copyright Cyberbotics Ltd. Licensed for use only with Webots.
 # license url: https://cyberbotics.com/webots_assets_license
 # ROBOTIS OP3 is an open platform, miniature humanoid robot used for research, education and outreach.
@@ -10,6 +10,20 @@
 # - camera
 # - realistic physics
 # More info here: http://support.robotis.com/en/product/robotis-op3/introduction/what_is_robotis_op3.htm
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/MX430RearRotorShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3ShiftedFrameShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3LongFrameShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/MX430ServoShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3StraightFrameShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3HeadLEDShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3BodyShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/MX430FrontRotorShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3FootShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3TriangleFrameShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3HeadShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3ArmFrameShape.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisOp3SquaredFrameShape.proto"
 
 PROTO RobotisOp3 [
   field SFVec3f    translation         0 0 0
