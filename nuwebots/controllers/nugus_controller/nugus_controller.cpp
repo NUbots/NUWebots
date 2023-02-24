@@ -269,10 +269,10 @@ public:
         // SET UP GROUND TRUTH DATA FOR TESTING
         // Get position data from the robot
         const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rwx  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* Rxw  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
         // Rotation is an angle axis so convert it to a rotation matrix
-        Hxw.linear() = Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix();
+        Hxw.linear() = Eigen::AngleAxisd(Rxw[3], Eigen::Vector3d(Rxw[0], Rxw[1], Rxw[2])).toRotationMatrix();
         // Set z to 0.0 since world is on the ground, not in the torso
         Hxw.translation() = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
     }
