@@ -269,10 +269,10 @@ public:
         // SET UP GROUND TRUTH DATA FOR TESTING
         // Get position data from the robot
         const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rwx  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* Rxw  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
         // Rotation is an angle axis so convert it to a rotation matrix
-        Hxw.linear() = Eigen::AngleAxisd(Rwx[3], Eigen::Vector3d(Rwx[0], Rwx[1], Rwx[2])).toRotationMatrix().inverse();
+        Hxw.linear() = Eigen::AngleAxisd(Rxw[3], Eigen::Vector3d(Rxw[0], Rxw[1], Rxw[2])).toRotationMatrix();
         // Set z to 0.0 since world is on the ground, not in the torso
         Hxw.translation() = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
     }
@@ -759,10 +759,10 @@ public:
 
         // Get values from the robot model
         const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rtx  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* Rxt  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
         // Set values - need to convert angle axis to a rotation matrix
-        Hxt.linear() = Eigen::AngleAxisd(Rtx[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix().inverse();
+        Hxt.linear() = Eigen::AngleAxisd(Rxt[3], Eigen::Vector3d(Rxt[0], Rxt[1], Rxt[2])).toRotationMatrix();
         Hxt.translation() = Eigen::Vector3d(rTXx[0], rTXx[1], rTXx[2]);
 
         // Get world to torso using the transformations relative to Webots absolute reference
