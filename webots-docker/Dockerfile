@@ -57,7 +57,7 @@ ENV GAME_CONTROLLER_HOME=${HOME}/GameController JAVA_HOME=/usr/lib/jvm/java-11-o
 RUN git clone https://github.com/NUbots/NUWebots.git ./NUWebots && cd ./NUWebots && pip3 install -r ./requirements.txt && \
  ./b configure -- -DENABLE_CLANG_TIDY=OFF && ./b build
 
-RUN wget https://raw.githubusercontent.com/NUbots/NUWebots/main/webots-docker/docker-config.py && \
+RUN wget https://raw.githubusercontent.com/NUbots/NUWebots/main/webots-docker/webots-config.py && \
  wget https://raw.githubusercontent.com/NUbots/NUWebots/main/webots-docker/entrypoint.sh && \
  chmod +x entrypoint.sh
 
