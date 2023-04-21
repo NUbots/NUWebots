@@ -2,7 +2,7 @@
 find_package(webots REQUIRED)
 
 # Find/list all of the source files
-set(controller_sources "Voronoi_Controller.cpp")
+set(controller_sources "voronoi_controller.cpp")
 
 # Create an executable using all of the sources
 add_executable(Voronoi_Controller ${controller_sources})
