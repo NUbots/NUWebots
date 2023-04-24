@@ -948,20 +948,22 @@ int PlayerServer::camera_min_time_step    = 16;
 double PlayerServer::team_rendering_quota = 350.0;
 
 int main(int argc, char* argv[]) {
+    
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <port> <nb_players> <host1> <host2> ...", argv[0]);
+        fprintf(stderr, "Usage: %s <port> <host1> <robot_def1> <robot_def2> ...", argv[0]);
         return 1;
     }
     const int port                  = atoi(argv[1]);
-    PlayerServer::nb_robots_in_team = atoi(argv[2]);
-    n_allowed_hosts                 = argc - 3;
+    // PlayerServer::nb_robots_in_team = atoi(argv[2]);
+    n_allowed_hosts                 = atoi(argv[2]); //argc - 3;
+    std::cout << "Allowd Hosts = " << n_allowed_hosts << std::endl;
     for (int i = 0; i < n_allowed_hosts; i++)
         allowed_hosts.push_back(argv[i + 3]);
 
     webots::Supervisor* robot = new webots::Supervisor();
 
     std::vector<webots::Node*> robot_nodes;
-    for (int i = 2; i < argc; i++) {
+    for (int i = 3; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
         robot_nodes.emplace_back(robot->getFromDef(argv[i]));
     }
