@@ -812,7 +812,7 @@ public:
             rrff->set_x(rTXx[0]);
             rrff->set_y(rTXx[1]);
             rrff->set_z(rTXx[2]);
-            std::cout << "added robot node position" << rTXx[0] << ", " << rTXx[1] << std::endl;
+            // std::cout << "added robot node position" << rTXx[0] << ", " << rTXx[1] << std::endl;
         }
     }
 
@@ -954,18 +954,27 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     const int port                  = atoi(argv[1]);
-    // PlayerServer::nb_robots_in_team = atoi(argv[2]);
-    n_allowed_hosts                 = atoi(argv[2]); //argc - 3;
+    n_allowed_hosts                 = atoi(argv[2]);
+    PlayerServer::nb_robots_in_team = atoi(argv[4]);
+    
+    for(int i =0; i < argc; i++){
+        std::cout << "Argv " << i << " = " << argv[i] << std::endl;
+    }
     std::cout << "Allowd Hosts = " << n_allowed_hosts << std::endl;
-    for (int i = 0; i < n_allowed_hosts; i++)
+    std::cout << "Number of Robots = " << PlayerServer::nb_robots_in_team << std::endl;
+
+    for (int i = 0; i < n_allowed_hosts; i++) {
         allowed_hosts.push_back(argv[i + 3]);
+        std::cout << "Hosts = " << argv[i + 3] << std::endl;
+    }
 
     webots::Supervisor* robot = new webots::Supervisor();
 
     std::vector<webots::Node*> robot_nodes;
-    for (int i = 3; i < argc; i++) {
+    for (int i = 5; i < argc; i++) {
         // Load the Node of the robot by def argument and add to vector
         robot_nodes.emplace_back(robot->getFromDef(argv[i]));
+        std::cout << "Robot Node added to vector = " << argv[i] << std::endl;
     }
 
     const int basic_time_step = robot->getBasicTimeStep();
