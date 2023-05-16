@@ -1,4 +1,0 @@
-add_subdirectory(nugus_controller)
-add_subdirectory(teleport_controller)
-add_subdirectory(teleport_master_controller)
-add_subdirectory(collect_vision_data)

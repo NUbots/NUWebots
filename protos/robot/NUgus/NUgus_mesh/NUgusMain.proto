@@ -1,0 +1,1686 @@
+#VRML_SIM R2022b utf8
+# license: Apache License 2.0
+# license url: http://www.apache.org/licenses/LICENSE-2.0
+# This is a proto file for Webots for the NUgus
+# Extracted from: NUgus.urdf
+
+EXTERNPROTO "HingeJointWithBacklash.proto"
+EXTERNPROTO "NUgus_right_lower_legMesh.proto"
+EXTERNPROTO "NUgus_torsoMesh.proto"
+EXTERNPROTO "NUgus_left_hip_yawMesh.proto"
+EXTERNPROTO "NUgus_headMesh.proto"
+EXTERNPROTO "NUgus_right_ankleMesh.proto"
+EXTERNPROTO "NUgus_left_footMesh.proto"
+EXTERNPROTO "NUgus_right_hip_yawMesh.proto"
+EXTERNPROTO "NUgus_left_upper_armMesh.proto"
+EXTERNPROTO "NUgus_right_upper_armMesh.proto"
+EXTERNPROTO "NUgus_neckMesh.proto"
+EXTERNPROTO "NUgus_right_shoulderMesh.proto"
+EXTERNPROTO "NUgus_left_hip_rollMesh.proto"
+EXTERNPROTO "NUgus_left_lower_armMesh.proto"
+EXTERNPROTO "NUgus_right_upper_legMesh.proto"
+EXTERNPROTO "NUgus_right_footMesh.proto"
+EXTERNPROTO "NUgus_right_hip_rollMesh.proto"
+EXTERNPROTO "NUgus_left_upper_legMesh.proto"
+EXTERNPROTO "NUgus_left_shoulderMesh.proto"
+EXTERNPROTO "NUgus_left_lower_legMesh.proto"
+EXTERNPROTO "NUgus_left_ankleMesh.proto"
+EXTERNPROTO "NUgus_right_lower_armMesh.proto"
+EXTERNPROTO "JerseyBack.proto"
+EXTERNPROTO "JerseyFront.proto"
+
+PROTO NUgusMain [
+  field  SFVec3f     translation          0 0 0
+  field  SFRotation  rotation             0 1 0 0
+  field  SFString    name                 "NUgus"            # Is `Robot.name`.
+  field  SFString    controller           "player"           # Find in "webots/projects/samples/contests/robocup/controllers/player"
+  field  MFString    controllerArgs       []                 # Is `Robot.controllerArgs`.
+  field  SFString    customData           ""                 # Is `Robot.customData`.
+  field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
+  field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
+  field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
+  field  MFString    robotTexture         "../NUgus_textures/NUgus_base_color.jpg"
+  # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
+  field  SFFloat     MX64-torque          7.30
+  field  SFFloat     MX64-vel             8.17
+  field  SFFloat     MX64-damping         0.65
+  field  SFFloat     MX64-friction        1.73
+  field  SFFloat     MX106-torque         10.00
+  field  SFFloat     MX106-vel            5.76
+  field  SFFloat     MX106-damping        1.23
+  field  SFFloat     MX106-friction       2.55
+  field  SFFloat     backlash             0.01
+  field  SFFloat     gearMass             0.001
+  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+  # CAMERA PARAMETERS: See docs for more information
+  field SFFloat      fieldOfView            1.5707           # Approximates PI/2 radians (90 degrees)
+  field SFInt32      cameraWidth            640              # 640 pixels
+  field SFInt32      cameraHeight           480              # 480 pixels
+  field SFFloat      cameraLensFocalLength  1.98             # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
+  field SFFloat      cameraNoise            0.000000001      # Not much noise on real cameras
+  field SFFloat      cameraMotionBlur       10               # With over 100fps, real cameras do not have much motion blur
+  field MFColor      recognitionColors      [0 0 1]
+  field SFFloat      height                 0.51             # Used in the vision data collection tool
+]
+{
+  Robot {
+    translation IS translation
+    rotation IS rotation
+    controller IS controller
+    controllerArgs IS controllerArgs
+    customData IS customData
+    supervisor IS supervisor
+    synchronization IS synchronization
+    selfCollision IS selfCollision
+    recognitionColors IS recognitionColors
+
+    children [
+      %{
+        if fields.name.value ~= '' then
+          -- name is supposed to be something like "red player 2" or "blue player 1"
+          local words = {}
+          for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+          local color = words[1]
+          local number = words[3]
+      }%
+
+      Transform {
+        translation 0.000000 0.000000 0.000000
+        rotation 0.000000 0.000000 1.000000 1.570790
+        children [
+          JerseyFront {
+            jerseyFrontTexture [
+             %{='"../NUgus_textures/NUgus_front_' .. color .. '_' .. number .. '.jpg"'}%
+            ]
+          }
+        ]
+      }
+
+      Transform {
+        translation 0.000000 0.000000 0.000000
+        rotation 0.000000 0.000000 1.000000 1.570790
+        children [
+          JerseyBack {
+            jerseyBackTexture [
+             %{='"../NUgus_textures/NUgus_back_' .. color .. '_' .. number .. '.jpg"'}%
+            ]
+          }
+        ]
+      }
+
+      Transform {
+        translation 0.000000 0.000000 0.000000
+        rotation 0.000000 0.000000 1.000000 1.570790
+        children [
+          DEF torso NUgus_torsoMesh {
+            robotTexture IS robotTexture
+          }
+        ]
+      }
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
+        jointParameters HingeJointParameters {
+          axis 0 1.000000 0
+          anchor 0.005000 -0.115000 0.180000
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
+        }
+        device [
+          RotationalMotor {
+            name "right_shoulder_pitch [shoulder]"
+            maxVelocity IS MX64-vel
+            minPosition -3.14159265359
+            maxPosition 3.14159265359
+            maxTorque IS MX64-torque
+          }
+          PositionSensor {
+            name "right_shoulder_pitch_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
+          }
+        ]
+        endPoint Solid {
+          translation 0.005000 -0.115000 0.180000
+          rotation -0.577351 -0.577348 0.577351 2.094388
+          children [
+            DEF right_shoulder NUgus_right_shoulderMesh {
+              robotTexture IS robotTexture
+            }
+            HingeJointWithBacklash {
+              backlash IS backlash
+              gearMass IS gearMass
+              jointParameters HingeJointParameters {
+                axis 0.000000 -1.000000 0
+                anchor -0.015000 0.000000 0.005000
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
+              }
+              device [
+                RotationalMotor {
+                  name "right_shoulder_roll"
+                  maxVelocity IS MX64-vel
+                  minPosition -3.14159265359
+                  maxPosition 3.14159265359
+                  maxTorque IS MX64-torque
+                }
+                PositionSensor {
+                  name "right_shoulder_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
+                }
+              ]
+              endPoint Solid {
+                translation -0.015000 0.000000 0.005000
+                rotation 1.000000 0.000000 0.000000 1.570790
+                children [
+                  DEF right_upper_arm NUgus_right_upper_armMesh {
+                    robotTexture [
+                      %{='"../NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                    ]
+                  }
+                  HingeJointWithBacklash {
+                    backlash IS backlash
+                    gearMass IS gearMass
+                    jointParameters HingeJointParameters {
+                      axis 1.000000 0.000000 0.000000
+                      anchor 0.010000 -0.190000 0.040000
+                      dampingConstant IS MX64-damping
+                      staticFriction IS MX64-friction
+                    }
+                    device [
+                      RotationalMotor {
+                        name "right_elbow_pitch"
+                        maxVelocity IS MX64-vel
+                        minPosition -3.14159265359
+                        maxPosition 3.14159265359
+                        maxTorque IS MX64-torque
+                      }
+                      PositionSensor {
+                        name "right_elbow_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0.010000 -0.190000 0.040000
+                      rotation 0.000000 1.000000 0.000000 0.000000
+                      children [
+                        DEF right_lower_arm NUgus_right_lower_armMesh {
+                          robotTexture [
+                            %{='"../NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                          ]
+                        }
+                        Solid {
+                          name "right_hand [hand]"
+                          translation 0.0 -0.225 0.014
+                          rotation 0.000000 1.000000 0.000000 0.000000
+                        }
+                      ]
+                      name "right_lower_arm [arm]"
+                      boundingObject Group {
+                        children [
+                          Transform {
+                            translation 0.0049999999999999975 -0.052500000000000005 -0.0014999999999999979
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.155 0.057
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation 0.0049999999999999975 -0.1775 0.0020000000000000018
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.095 0.08
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.260000
+                        centerOfMass [ 0.053360 -0.000810 0.000600 ]
+                        inertiaMatrix [
+                          3.407159e-04 1.769213e-03 1.618059e-03
+                          1.182367e-04 -2.883079e-05 4.685687e-06
+                        ]
+                      }
+                    }
+                  }
+                ]
+                name "right_upper_arm [arm]"
+                boundingObject Group {
+                  children [
+                    Transform {
+                      translation 0.0075 -0.0625 -0.0014999999999999979
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.065 0.175 0.057
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.012500000000000004 -0.17500000000000002 -0.017499999999999998
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.075 0.05 0.025
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.0475 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.0225 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                  ]
+                }
+                physics Physics {
+                  density -1
+                  mass 0.297000
+                  centerOfMass [ -0.000470 -0.000480 -0.047850 ]
+                  inertiaMatrix [
+                    2.440903e-03 2.283834e-03 5.366937e-04
+                    -3.671369e-06 -1.389145e-04 -1.979533e-05
+                  ]
+                }
+              }
+            }
+          ]
+          name "right_shoulder [arm]"
+          boundingObject Group {
+            children [
+              Transform {
+                translation -0.008 0.0375 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+              Transform {
+                translation -0.005 -0.035 0.005
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.025434
+            centerOfMass [ 0.003490 -0.001680 0.003750 ]
+            inertiaMatrix [
+              6.360000e-04 4.850000e-04 6.280000e-04
+              2.000000e-06 -3.500000e-05 6.000000e-06
+            ]
+          }
+        }
+      }
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
+        jointParameters HingeJointParameters {
+          axis 0 1.000000 0
+          anchor 0.005000 0.115000 0.180000
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
+        }
+        device [
+          RotationalMotor {
+            name "left_shoulder_pitch [shoulder]"
+            maxVelocity IS MX64-vel
+            minPosition -3.14159265359
+            maxPosition 3.14159265359
+            maxTorque IS MX64-torque
+          }
+          PositionSensor {
+            name "left_shoulder_pitch_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
+          }
+        ]
+        endPoint Solid {
+          translation 0.005000 0.115000 0.180000
+          rotation -0.577351 -0.577348 0.577351 2.094388
+          children [
+            DEF left_shoulder NUgus_left_shoulderMesh {
+              robotTexture IS robotTexture
+            }
+            HingeJointWithBacklash {
+              backlash IS backlash
+              gearMass IS gearMass
+              jointParameters HingeJointParameters {
+                axis 0 -1.000000 0
+                anchor 0.015000 0.000000 0.005000
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
+              }
+              device [
+                RotationalMotor {
+                  name "left_shoulder_roll"
+                  maxVelocity IS MX64-vel
+                  minPosition -3.14159265359
+                  maxPosition 3.14159265359
+                  maxTorque IS MX64-torque
+                }
+                PositionSensor {
+                  name "left_shoulder_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
+                }
+              ]
+              endPoint Solid {
+                translation 0.015000 0.000000 0.005000
+                rotation 1.000000 0.000000 0.000000 1.570790
+                children [
+                  DEF left_upper_arm NUgus_left_upper_armMesh {
+                    robotTexture [
+                      %{='"../NUgus_textures/NUgus_upper_arm_' .. color .. '.jpg"'}%
+                    ]
+                  }
+                  HingeJointWithBacklash {
+                    backlash IS backlash
+                    gearMass IS gearMass
+                    jointParameters HingeJointParameters {
+                      axis 1.000000 0.000000 0.000000
+                      anchor -0.010000 -0.190000 0.039990
+                      dampingConstant IS MX64-damping
+                      staticFriction IS MX64-friction
+                    }
+                    device [
+                      RotationalMotor {
+                        name "left_elbow_pitch"
+                        maxVelocity IS MX64-vel
+                        minPosition -3.14159265359
+                        maxPosition 3.14159265359
+                        maxTorque IS MX64-torque
+                      }
+                      PositionSensor {
+                        name "left_elbow_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
+                      }
+                    ]
+                    endPoint Solid {
+                      translation -0.010000 -0.190000 0.039990
+                      rotation 0.000000 1.000000 0.000000 0.000000
+                      children [
+                        DEF left_lower_arm NUgus_left_lower_armMesh {
+                          robotTexture [
+                            %{='"../NUgus_textures/NUgus_lower_arm_' .. color .. '.jpg"'}%
+                          ]
+                        }
+                        Solid {
+                          name "left_hand [hand]"
+                          translation 0.0 -0.225 0.014
+                          rotation 0.000000 1.000000 0.000000 0.000000
+                        }
+                      ]
+                      name "left_lower_arm [arm]"
+                      boundingObject Group {
+                        children [
+                          Transform {
+                            translation -0.0049999999999999975 -0.052500000000000005 -0.0014999999999999979
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.155 0.057
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation -0.0049999999999999975 -0.1775 0.0020000000000000018
+                            rotation 0.0 0.0 1.0 0.0
+                            children [
+                              Box {
+                                size 0.05 0.095 0.08
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.260000
+                        centerOfMass [ 0.053360 -0.000810 0.000600 ]
+                        inertiaMatrix [
+                          3.407159e-04 1.769213e-03 1.618059e-03
+                          1.182367e-04 -2.883079e-05 4.685687e-06
+                        ]
+                      }
+                    }
+                  }
+                ]
+                name "left_upper_arm [arm]"
+                boundingObject Group {
+                  children [
+                    Transform {
+                      translation -0.0075 -0.0625 -0.0014999999999999979
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.065 0.175 0.057
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.012500000000000004 -0.17500000000000002 -0.017499999999999998
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.075 0.05 0.025
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation -0.0475 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                    Transform {
+                      translation 0.0225 -0.1825 0.0275
+                      rotation 0.0 0.0 1.0 0.0
+                      children [
+                        Box {
+                          size 0.005 0.065 0.065
+                        }
+                      ]
+                    }
+                  ]
+                }
+                physics Physics {
+                  density -1
+                  mass 0.297000
+                  centerOfMass [ -0.000470 0.000480 -0.047850 ]
+                  inertiaMatrix [
+                    2.440903e-03 2.283834e-03 5.366937e-04
+                    -3.671369e-06 -1.389145e-04 -1.979533e-05
+                  ]
+                }
+              }
+            }
+          ]
+          name "left_shoulder [arm]"
+          boundingObject Group {
+            children [
+              Transform {
+                translation 0.015 0.0386 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+              Transform {
+                translation 0.015 -0.0368 0.0049999999999999975
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.06 0.015 0.08
+                  }
+                ]
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.025434
+            centerOfMass [ 0.003490 -0.001680 0.003750 ]
+            inertiaMatrix [
+              6.360000e-04 4.850000e-04 6.280000e-04
+              -2.000000e-06 -3.500000e-05 -6.000000e-06
+            ]
+          }
+        }
+      }
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
+        jointParameters HingeJointParameters {
+          axis 0.000000 0.000000 1.000000
+          anchor 0.000000 -0.055000 0.000000
+          dampingConstant IS MX106-damping
+          staticFriction IS MX106-friction
+        }
+        device [
+          RotationalMotor {
+            name "right_hip_yaw"
+            maxVelocity IS MX106-vel
+            minPosition -3.14159265359
+            maxPosition 3.14159265359
+            maxTorque IS MX106-torque
+          }
+          PositionSensor {
+            name "right_hip_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
+          }
+        ]
+        endPoint Solid {
+          translation 0.000000 -0.055000 0.000000
+          rotation 0.000000 0.000000 1.000000 1.570790
+          children [
+            DEF right_hip_yaw NUgus_right_hip_yawMesh {
+              robotTexture IS robotTexture
+            }
+            HingeJointWithBacklash {
+              backlash IS backlash
+              gearMass IS gearMass
+              jointParameters HingeJointParameters {
+                axis 0.000000 -1.000000 0.000000
+                anchor 0.000000 0.000000 -0.060000
+                dampingConstant IS MX106-damping
+                staticFriction IS MX106-friction
+              }
+              device [
+                RotationalMotor {
+                  name "right_hip_roll [hip]"
+                  maxVelocity IS MX106-vel
+                  minPosition -3.14159265359
+                  maxPosition 3.14159265359
+                  maxTorque IS MX106-torque
+                }
+                PositionSensor {
+                  name "right_hip_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
+                }
+              ]
+              endPoint Solid {
+                translation 0.000000 0.000000 -0.055
+                rotation 0.000000 1.000000 0.000000 0.000000
+                children [
+                  DEF right_hip_roll NUgus_right_hip_rollMesh {
+                    robotTexture IS robotTexture
+                  }
+                  HingeJointWithBacklash {
+                    backlash IS backlash
+                    gearMass IS gearMass
+                    jointParameters HingeJointParameters {
+                      axis 1.000000 0.000000 0.000000
+                      anchor 0.000000 -0.010000 0.010000
+                      dampingConstant IS MX106-damping
+                      staticFriction IS MX106-friction
+                    }
+                    device [
+                      RotationalMotor {
+                        name "right_hip_pitch"
+                        maxVelocity IS MX106-vel
+                        minPosition -3.14159265359
+                        maxPosition 3.14159265359
+                        maxTorque IS MX106-torque
+                      }
+                      PositionSensor {
+                        name "right_hip_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0.000000 -0.010000 0.005
+                      rotation -1.000000 0.000000 0.000000 0.050000
+                      children [
+                        DEF right_upper_leg NUgus_right_upper_legMesh {
+                          robotTexture IS robotTexture
+                        }
+                        HingeJointWithBacklash {
+                          backlash IS backlash
+                          gearMass IS gearMass
+                          jointParameters HingeJointParameters {
+                            axis 1.000000 0.000000 0.000000
+                            anchor 0.000000 0.009990 -0.199750
+                            dampingConstant IS MX106-damping
+                            staticFriction IS MX106-friction
+                          }
+                          device [
+                            RotationalMotor {
+                              name "right_knee_pitch"
+                              maxVelocity IS MX106-vel
+                              minPosition -3.14159265359
+                              maxPosition 3.14159265359
+                              maxTorque IS MX106-torque
+                            }
+                            PositionSensor {
+                              name "right_knee_pitch_sensor"
+                              resolution IS DYNAMIXEL-RESOLUTION
+                            }
+                          ]
+                          endPoint Solid {
+                            translation 0.000000 0 -0.2
+                            rotation 1.000000 0.000000 0.000000 0.050000
+                            children [
+                              DEF right_lower_leg NUgus_right_lower_legMesh {
+                                robotTexture [
+                                  %{='"../NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                ]
+                              }
+                              HingeJointWithBacklash {
+                                backlash IS backlash
+                                gearMass IS gearMass
+                                jointParameters HingeJointParameters {
+                                  axis 1.000000 0 0
+                                  anchor 0.000000 0.010000 -0.200000
+                                  dampingConstant IS MX106-damping
+                                  staticFriction IS MX106-friction
+                                }
+                                device [
+                                  RotationalMotor {
+                                    name "right_ankle_pitch"
+                                    maxVelocity IS MX106-vel
+                                    minPosition -3.14159265359
+                                    maxPosition 3.14159265359
+                                    maxTorque IS MX106-torque
+                                  }
+                                  PositionSensor {
+                                    name "right_ankle_pitch_sensor"
+                                    resolution IS DYNAMIXEL-RESOLUTION
+                                  }
+                                ]
+                                endPoint Solid {
+                                  translation 0.000000 0.010000 -0.200000
+                                  rotation 0.000001 -1.000000 -0.000001 3.141593
+                                  children [
+                                    DEF right_ankle NUgus_right_ankleMesh {
+                                      robotTexture IS robotTexture
+                                    }
+                                    HingeJointWithBacklash {
+                                      backlash IS backlash
+                                      gearMass IS gearMass
+                                      jointParameters HingeJointParameters {
+                                        axis 0 -1.000000 0
+                                        anchor 0.000000 0.040000 0.000000
+                                        dampingConstant IS MX106-damping
+                                        staticFriction IS MX106-friction
+                                      }
+                                      device [
+                                        RotationalMotor {
+                                          name "right_ankle_roll"
+                                          maxVelocity IS MX106-vel
+                                          minPosition -3.14159265359
+                                          maxPosition 3.14159265359
+                                          maxTorque IS MX106-torque
+                                        }
+                                        PositionSensor {
+                                          name "right_ankle_roll_sensor"
+                                          resolution IS DYNAMIXEL-RESOLUTION
+                                        }
+                                      ]
+                                      endPoint Solid {
+                                        translation 0.000000 0.040000 0.000000
+                                        rotation -0.000001 1.000000 -0.000001 3.141593
+                                        children [
+                                          DEF right_foot NUgus_right_footMesh {
+                                            robotTexture IS robotTexture
+                                          }
+                                          # Define four touch sensors for the right foot
+                                          # Back right touch sensor on right foot
+                                          TouchSensor {
+                                            # Define translation of touch sensor
+                                            translation -0.0575 0.025 -0.061
+                                            children [
+                                              # Define shape for all touch sensors
+                                              DEF touch_shape Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                  baseColorMap ImageTexture {
+                                                    url IS robotTexture
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_br"
+                                            # Bounding object uses geometry from touch_shape
+                                            boundingObject DEF touch_box Transform {
+                                              translation 0.0 0.0 0.0056
+                                              rotation -1.0 0.0 0.0 -1.54
+                                              children [
+                                                Capsule {
+                                                  bottom      TRUE   # {TRUE, FALSE}
+                                                  height      0.001  # [0, inf)
+                                                  radius      0.009  # [0, inf)
+                                                  side        TRUE   # {TRUE, FALSE}
+                                                  top         FALSE  # {TRUE, FALSE}
+                                                  subdivision 12     # [3, inf)
+                                                }
+                                              ]
+                                            }
+                                            # Define physics for all touch sensors
+                                            physics DEF touch_physics Physics{
+                                              density -1
+                                              mass 0.02
+                                              centerOfMass 0.0 0.0 0.0
+                                            }
+                                            # Sensor Type
+                                            # Bumper returns a 1 when collision is detected
+                                            type "bumper"
+                                          }
+                                          # Back left touch sensor on right foot
+                                          TouchSensor {
+                                            translation 0.041 0.025 -0.061
+                                            children [
+                                               USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front right touch sensor on right foot
+                                          TouchSensor {
+                                            translation -0.0575 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front left touch sensor on right foot
+                                          TouchSensor {
+                                            translation 0.0409 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "right_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                        ]
+                                        name "right_foot [foot]"
+                                        boundingObject Group {
+                                          children [
+                                            Transform {
+                                              translation -0.0105 0.037 -0.017
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.0175 0.0585
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation -0.011 -0.128 -0.02
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size  0.125 0.08 0.05
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation -0.011 -0.028 -0.035
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.12 0.01875
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                        physics Physics {
+                                          density -1
+                                          mass 0.205000
+                                          centerOfMass [ 0.030800 0.008770 0.011290 ]
+                                          inertiaMatrix [
+                                            4.692276e-04 1.083619e-03 1.390118e-03
+                                            1.237290e-05 5.165617e-06 -1.759415e-06
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                  name "right_ankle"
+                                  boundingObject Transform {
+                                    translation 0.0 0.02 -0.0175
+                                    rotation 0.0 0.0 1.0 0.0
+                                    children [
+                                      Box {
+                                        size 0.04 0.08 0.065
+                                      }
+                                    ]
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.306000
+                                    centerOfMass [ -0.015730 0.000510 -0.021970 ]
+                                    inertiaMatrix [
+                                      1.179297e-04 2.167529e-04 2.619357e-04
+                                      3.750778e-06 3.762394e-06 1.047191e-06
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                            name "right_lower_leg"
+                            boundingObject Group {
+                              children [
+                                Transform {
+                                  translation 0 0 -0.0575
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.06 0.065 0.165
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation -0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation 0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.177000
+                              centerOfMass [ -0.100000 0.001280 -0.007070 ]
+                              inertiaMatrix [
+                                2.629853e-04 1.587092e-03 1.417721e-03
+                                -8.383225e-06 2.634340e-04 -6.909201e-07
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                      name "right_upper_leg"
+                      boundingObject Group {
+                        children [
+                          Transform {
+                            translation 0.0 -0.0132 -0.107
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.07 0.037 0.104
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation -0.0375 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation 0.037500000000000006 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.387000
+                        centerOfMass [ -0.086820 -0.000990 -0.003220 ]
+                        inertiaMatrix [
+                          6.967005e-04 2.392788e-03 2.056922e-03
+                          -9.534768e-06 -4.706246e-04 1.168766e-07
+                        ]
+                      }
+                    }
+                  }
+                ]
+                name "right_hip_roll"
+                boundingObject Transform {
+                  translation 0.0 0.0025000000000000022 -0.0075
+                  rotation 0.0 0.0 1.0 0.0
+                  children [
+                    Box {
+                      size 0.035 0.085 0.065
+                    }
+                  ]
+                }
+                physics Physics {
+                  density -1
+                  mass 0.306000
+                  centerOfMass [ 0.015730 -0.000030 -0.020710 ]
+                  inertiaMatrix [
+                    1.179297e-04 2.167529e-04 2.619357e-04
+                    3.750778e-06 -3.762394e-06 -1.047191e-06
+                  ]
+                }
+              }
+            }
+          ]
+          name "right_hip_yaw"
+          boundingObject Group {
+            children [
+              Transform {
+                translation 0.005 0.0 -0.015
+                rotation 1.0 0.0 0.0 1.5707963267948966
+                children [
+                  Cylinder {
+                    height 0.03
+                    radius 0.045
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 -0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.067000
+            centerOfMass [ -0.002180 -0.046050 -0.024750 ]
+            inertiaMatrix [
+              8.822908e-04 1.744669e-03 1.996967e-03
+              1.677450e-06 -7.823405e-06 -2.533161e-05
+            ]
+          }
+        }
+      }
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
+        jointParameters HingeJointParameters {
+          axis 0.000000 0.000000 1.000000
+          anchor 0.000000 0.055000 0.000000
+          dampingConstant IS MX106-damping
+          staticFriction IS MX106-friction
+        }
+        device [
+          RotationalMotor {
+            name "left_hip_yaw"
+            maxVelocity IS MX106-vel
+            minPosition -3.14159265359
+            maxPosition 3.14159265359
+            maxTorque IS MX106-torque
+          }
+          PositionSensor {
+            name "left_hip_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
+          }
+        ]
+        endPoint Solid {
+          translation 0.000000 0.055000 0.000000
+          rotation 0.000000 0.000000 1.000000 1.570790
+          children [
+            DEF left_hip_yaw NUgus_left_hip_yawMesh {
+              robotTexture IS robotTexture
+            }
+            HingeJointWithBacklash {
+              backlash IS backlash
+              gearMass IS gearMass
+              jointParameters HingeJointParameters {
+                axis 0.000000 -1.000000 0.000000
+                anchor 0.000000 0.000000 -0.060000
+                dampingConstant IS MX106-damping
+                staticFriction IS MX106-friction
+              }
+              device [
+                RotationalMotor {
+                  name "left_hip_roll [hip]"
+                  maxVelocity IS MX106-vel
+                  minPosition -3.14159265359
+                  maxPosition 3.14159265359
+                  maxTorque IS MX106-torque
+                }
+                PositionSensor {
+                  name "left_hip_roll_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
+                }
+              ]
+              endPoint Solid {
+                translation 0.000000 0.000000 -0.055
+                rotation 0.000000 1.000000 0.000000 0.000000
+                children [
+                  DEF left_hip_roll NUgus_left_hip_rollMesh {
+                    robotTexture IS robotTexture
+                  }
+                  HingeJointWithBacklash {
+                    backlash IS backlash
+                    gearMass IS gearMass
+                    jointParameters HingeJointParameters {
+                      axis 1.000000 0.000000 0.000000
+                      anchor 0.000000 -0.010000 0.000000
+                      dampingConstant IS MX106-damping
+                      staticFriction IS MX106-friction
+                    }
+                    device [
+                      RotationalMotor {
+                        name "left_hip_pitch"
+                        maxVelocity IS MX106-vel
+                        minPosition -3.14159265359
+                        maxPosition 3.14159265359
+                        maxTorque IS MX106-torque
+                      }
+                      PositionSensor {
+                        name "left_hip_pitch_sensor"
+                        resolution IS DYNAMIXEL-RESOLUTION
+                      }
+                    ]
+                    endPoint Solid {
+                      translation 0.000000 -0.010000 0.005
+                      rotation -1.000000 0.000000 0.000000 0.050000
+                      children [
+                        DEF left_upper_leg NUgus_left_upper_legMesh {
+                          robotTexture IS robotTexture
+                        }
+                        HingeJointWithBacklash {
+                          backlash IS backlash
+                          gearMass IS gearMass
+                          jointParameters HingeJointParameters {
+                            axis 1.000000 0.000000 0.000000
+                            anchor 0.000000 0.009490 -0.189760
+                            dampingConstant IS MX106-damping
+                            staticFriction IS MX106-friction
+                          }
+                          device [
+                            RotationalMotor {
+                              name "left_knee_pitch"
+                              maxVelocity IS MX106-vel
+                              minPosition -3.14159265359
+                              maxPosition 3.14159265359
+                              maxTorque IS MX106-torque
+                            }
+                            PositionSensor {
+                              name "left_knee_pitch_sensor"
+                              resolution IS DYNAMIXEL-RESOLUTION
+                            }
+                          ]
+                          endPoint Solid {
+                            translation 0.000000 0 -0.2
+                            rotation 1.000000 0.000000 0.000000 0.050000
+                            children [
+                              DEF left_lower_leg NUgus_left_lower_legMesh {
+                                robotTexture [
+                                  %{='"../NUgus_textures/NUgus_lower_leg_' .. color .. '.jpg"'}%
+                                ]
+                                %{ end }%
+                              }
+                              HingeJointWithBacklash {
+                                gearMass IS gearMass
+                                backlash IS backlash
+                                jointParameters HingeJointParameters {
+                                  axis 1.000000 0.00000 0.000000
+                                  anchor 0.000000 0.010000 -0.200000
+                                  dampingConstant IS MX106-damping
+                                  staticFriction IS MX106-friction
+                                }
+                                device [
+                                  RotationalMotor {
+                                    name "left_ankle_pitch"
+                                    maxVelocity IS MX106-vel
+                                    minPosition -3.14159265359
+                                    maxPosition 3.14159265359
+                                    maxTorque 10.0
+                                  }
+                                  PositionSensor {
+                                    name "left_ankle_pitch_sensor"
+                                    resolution IS DYNAMIXEL-RESOLUTION
+                                  }
+                                ]
+                                endPoint Solid {
+                                  translation 0.000000 0.010000 -0.200000
+                                  rotation 0.000001 -1.000000 -0.000001 3.141593
+                                  children [
+                                    DEF left_ankle NUgus_left_ankleMesh {
+                                      robotTexture IS robotTexture
+                                    }
+                                    HingeJointWithBacklash {
+                                      gearMass IS gearMass
+                                      backlash IS backlash
+                                      jointParameters HingeJointParameters {
+                                        axis 0 -1.000000 0
+                                        anchor 0.000000 0.040000 0.000000
+                                        dampingConstant IS MX106-damping
+                                        staticFriction IS MX106-friction
+                                      }
+                                      device [
+                                        RotationalMotor {
+                                          name "left_ankle_roll"
+                                          maxVelocity IS MX106-vel
+                                          minPosition -3.14159265359
+                                          maxPosition 3.14159265359
+                                          maxTorque IS MX106-torque
+                                        }
+                                        PositionSensor {
+                                          name "left_ankle_roll_sensor"
+                                          resolution IS DYNAMIXEL-RESOLUTION
+                                        }
+                                      ]
+                                      endPoint Solid {
+                                        translation 0.000000 0.040000 0.000000
+                                        rotation -0.000001 1.000000 -0.000001 3.141593
+                                        children [
+                                          DEF left_foot NUgus_left_footMesh {
+                                            robotTexture IS robotTexture
+                                          }
+                                          # Define four touch sensors for the left foot
+                                          # Back right touch sensor on left foot
+                                          TouchSensor {
+                                            translation -0.041 0.025 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_br"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Back left touch sensor on left foot
+                                          TouchSensor {
+                                            translation 0.057 0.025 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front left touch sensor on left foot
+                                          TouchSensor {
+                                            translation 0.057 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                          # Front right touch sensor on left foot
+                                          TouchSensor {
+                                            translation -0.041 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
+                                            name "left_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            type "bumper"
+                                          }
+                                        ]
+                                        name "left_foot [foot]"
+                                        boundingObject Group {
+                                          children [
+                                            Transform {
+                                              translation 0.0105 0.037 -0.017
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.0175 0.0585
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation 0.011 -0.128 -0.02
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.08 0.05
+                                                }
+                                              ]
+                                            }
+                                            Transform {
+                                              translation 0.011 -0.028 -0.035
+                                              rotation 0.0 0.0 1.0 0.0
+                                              children [
+                                                Box {
+                                                  size 0.125 0.12 0.01875
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                        physics Physics {
+                                          density -1
+                                          mass 0.205000
+                                          centerOfMass [ 0.030800 0.008770 0.011290 ]
+                                          inertiaMatrix [
+                                            4.692276e-04 1.083619e-03 1.390118e-03
+                                            -1.237290e-05 5.165617e-06 1.759415e-06
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                  name "left_ankle"
+                                  boundingObject Transform {
+                                    translation 0.0 0.02 -0.0175
+                                    rotation 0.0 0.0 1.0 0.0
+                                    children [
+                                      Box {
+                                        size 0.04 0.08 0.065
+                                      }
+                                    ]
+                                  }
+                                  physics Physics {
+                                    density -1
+                                    mass 0.306000
+                                    centerOfMass [ -0.015730 0.000510 -0.021970 ]
+                                    inertiaMatrix [
+                                      1.179297e-04 2.167529e-04 2.619357e-04
+                                      -3.750778e-06 3.762394e-06 -1.047191e-06
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                            name "left_lower_leg"
+                            boundingObject Group {
+                              children [
+                                Transform {
+                                  translation 0 0 -0.0575
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.06 0.065 0.165
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation -0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
+                                }
+                                Transform {
+                                  translation 0.0275 0.029500000000000002 -0.1725
+                                  rotation 1.0 0.0 0.0 0.1745327073427288
+                                  children [
+                                    Box {
+                                      size 0.005 0.065 0.065
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                            physics Physics {
+                              density -1
+                              mass 0.177000
+                              centerOfMass [ -0.100000 0.001280 -0.007070 ]
+                              inertiaMatrix [
+                                2.629853e-04 1.587092e-03 1.417721e-03
+                                8.383225e-06 2.634340e-04 6.909201e-07
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                      name "left_upper_leg"
+                      boundingObject Group {
+                        children [
+                          Transform {
+                            translation 0.0 -0.0132 -0.107
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.07 0.037 0.104
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation -0.0375 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
+                          }
+                          Transform {
+                            translation 0.037500000000000006 0.0218947 -0.0365661
+                            rotation 1.0 0.0 0.0 -0.2617992992737762
+                            children [
+                              Box {
+                                size 0.005 0.065 0.05
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                      physics Physics {
+                        density -1
+                        mass 0.387000
+                        centerOfMass [ -0.086820 -0.000990 -0.003220 ]
+                        inertiaMatrix [
+                          6.967005e-04 2.392788e-03 2.056922e-03
+                          9.534768e-06 -4.706246e-04 -1.168766e-07
+                        ]
+                      }
+                    }
+                  }
+                ]
+                name "left_hip_roll"
+                boundingObject Transform {
+                  translation 0.0 0.0025000000000000022 -0.0075
+                  rotation 0.0 0.0 1.0 0.0
+                  children [
+                    Box {
+                      size 0.035 0.085 0.065
+                    }
+                  ]
+                }
+                physics Physics {
+                  density -1
+                  mass 0.306000
+                  centerOfMass [ 0.015730 0.000030 -0.020710 ]
+                  inertiaMatrix [
+                    1.179297e-04 2.167529e-04 2.619357e-04
+                    3.750778e-06 -3.762394e-06 -1.047191e-06
+                  ]
+                }
+              }
+            }
+          ]
+          name "left_hip_yaw"
+          boundingObject Group {
+            children [
+              Transform {
+                translation -0.005 0.0 -0.015
+                rotation 1.0 0.0 0.0 1.5707963267948966
+                children [
+                  Cylinder {
+                    height 0.03
+                    radius 0.045
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+              Transform {
+                translation 0.0 -0.0475 -0.05
+                rotation 0.0 0.0 1.0 0.0
+                children [
+                  Box {
+                    size 0.04 0.005 0.04
+                  }
+                ]
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.067000
+            centerOfMass [ -0.002180 0.046050 -0.024750 ]
+            inertiaMatrix [
+              8.822261e-04 1.744628e-03 1.996990e-03
+              -1.705523e-06 -7.854428e-06 2.533179e-05
+            ]
+          }
+        }
+      }
+      HingeJointWithBacklash {
+        backlash IS backlash
+        gearMass IS gearMass
+        jointParameters HingeJointParameters {
+          axis 0.000000 0.000000 1.000000
+          anchor 0.000000 0.000000 0.260000
+          dampingConstant IS MX64-damping
+          staticFriction IS MX64-friction
+        }
+        device [
+          RotationalMotor {
+            name "neck_yaw"
+            maxVelocity IS MX64-vel
+            minPosition -3.14159265359
+            maxPosition 3.14159265359
+            maxTorque IS MX64-torque
+          }
+          PositionSensor {
+            name "neck_yaw_sensor"
+            resolution IS DYNAMIXEL-RESOLUTION
+          }
+        ]
+        endPoint Solid {
+          translation 0.000000 0.000000 0.260000
+          rotation 0.000000 0.000000 1.000000 1.570790
+          children [
+            DEF neck NUgus_neckMesh {
+              robotTexture IS robotTexture
+            }
+            HingeJointWithBacklash {
+              gearMass IS gearMass
+              backlash IS backlash
+              jointParameters HingeJointParameters {
+                axis 1.000000 0.000000 0.000000
+                anchor 0.000000 0.000000 0.000000
+                dampingConstant IS MX64-damping
+                staticFriction IS MX64-friction
+              }
+              device [
+                RotationalMotor {
+                  name "head_pitch"
+                  maxVelocity IS MX64-vel
+                  minPosition -3.14159265359
+                  maxPosition 3.14159265359
+                  maxTorque IS MX64-torque
+                }
+                PositionSensor {
+                  name "head_pitch_sensor"
+                  resolution IS DYNAMIXEL-RESOLUTION
+                }
+              ]
+              endPoint Solid {
+                translation 0.000000 0.000000 0.000000
+                rotation 0.000000 1.000000 0.000000 0.000000
+                children [
+                  DEF head NUgus_headMesh {
+                    robotTexture IS robotTexture
+                  }
+                  Transform {
+                    translation 0.000000 0.000000 0.000000
+                    rotation 0.000000 0.000000 1.000000 -1.570790
+                    children [
+                      DEF left_camera Camera {
+                        name "left_camera"
+                        translation 0.0889361 0.0352991 0.0713675
+                        rotation 0.0 0.0 1.0 0.0
+
+                        # Set parameters from fields
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
+                        spherical FALSE
+
+                        # Allows the robot to detect objects in the world
+                        recognition DEF recognition Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
+                        }
+                      }
+                      DEF right_camera Camera {
+                        name "right_camera"
+                        translation 0.0889361 -0.0352991 0.0713675
+                        rotation 0.0 0.0 1.0 0.0
+
+                        # Set parameters from fields
+                        fieldOfView IS fieldOfView
+                        width IS cameraWidth
+                        height IS cameraHeight
+                        noise IS cameraNoise
+                        motionBlur IS cameraMotionBlur
+
+                        # We are using a rectilinear lens because there is no true spherical lens
+                        spherical FALSE
+
+                        # Set the recognition parameters from the left camera
+                        recognition USE recognition
+                      }
+                    ]
+                  }
+                ]
+                name "head"
+                boundingObject Transform {
+                  translation 0.0 0.0 0.069
+                  rotation 0.0 0.0 1.0 0.0
+                  children [
+                    Sphere {
+                      radius 0.088
+                    }
+                  ]
+                }
+                physics Physics {
+                  density -1
+                  mass 0.419000
+                  centerOfMass [ -0.054820 -0.000100 0.001170 ]
+                  inertiaMatrix [
+                    5.229543e-03 4.273822e-03 3.333632e-03
+                    8.068689e-07 -7.854194e-05 2.263322e-07
+                  ]
+                }
+              }
+            }
+          ]
+          name "neck"
+          boundingObject Transform {
+            translation -0.002854 -0.000008 -0.017064
+            rotation -0.000000 -0.000000 -1.000000 1.570796
+            children [
+              Box {
+                 size 0.040829 0.050604 0.062673
+              }
+            ]
+          }
+          physics Physics {
+            density -1
+            mass 0.135000
+            centerOfMass [ -0.006030 -0.001600 0.241150 ]
+            inertiaMatrix [
+              4.111124e-04 3.431749e-04 2.333899e-04
+              1.344483e-10 -3.646935e-10 -1.246022e-05
+            ]
+          }
+        }
+      }
+      Transform {
+        # Accelerometer and Gyro are positioned 0.2m above torso base
+        translation 0.000000 0.000000 0.2
+        children [
+          #(See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise)
+          # Axis: x forward, y left, z up
+          # Units are [m/s^2]
+          # The acelerometer measures the reaction forces over 3 axes in [m/s^2], thus,
+          # at rest the accelerometer should read +9.81 [m/s^2] in the z axis.
+          # Range is -39.24 to 39.24 [m/s^2]
+          # Return value (2nd column of LUT) is offset by 100
+          Accelerometer {
+            name "accelerometer"
+            xAxis TRUE
+            yAxis TRUE
+            zAxis TRUE
+            # Calculation used: (size of range)/4095
+            resolution 0.01916
+            lookupTable [
+              -39.24 60.76 0.000704
+              39.24  139.24 0.000307
+            ]
+          }
+          # 'L3G4200D' Gyro
+          # (See Section 1. of docs/Robot_Model_RoboCup_2021 for details on noise)
+          # Axis: x forward, y left, z up
+          # Units are [rad/s]
+          # Range is -8.72665 to 8.72665 [rad/s]
+          # Return value (2nd column of LUT) is offset by 100
+          Gyro {
+            name "gyroscope"
+            xAxis TRUE
+            yAxis TRUE
+            zAxis TRUE
+            # Calculation used: (size of range)/4095
+            resolution 0.0042621
+            lookupTable [
+              -8.72665 91.238   0.0001151
+              8.72665  108.762  0.000096541
+            ]
+          }
+        ]
+      }
+    ]
+    name IS name
+    boundingObject Transform {
+      translation -0.001241 0.000021 0.115538
+      rotation 0.010690 0.999943 0.000078 3.127061
+      children [
+        Box {
+          size 0.140936 0.154 0.229
+        }
+      ]
+    }
+    physics Physics {
+      density -1
+      mass 2.539000
+      centerOfMass [ 0.005000 0.008880 0.102150 ]
+      inertiaMatrix [
+        1.665729e-02 4.225235e-03 5.550778e-02
+        1.545186e-03 4.938658e-03 1.202753e-03
+      ]
+    }
+  }
+}

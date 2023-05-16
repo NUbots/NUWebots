@@ -1,0 +1,184 @@
+#VRML_SIM R2022b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisJersey.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupSoccerField.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupTexturedSoccerBall.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupMainLight.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupOffLight.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupTopLight.proto"
+IMPORTABLE EXTERNPROTO "../protos/robocup_field/RoboCupBackground.proto"
+
+EXTERNPROTO "../protos/robot/NUgus/NUgus.proto"
+EXTERNPROTO "../protos/robot/Wolfgang/Wolfgang.proto"
+EXTERNPROTO "../protos/robot/Darwin-opHinge2Seg.proto"
+EXTERNPROTO "../protos/robot/RobotisOp3.proto"
+
+WorldInfo {
+  info [
+    "Description: official soccer simulation for the 2021 Robocup Virtual Humanoid League (kid size)"
+    "Version 0.2"
+  ]
+  title "Robocup V-HL Kid"
+  basicTimeStep 8
+  optimalThreadCount 8
+  physicsDisableTime 0.1
+  physicsDisableLinearThreshold 0.1
+  physicsDisableAngularThreshold 0.1
+  contactProperties [
+    ContactProperties {
+      material1 "grass"
+      coulombFriction [
+        0.5
+      ]
+      softCFM 0.03
+    }
+    ContactProperties {
+      material1 "grass"
+      material2 "robocup soccer ball"
+      coulombFriction [
+        0.5
+      ]
+      bounce 0.76
+      softCFM 0.05
+    }
+    ContactProperties {
+      material2 "robocup soccer ball"
+      bounce 0.76
+    }
+  ]
+}
+
+Viewpoint {
+  orientation -0.175077 -0.367436 0.9134 5.32156
+  position -9.61058 11.1227 5.86
+}
+
+RoboCupBackground {
+  texture "stadium_dry"
+}
+RoboCupMainLight {}
+RoboCupOffLight {}
+RoboCupTopLight {}
+
+DEF soccerField RobocupSoccerField {
+  size "kid"
+  isRecognition TRUE
+}
+DEF ball RobocupTexturedSoccerBall {
+  translation 0 -1.2605840975378444e-07 0.07852943586495187
+  rotation 0.9999999999999999 0 0 1.8715596617048374e-06
+}
+# Red player 1: Darwin-OP
+DEF RED_1 Darwin-opHinge2Seg {
+  translation -4.03 -0.028 0.237
+  rotation 0.5784606380748865 0.38230443554430216 0.7205738052143914 0.136
+  name "player red 1"
+  controller "generic"
+  controllerArgs [
+    "RED_1"
+  ]
+  supervisor TRUE
+  cameraWidth 320
+  cameraHeight 240
+  jersey RobotisJersey {
+  }
+  backlash TRUE
+  recognitionColors [1 0 1] # Magenta
+}
+# Red player 2
+DEF RED_2 NUgus {
+  translation -2.207 -0.71576 0.517
+  name "red player 2"
+  controller "generic"
+  controllerArgs [
+    "RED_2"
+  ]
+  supervisor TRUE
+  recognitionColors [1 0 1] # Magenta
+}
+# Red player 3, does not have colours
+DEF RED_3 RobotisOp3 {
+  translation -1.358 1.11 0.289
+  rotation 0 0 -1 1
+  name "player red 3"
+  controller "generic"
+  controllerArgs [
+    "RED_3"
+  ]
+  supervisor TRUE
+  cameraWidth 320
+  cameraHeight 240
+  recognitionColors [0.3 0.3 0.3]
+}
+# Red player 4
+DEF RED_4 Wolfgang {
+  translation -0.9 -0.53 0.43
+  rotation 0 0 1 0.31415
+  name "red player 4"
+  controller "generic"
+  controllerArgs [
+    "RED_4"
+  ]
+  supervisor TRUE
+  recognitionColors [1 0 1] # Magenta
+}
+# Blue player 1, robot that takes images so give it a unique colours 
+DEF BLUE_1 NUgus {
+  translation 2.688 -0.3985 0.5249
+  rotation 0 0 1 0.31415
+  name "blue player 1"
+  controller "vision_teleport_controller"
+  controllerArgs [
+    "soccerField"
+    "BLUE_1"
+    "BLUE_2"
+    "BLUE_3"
+    "BLUE_4"
+    "RED_1"
+    "RED_2"
+    "RED_3"
+    "RED_4"
+    "ball"
+  ]
+  supervisor TRUE
+  recognitionColors [0.5 0.5 0.5] # Grey
+}
+
+# Blue player 2
+DEF BLUE_2 Wolfgang {
+  translation 2.3 -1 0.5
+  rotation 0 0 1 0.31415
+  name "blue player 2"
+  controller "generic"
+  controllerArgs [
+    "BLUE_2"
+  ]
+  supervisor TRUE
+  recognitionColors [0 1 1] # Cyan
+}
+# Blue player 3, does not have colours
+DEF BLUE_3 RobotisOp3 {
+  translation 1.5 0.5 0.3
+  rotation 0 0 1 0
+  name "player blue 3"
+  controller "generic"
+  controllerArgs [
+    "BLUE_3"
+  ]
+  supervisor TRUE
+  cameraWidth 320
+  cameraHeight 240
+  recognitionColors [0.3 0.3 0.3]
+}
+# Blue player 4
+DEF BLUE_4 Wolfgang {
+  translation 2.3 2 0.5
+  rotation 0 0 1 0.31415
+  name "blue player 4"
+  controller "generic"
+  controllerArgs [
+    "BLUE_4"
+  ]
+  supervisor TRUE
+  recognitionColors [0 1 1] # Cyan
+}
