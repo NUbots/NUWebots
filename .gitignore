@@ -15,6 +15,7 @@ controllers/vision_teleport_controller/data
 # Binaries
 controllers/nugus_controller/nugus_controller
 controllers/vision_teleport_controller/vision_teleport_controller
+controllers/optimisation/optimisation
 
 # Logs
 *.log
