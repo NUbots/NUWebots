@@ -74,7 +74,7 @@ DEF BLUE_1 NUgus {
   controller "nugus_controller"
   controllerArgs [
     # TCP port to listen on
-    "10020"
+    "10001"
     # Number of hosts
     "1"
     # Host address
