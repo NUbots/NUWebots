@@ -39,11 +39,15 @@ PROTO NUgusMain [
   field  SFBool      supervisor           FALSE              # Is `Robot.supervisor`.
   field  SFBool      synchronization      TRUE               # Is `Robot.synchronization`.
   field  SFBool      selfCollision        TRUE               # Is `Robot.selfCollision`.
+<<<<<<< HEAD
 <<<<<<< HEAD:nuwebots/protos/robot/NUgus/NUgus_mesh/NUgusMain.proto
   field  MFString    robotTexture         "robot/NUgus/NUgus_textures/NUgus_base_color.jpg"
 =======
   field  MFString    robotTexture         "../NUgus_textures/NUgus_base_color.jpg"
 >>>>>>> main:protos/robot/NUgus/NUgus_mesh/NUgusMain.proto
+=======
+  field  MFString    robotTexture         "../NUgus_textures/NUgus_base_color.jpg"
+>>>>>>> main
   # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
   field  SFFloat     MX64-torque          7.30
   field  SFFloat     MX64-vel             8.17
@@ -65,6 +69,7 @@ PROTO NUgusMain [
   field SFFloat      cameraMotionBlur       10               # With over 100fps, real cameras do not have much motion blur
   field MFColor      recognitionColors      [0 0 1]
   field SFFloat      height                 0.51             # Used in the vision data collection tool
+<<<<<<< HEAD
 <<<<<<< HEAD:nuwebots/protos/robot/NUgus/NUgus_mesh/NUgusMain.proto
 
 ]
@@ -79,6 +84,8 @@ PROTO NUgusMain [
     synchronization   IS synchronization
     selfCollision     IS selfCollision
 =======
+=======
+>>>>>>> main
 ]
 {
   Robot {
@@ -90,7 +97,10 @@ PROTO NUgusMain [
     supervisor IS supervisor
     synchronization IS synchronization
     selfCollision IS selfCollision
+<<<<<<< HEAD
 >>>>>>> main:protos/robot/NUgus/NUgus_mesh/NUgusMain.proto
+=======
+>>>>>>> main
     recognitionColors IS recognitionColors
 
     children [
