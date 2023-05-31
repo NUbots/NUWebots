@@ -11,6 +11,7 @@ build/
 
 # Vision data collection
 controllers/vision_teleport_controller/data
+<<<<<<< HEAD
 
 # Vision data collection
 nuwebots/controllers/vision_teleport_controller/data
@@ -20,6 +21,12 @@ nuwebots/controllers/vision_teleport_controller/data
 nuwebots/controllers/nugus_controller/nugus_controller
 nuwebots/controllers/vision_teleport_controller/vision_teleport_controller
 =======
+controllers/nugus_controller/nugus_controller
+controllers/vision_teleport_controller/vision_teleport_controller
+>>>>>>> main
+=======
+
+# Binaries
 controllers/nugus_controller/nugus_controller
 controllers/vision_teleport_controller/vision_teleport_controller
 >>>>>>> main
