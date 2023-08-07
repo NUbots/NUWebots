@@ -224,7 +224,22 @@ filedata = filedata.replace(''']
                                         ]
                                         name "left_foot [foot]"''')
 # Rename limbs
+filedata = filedata.replace(
+    '''name "right_shoulder_pitch"''', '''name "right_shoulder_pitch [shoulder]''')
+filedata = filedata.replace(
+    '''name "left_shoulder_pitch"''', '''name "left_shoulder_pitch [shoulder]''')
+filedata = filedata.replace(
+    '''name "right_hip_roll"''', '''name "right_hip_roll [hip]''')
+filedata = filedata.replace(
+    '''name "left_hip_roll"''', '''name "left_hip_roll [hip]''')
+
+
+# Add simple bounding boxes
+
+
 # Add colors for team stuff
+
+
 # Write the file out again
 with open(proto_file_path, 'w') as file:
     file.write(filedata)
