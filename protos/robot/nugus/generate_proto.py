@@ -28,8 +28,6 @@ new_constants = '''field  SFVec3f     translation          0 0 0
   field  SFFloat     MX106-vel            5.76
   field  SFFloat     MX106-damping        1.23
   field  SFFloat     MX106-friction       2.55
-  field  SFFloat     backlash             0.01
-  field  SFFloat     gearMass             0.001
   field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
   # CAMERA PARAMETERS: See docs for more information
   # Approximates PI/2 radians (90 degrees)
@@ -62,8 +60,10 @@ else:
 # Replace all servo parameters with constants and change to HingeJointWithBacklash
 filedata = filedata.replace("maxVelocity 20.0", "maxVelocity IS MX106-vel")
 filedata = filedata.replace("maxTorque 1.0", "maxTorque IS MX106-torque")
-filedata = filedata.replace(
-    "HingeJoint {", "HingeJointWithBacklash {\n    backlash IS backlash\n    gearMass IS gearMass")
+# filedata = filedata.replace(
+#     "HingeJoint {", '''HingeJointWithBacklash {
+#                                             backlash IS backlash
+#                                             gearMass IS gearMass''')
 filedata = filedata.replace(
     "HingeJointParameters {", "HingeJointParameters {\n                    dampingConstant IS MX106-damping\n                    staticFriction IS MX106-friction")
 filedata = filedata.replace(
@@ -134,12 +134,7 @@ filedata = filedata.replace(
                         motionBlur IS cameraMotionBlur
                         # We are using a rectilinear lens because there is no true spherical lens
                         spherical FALSE
-                        # Allows the robot to detect objects in the world
-                        recognition DEF recognition Recognition {
-                          frameThickness 0       # Remove bounding boxes
-                          segmentation TRUE      # Add segmentation
-                        }
-                        # Set the recognition parameters from the right camera
+                        # Set the recognition parameters from the left camera
                         recognition USE recognition
                       }
                     ]
@@ -159,8 +154,11 @@ filedata = filedata.replace(
                         motionBlur IS cameraMotionBlur
                         # We are using a rectilinear lens because there is no true spherical lens
                         spherical FALSE
-                        # Set the recognition parameters from the left camera
-                        recognition USE recognition
+                        # Allows the robot to detect objects in the world
+                        recognition DEF recognition Recognition {
+                          frameThickness 0       # Remove bounding boxes
+                          segmentation TRUE      # Add segmentation
+                        }
                       }
                     ]
                     name "left_camera"''')
