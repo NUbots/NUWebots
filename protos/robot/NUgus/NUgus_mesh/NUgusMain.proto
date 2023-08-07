@@ -727,7 +727,6 @@ PROTO NUgusMain [
                                       endPoint Solid {
                                         translation 0.000000 0.040000 0.000000
                                         rotation -0.000001 1.000000 -0.000001 3.141593
-                                        name "right_foot [foot]"
                                         children [
                                           DEF right_foot NUgus_right_footMesh {
                                             robotTexture IS robotTexture
@@ -737,6 +736,43 @@ PROTO NUgusMain [
                                           TouchSensor {
                                             # Define translation of touch sensor
                                             translation -0.0575 0.025 -0.061
+                                            children [
+                                              # Define shape for all touch sensors
+                                              DEF touch_shape Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.500000 0.500000 0.500000
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                  baseColorMap ImageTexture {
+                                                    url IS robotTexture
+                                                  }
+                                                }
+                                              }
+                                            ]
+                                            name "right_touch_sensor_br"
+                                            # Bounding object uses geometry from touch_shape
+                                            boundingObject DEF touch_box Transform {
+                                              translation 0.0 0.0 0.0056
+                                              rotation -1.0 0.0 0.0 -1.54
+                                              children [
+                                                Capsule {
+                                                  bottom      TRUE   # {TRUE, FALSE}
+                                                  height      0.001  # [0, inf)
+                                                  radius      0.009  # [0, inf)
+                                                  side        TRUE   # {TRUE, FALSE}
+                                                  top         FALSE  # {TRUE, FALSE}
+                                                  subdivision 12     # [3, inf)
+                                                }
+                                              ]
+                                            }
+                                            # Define physics for all touch sensors
+                                            physics DEF touch_physics Physics{
+                                              density -1
+                                              mass 0.02
+                                              centerOfMass 0.0 0.0 0.0
+                                            }
                                             # Sensor Type
                                             # Bumper returns a 1 when collision is detected
                                             type "bumper"
@@ -744,6 +780,9 @@ PROTO NUgusMain [
                                           # Back left touch sensor on right foot
                                           TouchSensor {
                                             translation 0.041 0.025 -0.061
+                                            children [
+                                               USE touch_shape
+                                            ]
                                             name "right_touch_sensor_bl"
                                             boundingObject USE touch_box
                                             physics USE touch_physics
@@ -752,6 +791,9 @@ PROTO NUgusMain [
                                           # Front right touch sensor on right foot
                                           TouchSensor {
                                             translation -0.0575 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
                                             name "right_touch_sensor_fr"
                                             boundingObject USE touch_box
                                             physics USE touch_physics
@@ -760,12 +802,16 @@ PROTO NUgusMain [
                                           # Front left touch sensor on right foot
                                           TouchSensor {
                                             translation 0.0409 -0.154 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
                                             name "right_touch_sensor_fl"
                                             boundingObject USE touch_box
                                             physics USE touch_physics
                                             type "bumper"
                                           }
                                         ]
+                                        name "right_foot [foot]"
                                         boundingObject Group {
                                           children [
                                             Transform {
@@ -1158,7 +1204,6 @@ PROTO NUgusMain [
                                       endPoint Solid {
                                         translation 0.000000 0.040000 0.000000
                                         rotation -0.000001 1.000000 -0.000001 3.141593
-                                        name "left_foot [foot]"
                                         children [
                                           DEF left_foot NUgus_left_footMesh {
                                             robotTexture IS robotTexture
@@ -1167,7 +1212,12 @@ PROTO NUgusMain [
                                           # Back right touch sensor on left foot
                                           TouchSensor {
                                             translation -0.041 0.025 -0.061
+                                            children [
+                                              USE touch_shape
+                                            ]
                                             name "left_touch_sensor_br"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Back left touch sensor on left foot
@@ -1177,6 +1227,8 @@ PROTO NUgusMain [
                                               USE touch_shape
                                             ]
                                             name "left_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Front left touch sensor on left foot
@@ -1186,6 +1238,8 @@ PROTO NUgusMain [
                                               USE touch_shape
                                             ]
                                             name "left_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Front right touch sensor on left foot
@@ -1195,9 +1249,12 @@ PROTO NUgusMain [
                                               USE touch_shape
                                             ]
                                             name "left_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                         ]
+                                        name "left_foot [foot]"
                                         boundingObject Group {
                                           children [
                                             Transform {

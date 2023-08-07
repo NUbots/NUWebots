@@ -234,7 +234,7 @@
 <joint_properties friction="0.0" />
 </joint>
 
-<joint name="left_knee_pitch" type="revolute">
+<joint name="left_knee" type="revolute">
 <origin xyz="0.206046 0.0569501 -1.44745e-14" rpy="-4.42146e-14 -3.94129e-15 -1.40554e-13" />
 <parent link="left_upper_leg" />
 <child link="left_lower_leg" />
@@ -479,7 +479,7 @@
 <joint_properties friction="0.0" />
 </joint>
 
-<joint name="right_knee_pitch" type="revolute">
+<joint name="right_knee" type="revolute">
 <origin xyz="0.206046 0.0569501 -7.16788e-15" rpy="-7.0209e-15 3.9968e-14 -5.66214e-15" />
 <parent link="right_upper_leg" />
 <child link="right_lower_leg" />
