@@ -5,43 +5,42 @@
 # Extracted from: /home/tom/NUbots/NUWebots/protos/robot/nugus/robot.urdf
 
 PROTO nugus [
-field  SFVec3f     translation          0 0 0
-  field  SFRotation  rotation             0 1 0 0
-  field  SFString    name                 "nugus"            # Is `Robot.name`.
-  # Find in "webots/projects/samples/contests/robocup/controllers/player"
-  field  SFString    controller           "nugus_controller"
-  # Is `Robot.controllerArgs`.
-  field  MFString    controllerArgs       []
-  # Is `Robot.customData`.
-  field  SFString    customData           ""
-  # Is `Robot.supervisor`.
-  field  SFBool      supervisor           FALSE
-  # Is `Robot.synchronization`.
-  field  SFBool      synchronization      TRUE
-  # Is `Robot.selfCollision`.
-  field  SFBool      selfCollision        TRUE
-  # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
-  field  SFFloat     MX106-torque         10.00
-  field  SFFloat     MX106-vel            5.76
-  field  SFFloat     MX106-damping        1.23
-  field  SFFloat     MX106-friction       2.55
-  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
-  # CAMERA PARAMETERS: See docs for more information
-  # Approximates PI/2 radians (90 degrees)
-  field SFFloat      fieldOfView            1.5707
-  field SFInt32      cameraWidth            640              # 640 pixels
-  field SFInt32      cameraHeight           480              # 480 pixels
-  # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
-  field SFFloat      cameraLensFocalLength  1.98
-  # Not much noise on real cameras
-  field SFFloat      cameraNoise            0.000000001
-  # With over 100fps, real cameras do not have much motion blur
-  field SFFloat      cameraMotionBlur       10
-  field MFColor      recognitionColors      [0 0 1]
-  # Used in the vision data collection tool
-  field SFFloat      height                 0.51
-
-]
+    field  SFVec3f     translation          0 0 0
+    field  SFRotation  rotation             0 1 0 0
+    field  SFString    name                 "nugus"            # Is `Robot.name`.
+    # Find in "webots/projects/samples/contests/robocup/controllers/player"
+    field  SFString    controller           "player"
+    # Is `Robot.controllerArgs`.
+    field  MFString    controllerArgs       []
+    # Is `Robot.customData`.
+    field  SFString    customData           ""
+    # Is `Robot.supervisor`.
+    field  SFBool      supervisor           FALSE
+    # Is `Robot.synchronization`.
+    field  SFBool      synchronization      TRUE
+    # Is `Robot.selfCollision`.
+    field  SFBool      selfCollision        FALSE
+    # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
+    field  SFFloat     MX106-torque         10.00
+    field  SFFloat     MX106-vel            10.00
+    field  SFFloat     MX106-damping        1.23
+    field  SFFloat     MX106-friction       2.55
+    field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+    # CAMERA PARAMETERS: See docs for more information
+    # Approximates PI/2 radians (90 degrees)
+    field SFFloat      fieldOfView            1.5707
+    field SFInt32      cameraWidth            640              # 640 pixels
+    field SFInt32      cameraHeight           480              # 480 pixels
+    # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
+    field SFFloat      cameraLensFocalLength  1.98
+    # Not much noise on real cameras
+    field SFFloat      cameraNoise            0.000000001
+    # With over 100fps, real cameras do not have much motion blur
+    field SFFloat      cameraMotionBlur       10
+    field MFColor      recognitionColors      [0 0 1]
+    # Used in the vision data collection tool
+    field SFFloat      height                 0.51
+  ]
 {
   Robot {
     translation IS translation
@@ -99,7 +98,7 @@ field  SFVec3f     translation          0 0 0
                         
       Shape {
         appearance DEF torso_material PBRAppearance {
-          baseColor 0.286275 0.286275 0.286275
+          baseColor 0.15 0.15 0.15
           roughness 1.000000
           metalness 0
         }
@@ -132,7 +131,7 @@ field  SFVec3f     translation          0 0 0
           children [
             Shape {
               appearance DEF left_hip_yaw_material PBRAppearance {
-                baseColor 0.286275 0.286275 0.286275
+                baseColor 0.15 0.15 0.15
                 roughness 1.000000
                 metalness 0
               }
@@ -149,7 +148,7 @@ field  SFVec3f     translation          0 0 0
               }
               device [
                 RotationalMotor {
-                  name "left_hip_roll"
+                  name "left_hip_roll [hip]"
                   maxVelocity IS MX106-vel
                   minPosition -3.14159
                   maxPosition 3.14159
@@ -166,7 +165,7 @@ field  SFVec3f     translation          0 0 0
                 children [
                   Shape {
                     appearance DEF left_hip_roll_material PBRAppearance {
-                      baseColor 0.286275 0.286275 0.286275
+                      baseColor 0.15 0.15 0.15
                       roughness 1.000000
                       metalness 0
                     }
@@ -200,7 +199,7 @@ field  SFVec3f     translation          0 0 0
                       children [
                         Shape {
                           appearance DEF left_upper_leg_material PBRAppearance {
-                            baseColor 0.701961 0.701961 0.701961
+                            baseColor 0.15 0.15 0.15
                             roughness 1.000000
                             metalness 0
                           }
@@ -217,7 +216,7 @@ field  SFVec3f     translation          0 0 0
                           }
                           device [
                             RotationalMotor {
-                              name "left_knee"
+                              name "left_knee_pitch"
                               maxVelocity IS MX106-vel
                               minPosition -3.14159
                               maxPosition 3.14159
@@ -225,7 +224,7 @@ field  SFVec3f     translation          0 0 0
                             }
                             PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
-                              name "left_knee_sensor"
+                              name "left_knee_pitch_sensor"
                             }
                           ]
                           endPoint Solid {
@@ -233,7 +232,7 @@ field  SFVec3f     translation          0 0 0
                             children [
                               Shape {
                                 appearance DEF left_lower_leg_material PBRAppearance {
-                                  baseColor 0.737255 0.721569 0.717647
+                                  baseColor 0.15 0.15 0.15
                                   roughness 1.000000
                                   metalness 0
                                 }
@@ -266,7 +265,7 @@ field  SFVec3f     translation          0 0 0
                                   children [
                                     Shape {
                                       appearance DEF left_ankle_material PBRAppearance {
-                                        baseColor 0.286275 0.286275 0.286275
+                                        baseColor 0.15 0.15 0.15
                                         roughness 1.000000
                                         metalness 0
                                       }
@@ -300,7 +299,7 @@ field  SFVec3f     translation          0 0 0
                                         children [
                                           Shape {
                                             appearance DEF left_foot_material PBRAppearance {
-                                              baseColor 0.286275 0.286275 0.286275
+                                              baseColor 0.15 0.15 0.15
                                               roughness 1.000000
                                               metalness 0
                                             }
@@ -314,7 +313,7 @@ field  SFVec3f     translation          0 0 0
                                             children [
                                               Shape {
                                                 appearance DEF left_foot_base_material PBRAppearance {
-                                                  baseColor 0.500000 0.500000 0.500000
+                                                  baseColor 0.615686 0.811765 0.929412
                                                   roughness 1.000000
                                                   metalness 0
                                                 }
@@ -324,12 +323,18 @@ field  SFVec3f     translation          0 0 0
                                               }
                                             ]
                                             name "left_foot_base"
-                                            boundingObject DEF left_foot_base_collision Mesh {
-                                              url "left_foot_base_collision.stl"
+                                            boundingObject Transform {
+                                              translation 0.000000 0.000000 0.000005
+                                              children [
+                                                Box {
+                                                   size 0.000010 0.000010 0.000010
+                                                }
+                                              ]
                                             }
                                             physics Physics {
                                               density -1
-                                              mass 0.000000
+                                              mass 1e-8
+                                              centerOfMass [ -0.000000 0.000000 0.000005 ]
                                             }
                                           }
                                         
@@ -360,8 +365,13 @@ field  SFVec3f     translation          0 0 0
                                           }
                                         ]
                                         name "left_foot [foot]"
-                                        boundingObject DEF left_foot_collision Mesh {
-                                          url "left_foot_collision.stl"
+                                        boundingObject Transform {
+                                          translation 0.009503 0.010944 0.021160
+                                          children [
+                                            Box {
+                                               size 0.056993 0.131581 0.215821
+                                            }
+                                          ]
                                         }
                                         physics Physics {
                                           density -1
@@ -376,8 +386,13 @@ field  SFVec3f     translation          0 0 0
                                     }
                                   ]
                                   name "left_ankle"
-                                  boundingObject DEF left_ankle_collision Mesh {
-                                    url "left_ankle_collision.stl"
+                                  boundingObject Transform {
+                                    translation -0.018050 0.027094 -0.001668
+                                    children [
+                                      Box {
+                                         size 0.066276 0.094388 0.055300
+                                      }
+                                    ]
                                   }
                                   physics Physics {
                                     density -1
@@ -392,8 +407,13 @@ field  SFVec3f     translation          0 0 0
                               }
                             ]
                             name "left_lower_leg"
-                            boundingObject DEF left_lower_leg_collision Mesh {
-                              url "left_lower_leg_collision.stl"
+                            boundingObject Transform {
+                              translation 0.100101 0.001000 0.000000
+                              children [
+                                Box {
+                                   size 0.229203 0.031000 0.078000
+                                }
+                              ]
                             }
                             physics Physics {
                               density -1
@@ -408,24 +428,34 @@ field  SFVec3f     translation          0 0 0
                         }
                       ]
                       name "left_upper_leg"
-                      boundingObject DEF left_upper_leg_collision Mesh {
-                        url "left_upper_leg_collision.stl"
+                      boundingObject Transform {
+                        translation 0.103064 0.030367 0.000000
+                        children [
+                          Box {
+                             size 0.246269 0.093471 0.073000
+                          }
+                        ]
                       }
                       physics Physics {
                         density -1
-                        mass 0.136613
-                        centerOfMass [ 0.079792 0.033712 -0.000001 ]
+                        mass 0.313357
+                        centerOfMass [ 0.144296 0.040110 0.000258 ]
                         inertiaMatrix [
-                          1.457710e-04 5.852650e-04 5.100870e-04
-                          -4.011750e-05 1.280260e-08 -8.072760e-10
+                          2.243790e-04 1.661780e-03 1.600670e-03
+                          -1.276700e-04 -4.075760e-06 -8.941050e-07
                         ]
                       }
                     }
                   }
                 ]
-                name "left_hip_roll"
-                boundingObject DEF left_hip_roll_collision Mesh {
-                  url "left_hip_roll_collision.stl"
+                name "left_hip_roll [hip]"
+                boundingObject Transform {
+                  translation 0.021138 0.001350 -0.026825
+                  children [
+                    Box {
+                       size 0.072453 0.055300 0.093850
+                    }
+                  ]
                 }
                 physics Physics {
                   density -1
@@ -440,8 +470,13 @@ field  SFVec3f     translation          0 0 0
             }
           ]
           name "left_hip_yaw"
-          boundingObject DEF left_hip_yaw_collision Mesh {
-            url "left_hip_yaw_collision.stl"
+          boundingObject Transform {
+            translation 0.000000 -0.007237 -0.036750
+            children [
+              Box {
+                 size 0.108500 0.094026 0.073500
+              }
+            ]
           }
           physics Physics {
             density -1
@@ -479,7 +514,7 @@ field  SFVec3f     translation          0 0 0
           children [
             Shape {
               appearance DEF right_hip_yaw_material PBRAppearance {
-                baseColor 0.286275 0.286275 0.286275
+                baseColor 0.15 0.15 0.15
                 roughness 1.000000
                 metalness 0
               }
@@ -496,7 +531,7 @@ field  SFVec3f     translation          0 0 0
               }
               device [
                 RotationalMotor {
-                  name "right_hip_roll"
+                  name "right_hip_roll [hip]"
                   maxVelocity IS MX106-vel
                   minPosition -3.14159
                   maxPosition 3.14159
@@ -513,7 +548,7 @@ field  SFVec3f     translation          0 0 0
                 children [
                   Shape {
                     appearance DEF right_hip_roll_material PBRAppearance {
-                      baseColor 0.286275 0.286275 0.286275
+                      baseColor 0.15 0.15 0.15
                       roughness 1.000000
                       metalness 0
                     }
@@ -547,7 +582,7 @@ field  SFVec3f     translation          0 0 0
                       children [
                         Shape {
                           appearance DEF right_upper_leg_material PBRAppearance {
-                            baseColor 0.701961 0.701961 0.701961
+                            baseColor 0.15 0.15 0.15
                             roughness 1.000000
                             metalness 0
                           }
@@ -564,7 +599,7 @@ field  SFVec3f     translation          0 0 0
                           }
                           device [
                             RotationalMotor {
-                              name "right_knee"
+                              name "right_knee_pitch"
                               maxVelocity IS MX106-vel
                               minPosition -3.14159
                               maxPosition 3.14159
@@ -572,7 +607,7 @@ field  SFVec3f     translation          0 0 0
                             }
                             PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
-                              name "right_knee_sensor"
+                              name "right_knee_pitch_sensor"
                             }
                           ]
                           endPoint Solid {
@@ -580,7 +615,7 @@ field  SFVec3f     translation          0 0 0
                             children [
                               Shape {
                                 appearance DEF right_lower_leg_material PBRAppearance {
-                                  baseColor 0.737255 0.721569 0.717647
+                                  baseColor 0.15 0.15 0.15
                                   roughness 1.000000
                                   metalness 0
                                 }
@@ -611,7 +646,7 @@ field  SFVec3f     translation          0 0 0
                                   children [
                                     Shape {
                                       appearance DEF right_ankle_material PBRAppearance {
-                                        baseColor 0.286275 0.286275 0.286275
+                                        baseColor 0.15 0.15 0.15
                                         roughness 1.000000
                                         metalness 0
                                       }
@@ -645,7 +680,7 @@ field  SFVec3f     translation          0 0 0
                                         children [
                                           Shape {
                                             appearance DEF right_foot_material PBRAppearance {
-                                              baseColor 0.286275 0.286275 0.286275
+                                              baseColor 0.15 0.15 0.15
                                               roughness 1.000000
                                               metalness 0
                                             }
@@ -659,7 +694,7 @@ field  SFVec3f     translation          0 0 0
                                             children [
                                               Shape {
                                                 appearance DEF right_foot_base_material PBRAppearance {
-                                                  baseColor 0.500000 0.500000 0.500000
+                                                  baseColor 0.615686 0.811765 0.929412
                                                   roughness 1.000000
                                                   metalness 0
                                                 }
@@ -669,12 +704,17 @@ field  SFVec3f     translation          0 0 0
                                               }
                                             ]
                                             name "right_foot_base"
-                                            boundingObject DEF right_foot_base_collision Mesh {
-                                              url "right_foot_base_collision.stl"
+                                            boundingObject Transform {
+                                              translation 0.000000 0.000000 0.000005
+                                              children [
+                                                Box {
+                                                   size 0.000010 0.000010 0.000010
+                                                }
+                                              ]
                                             }
                                             physics Physics {
                                               density -1
-                                              mass 0.000000
+                                              mass 1e-8
                                             }
                                           }
                                         
@@ -705,8 +745,13 @@ field  SFVec3f     translation          0 0 0
                                           }
                                         ]
                                         name "right_foot [foot]"
-                                        boundingObject DEF right_foot_collision Mesh {
-                                          url "right_foot_collision.stl"
+                                        boundingObject Transform {
+                                          translation 0.009507 -0.010945 0.021160
+                                          children [
+                                            Box {
+                                               size 0.056987 0.131579 0.215821
+                                            }
+                                          ]
                                         }
                                         physics Physics {
                                           density -1
@@ -721,8 +766,13 @@ field  SFVec3f     translation          0 0 0
                                     }
                                   ]
                                   name "right_ankle"
-                                  boundingObject DEF right_ankle_collision Mesh {
-                                    url "right_ankle_collision.stl"
+                                  boundingObject Transform {
+                                    translation -0.017756 0.026944 -0.001668
+                                    children [
+                                      Box {
+                                         size 0.065688 0.094088 0.055300
+                                      }
+                                    ]
                                   }
                                   physics Physics {
                                     density -1
@@ -737,8 +787,13 @@ field  SFVec3f     translation          0 0 0
                               }
                             ]
                             name "right_lower_leg"
-                            boundingObject DEF right_lower_leg_collision Mesh {
-                              url "right_lower_leg_collision.stl"
+                            boundingObject Transform {
+                              translation 0.100101 0.001000 0.000000
+                              children [
+                                Box {
+                                   size 0.229203 0.031000 0.078000
+                                }
+                              ]
                             }
                             physics Physics {
                               density -1
@@ -753,24 +808,34 @@ field  SFVec3f     translation          0 0 0
                         }
                       ]
                       name "right_upper_leg"
-                      boundingObject DEF right_upper_leg_collision Mesh {
-                        url "right_upper_leg_collision.stl"
+                      boundingObject Transform {
+                        translation 0.103064 0.030367 -0.000000
+                        children [
+                          Box {
+                             size 0.246269 0.093471 0.073000
+                          }
+                        ]
                       }
                       physics Physics {
                         density -1
-                        mass 0.136613
-                        centerOfMass [ 0.079792 0.033712 -0.000001 ]
+                        mass 0.313809
+                        centerOfMass [ 0.144343 0.040092 -0.000279 ]
                         inertiaMatrix [
-                          1.457710e-04 5.852650e-04 5.100870e-04
-                          -4.011750e-05 1.280150e-08 -8.070340e-10
+                          2.245880e-04 1.662400e-03 1.601300e-03
+                          -1.592750e-04 4.714070e-06 8.156250e-07
                         ]
                       }
                     }
                   }
                 ]
-                name "right_hip_roll"
-                boundingObject DEF right_hip_roll_collision Mesh {
-                  url "right_hip_roll_collision.stl"
+                name "right_hip_roll [hip]"
+                boundingObject Transform {
+                  translation 0.018050 -0.003150 -0.026950
+                  children [
+                    Box {
+                       size 0.066276 0.055300 0.094100
+                    }
+                  ]
                 }
                 physics Physics {
                   density -1
@@ -785,8 +850,13 @@ field  SFVec3f     translation          0 0 0
             }
           ]
           name "right_hip_yaw"
-          boundingObject DEF right_hip_yaw_collision Mesh {
-            url "right_hip_yaw_collision.stl"
+          boundingObject Transform {
+            translation 0.000000 0.007237 -0.036750
+            children [
+              Box {
+                 size 0.108500 0.094026 0.073500
+              }
+            ]
           }
           physics Physics {
             density -1
@@ -794,7 +864,7 @@ field  SFVec3f     translation          0 0 0
             centerOfMass [ -0.002183 0.008948 -0.024756 ]
             inertiaMatrix [
               1.186260e-04 5.241170e-05 1.036410e-04
-              4.671630e-07 -1.504170e-06 -1.010730e-07
+              4.671660e-07 -1.504170e-06 -1.010730e-07
             ]
           }
         }
@@ -825,7 +895,7 @@ field  SFVec3f     translation          0 0 0
           children [
             Shape {
               appearance DEF neck_material PBRAppearance {
-                baseColor 0.500000 0.500000 0.500000
+                baseColor 0.15 0.15 0.15
                 roughness 1.000000
                 metalness 0
               }
@@ -842,7 +912,7 @@ field  SFVec3f     translation          0 0 0
               }
               device [
                 RotationalMotor {
-                  name "neck_pitch"
+                  name "head_pitch"
                   maxVelocity IS MX106-vel
                   minPosition -3.14159
                   maxPosition 3.14159
@@ -850,7 +920,7 @@ field  SFVec3f     translation          0 0 0
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
-                  name "neck_pitch_sensor"
+                  name "head_pitch_sensor"
                 }
               ]
               endPoint Solid {
@@ -859,7 +929,7 @@ field  SFVec3f     translation          0 0 0
                 children [
                   Shape {
                     appearance DEF head_material PBRAppearance {
-                      baseColor 0.281665 0.281665 0.281665
+                      baseColor 0.15 0.15 0.15
                       roughness 1.000000
                       metalness 0
                     }
@@ -873,7 +943,7 @@ field  SFVec3f     translation          0 0 0
                     children [
                       Shape {
                         appearance DEF left_camera_material PBRAppearance {
-                          baseColor 0.500000 0.500000 0.500000
+                          baseColor 0.615686 0.811765 0.929412
                           roughness 1.000000
                           metalness 0
                         }
@@ -902,12 +972,18 @@ field  SFVec3f     translation          0 0 0
                       }
                     ]
                     name "left_camera"
-                    boundingObject DEF left_camera_collision Mesh {
-                      url "left_camera_collision.stl"
+                    boundingObject Transform {
+                      translation 0.000000 0.000000 0.000005
+                      children [
+                        Box {
+                           size 0.000010 0.000010 0.000010
+                        }
+                      ]
                     }
                     physics Physics {
                       density -1
-                      mass 0.000000
+                      mass 1e-8
+                      centerOfMass [ -0.000000 0.000000 0.000005 ]
                     }
                   }
                   Solid {
@@ -916,7 +992,7 @@ field  SFVec3f     translation          0 0 0
                     children [
                       Shape {
                         appearance DEF right_camera_material PBRAppearance {
-                          baseColor 0.500000 0.500000 0.500000
+                          baseColor 0.615686 0.811765 0.929412
                           roughness 1.000000
                           metalness 0
                         }
@@ -942,18 +1018,29 @@ field  SFVec3f     translation          0 0 0
                       }
                     ]
                     name "right_camera"
-                    boundingObject DEF right_camera_collision Mesh {
-                      url "right_camera_collision.stl"
+                    boundingObject Transform {
+                      translation 0.000000 0.000000 0.000005
+                      children [
+                        Box {
+                           size 0.000010 0.000010 0.000010
+                        }
+                      ]
                     }
                     physics Physics {
                       density -1
-                      mass 0.000000
+                      mass 1e-8
+                      centerOfMass [ -0.000000 0.000000 0.000005 ]
                     }
                   }
                 ]
                 name "head"
-                boundingObject DEF head_collision Mesh {
-                  url "head_collision.stl"
+                boundingObject Transform {
+                  translation -0.065929 0.004332 0.000063
+                  children [
+                    Box {
+                       size 0.162238 0.155643 0.157512
+                    }
+                  ]
                 }
                 physics Physics {
                   density -1
@@ -968,12 +1055,22 @@ field  SFVec3f     translation          0 0 0
             }
           ]
           name "neck"
-          boundingObject DEF neck_collision Mesh {
-            url "neck_collision.stl"
+          boundingObject Transform {
+            translation -0.000245 -0.002755 0.030682
+            children [
+              Box {
+                 size 0.040200 0.050000 0.062835
+              }
+            ]
           }
           physics Physics {
             density -1
-            mass 0.000000
+            mass 0.165011
+            centerOfMass [ -0.000245 -0.000118 0.032909 ]
+            inertiaMatrix [
+              6.783790e-05 5.662750e-05 3.851170e-05
+              -3.832310e-11 -3.690700e-11 2.056080e-06
+            ]
           }
         }
       }
@@ -981,12 +1078,12 @@ field  SFVec3f     translation          0 0 0
         jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-          axis -0.000004 -1.000000 0.000000
+          axis -0.000004 1.000000 0.000000
           anchor -0.000000 0.077000 0.177250
         }
         device [
           RotationalMotor {
-            name "left_shoulder_pitch"
+            name "left_shoulder_pitch [shoulder]"
             maxVelocity IS MX106-vel
             minPosition -3.14159
             maxPosition 3.14159
@@ -999,11 +1096,11 @@ field  SFVec3f     translation          0 0 0
         ]
         endPoint Solid {
           translation -0.000000 0.077000 0.177250
-          rotation 0.577350 0.577350 -0.577352 2.094399
+          rotation -0.577350 0.577350 0.577352 2.094399
           children [
             Shape {
               appearance DEF left_shoulder_material PBRAppearance {
-                baseColor 0.286275 0.286275 0.286275
+                baseColor 0.15 0.15 0.15
                 roughness 1.000000
                 metalness 0
               }
@@ -1015,8 +1112,8 @@ field  SFVec3f     translation          0 0 0
               jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-                axis -1.000000 -0.000004 -0.000004
-                anchor 0.000000 0.010001 -0.047912
+                axis -1.000000 0.000004 -0.000004
+                anchor 0.000000 -0.010001 0.047912
               }
               device [
                 RotationalMotor {
@@ -1032,12 +1129,12 @@ field  SFVec3f     translation          0 0 0
                 }
               ]
               endPoint Solid {
-                translation 0.000000 0.010001 -0.047912
-                rotation -0.577350 -0.577352 0.577350 2.094399
+                translation 0.000000 -0.010001 0.047912
+                rotation 0.577350 -0.577352 -0.577350 2.094399
                 children [
                   Shape {
                     appearance DEF left_upper_arm_material PBRAppearance {
-                      baseColor 0.286275 0.286275 0.286275
+                      baseColor 0.15 0.15 0.15
                       roughness 1.000000
                       metalness 0
                     }
@@ -1049,7 +1146,7 @@ field  SFVec3f     translation          0 0 0
                     jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-                      axis -0.000004 -1.000000 0.000000
+                      axis -0.000004 1.000000 0.000000
                       anchor 0.157500 -0.000056 0.026950
                     }
                     device [
@@ -1067,11 +1164,11 @@ field  SFVec3f     translation          0 0 0
                     ]
                     endPoint Solid {
                       translation 0.157500 -0.000056 0.026950
-                      rotation 0.577350 0.577350 -0.577352 2.094399
+                      rotation -0.577350 0.577350 0.577352 2.094399
                       children [
                         Shape {
                           appearance DEF left_lower_arm_material PBRAppearance {
-                            baseColor 0.286275 0.286275 0.286275
+                            baseColor 0.15 0.15 0.15
                             roughness 1.000000
                             metalness 0
                           }
@@ -1081,48 +1178,63 @@ field  SFVec3f     translation          0 0 0
                         }
                       ]
                       name "left_lower_arm"
-                      boundingObject DEF left_lower_arm_collision Mesh {
-                        url "left_lower_arm_collision.stl"
+                      boundingObject Transform {
+                        translation -0.002479 -0.095649 -0.002499
+                        children [
+                          Box {
+                             size 0.082572 0.258298 0.050878
+                          }
+                        ]
                       }
                       physics Physics {
                         density -1
                         mass 0.287325
-                        centerOfMass [ -0.000606 0.050997 -0.000069 ]
+                        centerOfMass [ -0.000606 -0.050997 0.000069 ]
                         inertiaMatrix [
                           7.784710e-04 5.437270e-04 1.150600e-03
-                          5.293450e-05 9.814920e-06 3.156180e-05
+                          -5.293450e-05 1.099730e-05 3.473980e-05
                         ]
                       }
                     }
                   }
                 ]
                 name "left_upper_arm"
-                boundingObject DEF left_upper_arm_collision Mesh {
-                  url "left_upper_arm_collision.stl"
+                boundingObject Transform {
+                  translation 0.073032 -0.000014 0.010696
+                  children [
+                    Box {
+                       size 0.224838 0.079023 0.089595
+                    }
+                  ]
                 }
                 physics Physics {
                   density -1
-                  mass 0.134220
-                  centerOfMass [ 0.083658 0.000830 -0.000118 ]
+                  mass 0.299230
+                  centerOfMass [ 0.045902 0.000372 0.000009 ]
                   inertiaMatrix [
-                    5.878330e-04 1.736360e-04 5.816010e-04
-                    3.049430e-05 -3.416970e-05 6.348450e-06
+                    6.263990e-04 5.884490e-04 9.852510e-04
+                    2.628610e-05 -3.505570e-05 6.362670e-06
                   ]
                 }
               }
             }
           ]
           name "left_shoulder"
-          boundingObject DEF left_shoulder_collision Mesh {
-            url "left_shoulder_collision.stl"
+          boundingObject Transform {
+            translation 0.000000 -0.000721 0.039687
+            children [
+              Box {
+                 size 0.080000 0.081442 0.079373
+              }
+            ]
           }
           physics Physics {
             density -1
             mass 0.084550
-            centerOfMass [ -0.000036 0.002549 -0.028743 ]
+            centerOfMass [ -0.000036 -0.002549 0.028743 ]
             inertiaMatrix [
               7.302950e-05 9.743110e-05 9.336130e-05
-              1.041460e-07 7.551920e-08 3.991160e-06
+              1.041460e-07 -7.551920e-08 -3.991160e-06
             ]
           }
         }
@@ -1131,12 +1243,12 @@ field  SFVec3f     translation          0 0 0
         jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-          axis -0.000004 -1.000000 0.000000
+          axis -0.000004 1.000000 0.000000
           anchor -0.000000 -0.077000 0.177250
         }
         device [
           RotationalMotor {
-            name "right_shoulder_pitch"
+            name "right_shoulder_pitch [shoulder]"
             maxVelocity IS MX106-vel
             minPosition -3.14159
             maxPosition 3.14159
@@ -1149,11 +1261,11 @@ field  SFVec3f     translation          0 0 0
         ]
         endPoint Solid {
           translation -0.000000 -0.077000 0.177250
-          rotation 0.577350 0.577350 -0.577352 2.094399
+          rotation -0.577350 0.577350 0.577352 2.094399
           children [
             Shape {
               appearance DEF right_shoulder_material PBRAppearance {
-                baseColor 0.286275 0.286275 0.286275
+                baseColor 0.15 0.15 0.15
                 roughness 1.000000
                 metalness 0
               }
@@ -1165,8 +1277,8 @@ field  SFVec3f     translation          0 0 0
               jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-                axis -1.000000 -0.000004 -0.000004
-                anchor 0.000000 0.010001 0.047912
+                axis -1.000000 0.000004 -0.000004
+                anchor 0.000000 -0.010001 -0.047912
               }
               device [
                 RotationalMotor {
@@ -1182,12 +1294,12 @@ field  SFVec3f     translation          0 0 0
                 }
               ]
               endPoint Solid {
-                translation 0.000000 0.010001 0.047912
-                rotation -0.577350 -0.577352 0.577350 2.094399
+                translation 0.000000 -0.010001 -0.047912
+                rotation 0.577350 -0.577352 -0.577350 2.094399
                 children [
                   Shape {
                     appearance DEF right_upper_arm_material PBRAppearance {
-                      baseColor 0.286275 0.286275 0.286275
+                      baseColor 0.15 0.15 0.15
                       roughness 1.000000
                       metalness 0
                     }
@@ -1199,7 +1311,7 @@ field  SFVec3f     translation          0 0 0
                     jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-                      axis -0.000004 -1.000000 0.000000
+                      axis -0.000004 1.000000 0.000000
                       anchor 0.157500 0.000056 0.026950
                     }
                     device [
@@ -1217,11 +1329,11 @@ field  SFVec3f     translation          0 0 0
                     ]
                     endPoint Solid {
                       translation 0.157500 0.000056 0.026950
-                      rotation 0.577350 0.577350 -0.577352 2.094399
+                      rotation -0.577350 0.577350 0.577352 2.094399
                       children [
                         Shape {
                           appearance DEF right_lower_arm_material PBRAppearance {
-                            baseColor 0.286275 0.286275 0.286275
+                            baseColor 0.15 0.15 0.15
                             roughness 1.000000
                             metalness 0
                           }
@@ -1231,56 +1343,76 @@ field  SFVec3f     translation          0 0 0
                         }
                       ]
                       name "right_lower_arm"
-                      boundingObject DEF right_lower_arm_collision Mesh {
-                        url "right_lower_arm_collision.stl"
+                      boundingObject Transform {
+                        translation -0.002479 -0.095659 0.002539
+                        children [
+                          Box {
+                             size 0.082572 0.258318 0.050957
+                          }
+                        ]
                       }
                       physics Physics {
                         density -1
                         mass 0.287350
-                        centerOfMass [ -0.000605 0.051000 0.000069 ]
+                        centerOfMass [ -0.000605 -0.051000 -0.000069 ]
                         inertiaMatrix [
                           7.786250e-04 5.438180e-04 1.150820e-03
-                          -3.067350e-05 1.106400e-05 -3.153360e-05
+                          3.067350e-05 9.860340e-06 -3.474720e-05
                         ]
                       }
                     }
                   }
                 ]
                 name "right_upper_arm"
-                boundingObject DEF right_upper_arm_collision Mesh {
-                  url "right_upper_arm_collision.stl"
+                boundingObject Transform {
+                  translation 0.073018 0.000015 0.010696
+                  children [
+                    Box {
+                       size 0.224810 0.079021 0.089595
+                    }
+                  ]
                 }
                 physics Physics {
                   density -1
-                  mass 0.134208
-                  centerOfMass [ 0.083654 -0.000828 0.000126 ]
+                  mass 0.299218
+                  centerOfMass [ 0.045899 -0.000371 0.000119 ]
                   inertiaMatrix [
-                    5.877890e-04 1.735990e-04 5.815650e-04
-                    2.728700e-05 -3.204810e-05 -6.384350e-06
+                    6.263510e-04 5.883480e-04 9.851550e-04
+                    3.148120e-05 -3.417190e-05 -6.383500e-06
                   ]
                 }
               }
             }
           ]
           name "right_shoulder"
-          boundingObject DEF right_shoulder_collision Mesh {
-            url "right_shoulder_collision.stl"
+          boundingObject Transform {
+            translation 0.000000 -0.000734 -0.039681
+            children [
+              Box {
+                 size 0.080000 0.081467 0.079362
+              }
+            ]
           }
           physics Physics {
             density -1
             mass 0.084550
-            centerOfMass [ -0.000035 0.002549 0.028743 ]
+            centerOfMass [ -0.000035 -0.002549 -0.028743 ]
             inertiaMatrix [
               7.302960e-05 9.743120e-05 9.336150e-05
-              1.046390e-07 -7.539300e-08 -3.991360e-06
+              1.046390e-07 7.539300e-08 3.991360e-06
             ]
           }
         }
       }
     ]
     name IS name
-    boundingObject DEF torso_collision Mesh {
-      url "torso_collision.stl"
+    boundingObject Transform {
+      translation -0.002001 -0.000010 0.108158
+      children [
+        Box {
+           size 0.139509 0.189983 0.262624
+        }
+      ]
     }
     physics Physics {
       density -1

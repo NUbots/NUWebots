@@ -1,69 +1,179 @@
+import numpy as np
+from scipy.spatial import ConvexHull
 import os
 import xml.etree.ElementTree as ET
+import pymeshlab
 import re
 import sys
-if len(sys.argv) < 2:
-    print("Please provide a path to the proto file.")
-    sys.exit(1)
-# Get the file path from command-line arguments
-proto_file_path = sys.argv[1]
-# Define the new constants
-new_constants = '''field  SFVec3f     translation          0 0 0
-  field  SFRotation  rotation             0 1 0 0
-  field  SFString    name                 "nugus"            # Is `Robot.name`.
-  # Find in "webots/projects/samples/contests/robocup/controllers/player"
-  field  SFString    controller           "player"
-  # Is `Robot.controllerArgs`.
-  field  MFString    controllerArgs       []
-  # Is `Robot.customData`.
-  field  SFString    customData           ""
-  # Is `Robot.supervisor`.
-  field  SFBool      supervisor           FALSE
-  # Is `Robot.synchronization`.
-  field  SFBool      synchronization      TRUE
-  # Is `Robot.selfCollision`.
-  field  SFBool      selfCollision        TRUE
-  # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
-  field  SFFloat     MX106-torque         10.00
-  field  SFFloat     MX106-vel            5.76
-  field  SFFloat     MX106-damping        1.23
-  field  SFFloat     MX106-friction       2.55
-  field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
-  # CAMERA PARAMETERS: See docs for more information
-  # Approximates PI/2 radians (90 degrees)
-  field SFFloat      fieldOfView            1.5707
-  field SFInt32      cameraWidth            640              # 640 pixels
-  field SFInt32      cameraHeight           480              # 480 pixels
-  # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
-  field SFFloat      cameraLensFocalLength  1.98
-  # Not much noise on real cameras
-  field SFFloat      cameraNoise            0.000000001
-  # With over 100fps, real cameras do not have much motion blur
-  field SFFloat      cameraMotionBlur       10
-  field MFColor      recognitionColors      [0 0 1]
-  # Used in the vision data collection tool
-  field SFFloat      height                 0.51
-'''
+from urdf2webots.importer import convertUrdfFile
+
+# Parse URDF file
+tree = ET.parse('robot.urdf')
+root = tree.getroot()
+
+# Get all mesh filenames from URDF
+mesh_files = []
+collision_elements = []
+for mesh in root.findall(".//mesh"):
+    filename = mesh.attrib['filename']
+
+    # Remove 'package:///' prefix
+    clean_filename = filename.replace('package:///', '')
+    mesh.set('filename', clean_filename)
+
+    mesh_files.append(clean_filename)
+    if clean_filename.endswith('_collision.stl'):
+        collision_elements.append(mesh)
+
+# Simplify each STL file referenced in URDF
+for file in mesh_files:
+    # Load mesh
+    ms = pymeshlab.MeshSet()
+    ms.load_new_mesh(file)
+    # Simplify mesh
+    ms.meshing_decimation_quadric_edge_collapse(targetfacenum=20000)
+    # Save simplified mesh
+    ms.save_current_mesh(file)
+
+# Find all collision STL files
+collision_files = [
+    file for file in mesh_files if file.endswith('_collision.stl')]
+
+# Process collision elements
+for collision in root.findall(".//collision"):
+    mesh_element = collision.find(".//mesh")
+
+    # Remove mesh element from geometry
+    geometry_element = collision.find(".//geometry")
+
+    if mesh_element is not None:
+        filename = mesh_element.attrib['filename'].replace('package:///', '')
+
+        # Load mesh
+        ms = pymeshlab.MeshSet()
+        ms.load_new_mesh(filename)
+
+        # Compute the optimal bounding box
+        bounding_box = ms.current_mesh().bounding_box()
+
+        # Get min and max coordinates
+        min_x = bounding_box.min()[0]
+        max_x = bounding_box.max()[0]
+        min_y = bounding_box.min()[1]
+        max_y = bounding_box.max()[1]
+        min_z = bounding_box.min()[2]
+        max_z = bounding_box.max()[2]
+
+        # Calculate bounding box dimensions
+        x_size = max_x - min_x
+        y_size = max_y - min_y
+        z_size = max_z - min_z
+
+        # Calculate center of bounding box
+        center_x = (min_x + max_x) / 2
+        center_y = (min_y + max_y) / 2
+        center_z = (min_z + max_z) / 2
+
+        # Create or update the origin element
+        origin_element = collision.find('./origin')
+        if origin_element is None:
+            origin_element = ET.SubElement(collision, 'origin')
+        origin_element.attrib['xyz'] = f'{center_x} {center_y} {center_z}'
+
+        # Create box element
+        box_element = ET.Element('box', size=f'{x_size} {y_size} {z_size}')
+
+        # Find the parent geometry element
+        if geometry_element is not None:
+            # Remove mesh element from the geometry
+            geometry_element.remove(mesh_element)
+
+            # Add the box element to the geometry
+            geometry_element.append(box_element)
+
+# Save modified URDF
+tree.write('robot.urdf')
+
+# Delete all STL files not in URDF
+for file in os.listdir('.'):
+    if file.endswith('.stl') and file not in mesh_files:
+        os.remove(file)
+
+# Delete all STL files used for collision
+for file in os.listdir('.'):
+    if file.endswith('_collision.stl'):
+        os.remove(file)
+
+# Delete all .part files
+for file in os.listdir('.'):
+    if file.endswith('.part'):
+        os.remove(file)
+
+
+urdf_file_path = "robot.urdf"
+proto_file_path = "nugus.proto"
+
+# Convert URDF to PROTO using urdf2webots library
+convertUrdfFile(input=urdf_file_path, output=proto_file_path,
+                boxCollision=False, normal=False)
 
 # Read the existing proto file
 with open(proto_file_path, 'r') as file:
     filedata = file.read()
-# Find the block to replace using a regex
-constants_block = re.search(
-    'PROTO nugus \[\n(.*?)\n\]\n{', filedata, re.DOTALL)
-if constants_block is not None:
-    # Replace the block
-    filedata = filedata.replace(constants_block.group(1), new_constants)
-    print("Replaced constants block.")
-else:
-    print("Constants block not found. Please check the structure of the proto file.")
+
+# Replace constants block
+filedata = filedata.replace('''[
+  field  SFVec3f     translation     0 0 0
+  field  SFRotation  rotation        0 0 1 0
+  field  SFString    name            "nugus"  # Is `Robot.name`.
+  field  SFString    controller      "void"   # Is `Robot.controller`.
+  field  MFString    controllerArgs  []       # Is `Robot.controllerArgs`.
+  field  SFString    customData      ""       # Is `Robot.customData`.
+  field  SFBool      supervisor      FALSE    # Is `Robot.supervisor`.
+  field  SFBool      synchronization TRUE     # Is `Robot.synchronization`.
+  field  SFBool      selfCollision   FALSE    # Is `Robot.selfCollision`.
+]''', '''[
+    field  SFVec3f     translation          0 0 0
+    field  SFRotation  rotation             0 1 0 0
+    field  SFString    name                 "nugus"            # Is `Robot.name`.
+    # Find in "webots/projects/samples/contests/robocup/controllers/player"
+    field  SFString    controller           "player"
+    # Is `Robot.controllerArgs`.
+    field  MFString    controllerArgs       []
+    # Is `Robot.customData`.
+    field  SFString    customData           ""
+    # Is `Robot.supervisor`.
+    field  SFBool      supervisor           FALSE
+    # Is `Robot.synchronization`.
+    field  SFBool      synchronization      TRUE
+    # Is `Robot.selfCollision`.
+    field  SFBool      selfCollision        FALSE
+    # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
+    field  SFFloat     MX106-torque         10.00
+    field  SFFloat     MX106-vel            10.00
+    field  SFFloat     MX106-damping        1.23
+    field  SFFloat     MX106-friction       2.55
+    field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
+    # CAMERA PARAMETERS: See docs for more information
+    # Approximates PI/2 radians (90 degrees)
+    field SFFloat      fieldOfView            1.5707
+    field SFInt32      cameraWidth            640              # 640 pixels
+    field SFInt32      cameraHeight           480              # 480 pixels
+    # 1.98mm, as from our real cameras (https://www.lensation.de/pdf/BF10M19828S118C.pdf)
+    field SFFloat      cameraLensFocalLength  1.98
+    # Not much noise on real cameras
+    field SFFloat      cameraNoise            0.000000001
+    # With over 100fps, real cameras do not have much motion blur
+    field SFFloat      cameraMotionBlur       10
+    field MFColor      recognitionColors      [0 0 1]
+    # Used in the vision data collection tool
+    field SFFloat      height                 0.51
+  ]''')
+
 # Replace all servo parameters with constants and change to HingeJointWithBacklash
+# TODO: Replace the joints with the correct constants (currently using MX106 only)
 filedata = filedata.replace("maxVelocity 20.0", "maxVelocity IS MX106-vel")
 filedata = filedata.replace("maxTorque 1.0", "maxTorque IS MX106-torque")
-# filedata = filedata.replace(
-#     "HingeJoint {", '''HingeJointWithBacklash {
-#                                             backlash IS backlash
-#                                             gearMass IS gearMass''')
 filedata = filedata.replace(
     "HingeJointParameters {", "HingeJointParameters {\n                    dampingConstant IS MX106-damping\n                    staticFriction IS MX106-friction")
 filedata = filedata.replace(
@@ -225,21 +335,29 @@ filedata = filedata.replace(''']
                                         name "left_foot [foot]"''')
 # Rename limbs
 filedata = filedata.replace(
-    '''name "right_shoulder_pitch"''', '''name "right_shoulder_pitch [shoulder]''')
+    '''name "right_shoulder_pitch"''', '''name "right_shoulder_pitch [shoulder]"''')
 filedata = filedata.replace(
-    '''name "left_shoulder_pitch"''', '''name "left_shoulder_pitch [shoulder]''')
+    '''name "left_shoulder_pitch"''', '''name "left_shoulder_pitch [shoulder]"''')
 filedata = filedata.replace(
-    '''name "right_hip_roll"''', '''name "right_hip_roll [hip]''')
+    '''name "right_hip_roll"''', '''name "right_hip_roll [hip]"''')
 filedata = filedata.replace(
-    '''name "left_hip_roll"''', '''name "left_hip_roll [hip]''')
+    '''name "left_hip_roll"''', '''name "left_hip_roll [hip]"''')
 
+# Fix naming issue of bounding object caused by urdf2webots tool
+filedata = filedata.replace("boundingObject Pose", "boundingObject Transform")
 
-# Add simple bounding boxes
+#
+filedata = filedata.replace("mass 0.000000", "mass 1e-8")
+filedata = filedata.replace("mass -1", "mass 1e-8")
 
+# Update colours
+filedata = filedata.replace(
+    "baseColor 0.286275 0.286275 0.286275", "baseColor 0.15 0.15 0.15")
 
-# Add colors for team stuff
+# TODO: Add colors for team stuff
 
-
-# Write the file out again
+# Write the update proto file
 with open(proto_file_path, 'w') as file:
     file.write(filedata)
+
+print("Proto file updated")

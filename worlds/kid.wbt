@@ -1,14 +1,13 @@
 #VRML_SIM R2022b utf8
 
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RoboCupBackground.proto"
-#IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupGoal.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupSoccerField.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupTexturedSoccerBall.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupMainLight.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupOffLight.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupTopLight.proto"
-
 IMPORTABLE EXTERNPROTO "../protos/robot/NUgus/NUgus.proto"
+EXTERNPROTO "../protos/robot/nugus/nugus.proto"
 
 WorldInfo {
   info [
@@ -44,40 +43,34 @@ WorldInfo {
     }
   ]
 }
-
 Viewpoint {
-  orientation -0.175077 -0.367436 0.9134 5.32156
-  position -9.61058 11.1227 5.86
+  orientation -0.2805883411350746 -0.29578901747392383 0.9131150201156905 4.674266698949372
+  position 1.698849186322028 5.70392276065282 4.198898306747539
 }
-
 RoboCupBackground {
-  texture "stadium_dry"
 }
-RoboCupMainLight {}
-RoboCupOffLight {}
-RoboCupTopLight {}
-
+RoboCupMainLight {
+}
+RoboCupOffLight {
+}
+RoboCupTopLight {
+}
 DEF FIELD RobocupSoccerField {
   size "kid"
 }
-
 DEF BALL RobocupTexturedSoccerBall {
-  translation 0 -1.2605840975378444e-07 0.07852943586495187
+  translation 1.38 -1.26058e-07 0.0785294
   rotation 0.9999999999999999 0 0 1.8715596617048374e-06
 }
-
-DEF BLUE_1 NUgus {
-  name "blue player 1"
-  translation 2.71 0.0 0.51
+DEF BLUE_1 nugus {
+  translation 2.71 0 0.51
   rotation 0 0 1 3.1415
-  supervisor TRUE
+  name "blue player 1"
   controller "nugus_controller"
   controllerArgs [
-    # TCP port to listen on
     "10001"
-    # Number of hosts
     "1"
-    # Host address
     "127.0.0.1"
   ]
+  supervisor TRUE
 }
