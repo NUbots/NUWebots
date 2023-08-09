@@ -675,9 +675,9 @@ public:
                 unsigned char* rgba_image       = new unsigned char[rgba_image_size];
 
                 for (int i = 0; i < width * height; i++) {
-                    rgba_image[4 * i]     = bgra_image[4 * i + 2];  // R
+                    rgba_image[4 * i + 0] = bgra_image[4 * i + 2];  // R
                     rgba_image[4 * i + 1] = bgra_image[4 * i + 1];  // G
-                    rgba_image[4 * i + 2] = bgra_image[4 * i];      // B
+                    rgba_image[4 * i + 2] = bgra_image[4 * i + 0];  // B
                     rgba_image[4 * i + 3] = bgra_image[4 * i + 3];  // A
                 }
 
