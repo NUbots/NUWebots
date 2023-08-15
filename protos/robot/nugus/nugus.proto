@@ -4,7 +4,11 @@
 # This is a proto file for Webots for the nugus
 # Extracted from: /home/tom/NUbots/NUWebots/protos/robot/nugus/robot.urdf
 
-PROTO nugus [
+
+EXTERNPROTO "JerseyBack.proto"
+EXTERNPROTO "JerseyFront.proto"
+PROTO nugus 
+[
     field  SFVec3f     translation          0 0 0
     field  SFRotation  rotation             0 1 0 0
     field  SFString    name                 "nugus"            # Is `Robot.name`.
@@ -52,6 +56,38 @@ PROTO nugus [
     synchronization IS synchronization
     selfCollision IS selfCollision
     children [
+                            %{
+                              if fields.name.value ~= '' then
+                                -- name is supposed to be something like "red player 2" or "blue player 1"
+                                local words = {}
+                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                local color = words[1]
+                                local number = words[3]
+                            }%
+                            Transform {
+                              translation 0.00250000 0.000000 -0.0020000
+                              rotation 0.000000 0.000000 1.000000 1.570790
+                              children [
+                                JerseyFront {
+                                  jerseyFrontTexture [
+                                  %{='"./NUgus_textures/NUgus_front_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  ]
+                                }
+                              ]
+                            }
+
+                            Transform {
+                              translation -0.00250000 0.000000 -0.0020000
+                              rotation 0.000000 0.000000 1.000000 1.570790
+                              children [
+                                JerseyBack {
+                                  jerseyBackTexture [
+                                  %{='"./NUgus_textures/NUgus_back_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  %{ end }%
+                                  ]
+                                }
+                              ]
+                            }
                             Transform {
                                 # Accelerometer and Gyro are positioned 0.2m above torso base
                                 translation 0.000000 0.000000 0.2
@@ -98,7 +134,7 @@ PROTO nugus [
                         
       Shape {
         appearance DEF torso_material PBRAppearance {
-          baseColor 0.15 0.15 0.15
+          baseColor 0.125 0.125 0.125
           roughness 1.000000
           metalness 0
         }
@@ -131,7 +167,7 @@ PROTO nugus [
           children [
             Shape {
               appearance DEF left_hip_yaw_material PBRAppearance {
-                baseColor 0.15 0.15 0.15
+                baseColor 0.125 0.125 0.125
                 roughness 1.000000
                 metalness 0
               }
@@ -165,7 +201,7 @@ PROTO nugus [
                 children [
                   Shape {
                     appearance DEF left_hip_roll_material PBRAppearance {
-                      baseColor 0.15 0.15 0.15
+                      baseColor 0.125 0.125 0.125
                       roughness 1.000000
                       metalness 0
                     }
@@ -199,7 +235,7 @@ PROTO nugus [
                       children [
                         Shape {
                           appearance DEF left_upper_leg_material PBRAppearance {
-                            baseColor 0.15 0.15 0.15
+                            baseColor 0.125 0.125 0.125
                             roughness 1.000000
                             metalness 0
                           }
@@ -232,7 +268,7 @@ PROTO nugus [
                             children [
                               Shape {
                                 appearance DEF left_lower_leg_material PBRAppearance {
-                                  baseColor 0.15 0.15 0.15
+                                  baseColor 0.125 0.125 0.125
                                   roughness 1.000000
                                   metalness 0
                                 }
@@ -265,7 +301,7 @@ PROTO nugus [
                                   children [
                                     Shape {
                                       appearance DEF left_ankle_material PBRAppearance {
-                                        baseColor 0.15 0.15 0.15
+                                        baseColor 0.125 0.125 0.125
                                         roughness 1.000000
                                         metalness 0
                                       }
@@ -299,7 +335,7 @@ PROTO nugus [
                                         children [
                                           Shape {
                                             appearance DEF left_foot_material PBRAppearance {
-                                              baseColor 0.15 0.15 0.15
+                                              baseColor 0.125 0.125 0.125
                                               roughness 1.000000
                                               metalness 0
                                             }
@@ -514,7 +550,7 @@ PROTO nugus [
           children [
             Shape {
               appearance DEF right_hip_yaw_material PBRAppearance {
-                baseColor 0.15 0.15 0.15
+                baseColor 0.125 0.125 0.125
                 roughness 1.000000
                 metalness 0
               }
@@ -548,7 +584,7 @@ PROTO nugus [
                 children [
                   Shape {
                     appearance DEF right_hip_roll_material PBRAppearance {
-                      baseColor 0.15 0.15 0.15
+                      baseColor 0.125 0.125 0.125
                       roughness 1.000000
                       metalness 0
                     }
@@ -582,7 +618,7 @@ PROTO nugus [
                       children [
                         Shape {
                           appearance DEF right_upper_leg_material PBRAppearance {
-                            baseColor 0.15 0.15 0.15
+                            baseColor 0.125 0.125 0.125
                             roughness 1.000000
                             metalness 0
                           }
@@ -615,7 +651,7 @@ PROTO nugus [
                             children [
                               Shape {
                                 appearance DEF right_lower_leg_material PBRAppearance {
-                                  baseColor 0.15 0.15 0.15
+                                  baseColor 0.125 0.125 0.125
                                   roughness 1.000000
                                   metalness 0
                                 }
@@ -646,7 +682,7 @@ PROTO nugus [
                                   children [
                                     Shape {
                                       appearance DEF right_ankle_material PBRAppearance {
-                                        baseColor 0.15 0.15 0.15
+                                        baseColor 0.125 0.125 0.125
                                         roughness 1.000000
                                         metalness 0
                                       }
@@ -680,7 +716,7 @@ PROTO nugus [
                                         children [
                                           Shape {
                                             appearance DEF right_foot_material PBRAppearance {
-                                              baseColor 0.15 0.15 0.15
+                                              baseColor 0.125 0.125 0.125
                                               roughness 1.000000
                                               metalness 0
                                             }
@@ -895,7 +931,7 @@ PROTO nugus [
           children [
             Shape {
               appearance DEF neck_material PBRAppearance {
-                baseColor 0.15 0.15 0.15
+                baseColor 0.125 0.125 0.125
                 roughness 1.000000
                 metalness 0
               }
@@ -929,7 +965,7 @@ PROTO nugus [
                 children [
                   Shape {
                     appearance DEF head_material PBRAppearance {
-                      baseColor 0.15 0.15 0.15
+                      baseColor 0.125 0.125 0.125
                       roughness 1.000000
                       metalness 0
                     }
@@ -1035,10 +1071,10 @@ PROTO nugus [
                 ]
                 name "head"
                 boundingObject Transform {
-                  translation -0.065929 0.004332 0.000063
+                  translation -0.065929 0.004332 0.000205
                   children [
                     Box {
-                       size 0.162238 0.155643 0.157512
+                       size 0.162238 0.155643 0.157797
                     }
                   ]
                 }
@@ -1100,7 +1136,7 @@ PROTO nugus [
           children [
             Shape {
               appearance DEF left_shoulder_material PBRAppearance {
-                baseColor 0.15 0.15 0.15
+                baseColor 0.125 0.125 0.125
                 roughness 1.000000
                 metalness 0
               }
@@ -1134,7 +1170,7 @@ PROTO nugus [
                 children [
                   Shape {
                     appearance DEF left_upper_arm_material PBRAppearance {
-                      baseColor 0.15 0.15 0.15
+                      baseColor 0.125 0.125 0.125
                       roughness 1.000000
                       metalness 0
                     }
@@ -1168,7 +1204,7 @@ PROTO nugus [
                       children [
                         Shape {
                           appearance DEF left_lower_arm_material PBRAppearance {
-                            baseColor 0.15 0.15 0.15
+                            baseColor 0.125 0.125 0.125
                             roughness 1.000000
                             metalness 0
                           }
@@ -1179,10 +1215,10 @@ PROTO nugus [
                       ]
                       name "left_lower_arm"
                       boundingObject Transform {
-                        translation -0.002479 -0.095649 -0.002499
+                        translation -0.002479 -0.095649 -0.002522
                         children [
                           Box {
-                             size 0.082572 0.258298 0.050878
+                             size 0.082572 0.258298 0.050922
                           }
                         ]
                       }
@@ -1265,7 +1301,7 @@ PROTO nugus [
           children [
             Shape {
               appearance DEF right_shoulder_material PBRAppearance {
-                baseColor 0.15 0.15 0.15
+                baseColor 0.125 0.125 0.125
                 roughness 1.000000
                 metalness 0
               }
@@ -1299,7 +1335,7 @@ PROTO nugus [
                 children [
                   Shape {
                     appearance DEF right_upper_arm_material PBRAppearance {
-                      baseColor 0.15 0.15 0.15
+                      baseColor 0.125 0.125 0.125
                       roughness 1.000000
                       metalness 0
                     }
@@ -1333,7 +1369,7 @@ PROTO nugus [
                       children [
                         Shape {
                           appearance DEF right_lower_arm_material PBRAppearance {
-                            baseColor 0.15 0.15 0.15
+                            baseColor 0.125 0.125 0.125
                             roughness 1.000000
                             metalness 0
                           }
@@ -1365,10 +1401,10 @@ PROTO nugus [
                 ]
                 name "right_upper_arm"
                 boundingObject Transform {
-                  translation 0.073018 0.000015 0.010696
+                  translation 0.073028 0.000014 0.010696
                   children [
                     Box {
-                       size 0.224810 0.079021 0.089595
+                       size 0.224830 0.079023 0.089595
                     }
                   ]
                 }
@@ -1407,10 +1443,10 @@ PROTO nugus [
     ]
     name IS name
     boundingObject Transform {
-      translation -0.002001 -0.000010 0.108158
+      translation -0.002001 -0.000010 0.108568
       children [
         Box {
-           size 0.139509 0.189983 0.262624
+           size 0.139509 0.189983 0.261804
         }
       ]
     }

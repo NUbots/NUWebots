@@ -31,7 +31,7 @@ for file in mesh_files:
     ms = pymeshlab.MeshSet()
     ms.load_new_mesh(file)
     # Simplify mesh
-    ms.meshing_decimation_quadric_edge_collapse(targetfacenum=20000)
+    ms.meshing_decimation_quadric_edge_collapse(targetfacenum=21845)
     # Save simplified mesh
     ms.save_current_mesh(file)
 
@@ -122,7 +122,7 @@ with open(proto_file_path, 'r') as file:
     filedata = file.read()
 
 # Replace constants block
-filedata = filedata.replace('''[
+filedata = filedata.replace('''PROTO nugus [
   field  SFVec3f     translation     0 0 0
   field  SFRotation  rotation        0 0 1 0
   field  SFString    name            "nugus"  # Is `Robot.name`.
@@ -132,7 +132,11 @@ filedata = filedata.replace('''[
   field  SFBool      supervisor      FALSE    # Is `Robot.supervisor`.
   field  SFBool      synchronization TRUE     # Is `Robot.synchronization`.
   field  SFBool      selfCollision   FALSE    # Is `Robot.selfCollision`.
-]''', '''[
+]''', '''
+EXTERNPROTO "JerseyBack.proto"
+EXTERNPROTO "JerseyFront.proto"
+PROTO nugus 
+[
     field  SFVec3f     translation          0 0 0
     field  SFRotation  rotation             0 1 0 0
     field  SFString    name                 "nugus"            # Is `Robot.name`.
@@ -183,6 +187,38 @@ filedata = filedata.replace(
 filedata = filedata.replace('''selfCollision IS selfCollision
     children [''', '''selfCollision IS selfCollision
     children [
+                            %{
+                              if fields.name.value ~= '' then
+                                -- name is supposed to be something like "red player 2" or "blue player 1"
+                                local words = {}
+                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
+                                local color = words[1]
+                                local number = words[3]
+                            }%
+                            Transform {
+                              translation 0.00250000 0.000000 -0.0010000
+                              rotation 0.000000 0.000000 1.000000 1.570790
+                              children [
+                                JerseyFront {
+                                  jerseyFrontTexture [
+                                  %{='"./NUgus_textures/NUgus_front_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  ]
+                                }
+                              ]
+                            }
+
+                            Transform {
+                              translation -0.00250000 0.000000 -0.0010000
+                              rotation 0.000000 0.000000 1.000000 1.570790
+                              children [
+                                JerseyBack {
+                                  jerseyBackTexture [
+                                  %{='"./NUgus_textures/NUgus_back_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  %{ end }%
+                                  ]
+                                }
+                              ]
+                            }
                             Transform {
                                 # Accelerometer and Gyro are positioned 0.2m above torso base
                                 translation 0.000000 0.000000 0.2
@@ -346,15 +382,13 @@ filedata = filedata.replace(
 # Fix naming issue of bounding object caused by urdf2webots tool
 filedata = filedata.replace("boundingObject Pose", "boundingObject Transform")
 
-#
+# Fix issue with mass of bounding object
 filedata = filedata.replace("mass 0.000000", "mass 1e-8")
 filedata = filedata.replace("mass -1", "mass 1e-8")
 
 # Update colours
 filedata = filedata.replace(
-    "baseColor 0.286275 0.286275 0.286275", "baseColor 0.15 0.15 0.15")
-
-# TODO: Add colors for team stuff
+    "baseColor 0.286275 0.286275 0.286275", "baseColor 0.125 0.125 0.125")
 
 # Write the update proto file
 with open(proto_file_path, 'w') as file:
