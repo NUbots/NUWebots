@@ -309,6 +309,37 @@ filedata = filedata.replace(
                     ]
                     name "left_camera"''')
 
+# Remove camera frames (causing physics issues in webots)
+filedata = filedata.replace('''name "left_camera"
+                    boundingObject Pose {
+                      translation 0.000000 0.000000 0.000005
+                      children [
+                        Box {
+                           size 0.000010 0.000010 0.000010
+                        }
+                      ]
+                    }
+                    physics Physics {
+                      density -1
+                      mass 0.000000
+                      centerOfMass [ -0.000000 0.000000 0.000005 ]
+                    }''', '')
+
+filedata = filedata.replace('''name "right_camera"
+                    boundingObject Pose {
+                      translation 0.000000 0.000000 0.000005
+                      children [
+                        Box {
+                           size 0.000010 0.000010 0.000010
+                        }
+                      ]
+                    }
+                    physics Physics {
+                      density -1
+                      mass 0.000000
+                      centerOfMass [ -0.000000 0.000000 0.000005 ]
+                    }''', '')
+
 # Add touch sensors to feet
 filedata = filedata.replace(''']
                                         name "right_foot"''',  '''

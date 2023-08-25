@@ -65,7 +65,7 @@ PROTO nugus
                                 local number = words[3]
                             }%
                             Transform {
-                              translation 0.00250000 0.000000 -0.0020000
+                              translation 0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyFront {
@@ -77,7 +77,7 @@ PROTO nugus
                             }
 
                             Transform {
-                              translation -0.00250000 0.000000 -0.0020000
+                              translation -0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyBack {
@@ -1007,20 +1007,7 @@ PROTO nugus
                         }
                       }
                     ]
-                    name "left_camera"
-                    boundingObject Transform {
-                      translation 0.000000 0.000000 0.000005
-                      children [
-                        Box {
-                           size 0.000010 0.000010 0.000010
-                        }
-                      ]
-                    }
-                    physics Physics {
-                      density -1
-                      mass 1e-8
-                      centerOfMass [ -0.000000 0.000000 0.000005 ]
-                    }
+                    
                   }
                   Solid {
                     translation -0.064880 0.069952 0.034205
@@ -1053,20 +1040,7 @@ PROTO nugus
                         recognition USE recognition
                       }
                     ]
-                    name "right_camera"
-                    boundingObject Transform {
-                      translation 0.000000 0.000000 0.000005
-                      children [
-                        Box {
-                           size 0.000010 0.000010 0.000010
-                        }
-                      ]
-                    }
-                    physics Physics {
-                      density -1
-                      mass 1e-8
-                      centerOfMass [ -0.000000 0.000000 0.000005 ]
-                    }
+                    
                   }
                 ]
                 name "head"
