@@ -174,6 +174,10 @@ PROTO nugus
     field SFFloat      height                 0.51
   ]''')
 
+# Add recognition colors
+filedata = filedata.replace('selfCollision IS selfCollision', '''selfCollision IS selfCollision
+    recognitionColors IS recognitionColors''')
+
 # Replace all servo parameters with constants and change to HingeJointWithBacklash
 # TODO: Replace the joints with the correct constants (currently using MX106 only)
 filedata = filedata.replace("maxVelocity 20.0", "maxVelocity IS MX106-vel")
@@ -184,8 +188,8 @@ filedata = filedata.replace(
     "PositionSensor {", "PositionSensor {\n                 resolution IS DYNAMIXEL-RESOLUTION")
 
 # Add gyro and accelerometer to torso
-filedata = filedata.replace('''selfCollision IS selfCollision
-    children [''', '''selfCollision IS selfCollision
+filedata = filedata.replace('''recognitionColors IS recognitionColors
+    children [''', '''recognitionColors IS recognitionColors
     children [
                             %{
                               if fields.name.value ~= '' then
