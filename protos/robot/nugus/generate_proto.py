@@ -350,26 +350,37 @@ filedata = filedata.replace(''']
                                           # Define four touch sensors for the right foot
                                           # Back right touch sensor on right foot
                                           TouchSensor {
-                                            translation -0.041 0.025 -0.061
+                                            translation 0.0379995 -0.0767345 -0.0867505
                                             name "right_touch_sensor_br"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
+                                            # Sensor Type
+                                            # Bumper returns a 1 when collision is detected
                                             type "bumper"
                                           }
-                                          # Back right touch sensor on right foot
+                                          
+                                          # Back left touch sensor on right foot
                                           TouchSensor {
-                                            translation 0.057 0.025 -0.061
+                                            translation 0.0379995 0.0548465  -0.0867505
                                             name "right_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
-                                          # Front right touch sensor on right foot
+                                          # Front left touch sensor on right foot
                                           TouchSensor {
-                                            translation 0.057 -0.154 -0.061
+                                            translation 0.0379995 0.0548465 0.129071
                                             name "right_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Front right touch sensor on right foot
                                           TouchSensor {
-                                            translation -0.041 -0.154 -0.061
+                                            translation 0.0379995  -0.0767345 0.129071
                                             name "right_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                         ]
@@ -380,26 +391,65 @@ filedata = filedata.replace(''']
                                           # Define four touch sensors for the left foot
                                           # Back right touch sensor on left foot
                                           TouchSensor {
-                                            translation -0.041 0.025 -0.061
+                                            translation 0.0379995 -0.0548465 -0.0867505
                                             name "left_touch_sensor_br"
+                                            children [
+                                              # Define shape for all touch sensors
+                                              DEF touch_shape Shape{
+                                                appearance PBRAppearance {
+                                                  baseColor 0.125 0.125 0.125
+                                                  transparency 0.000000
+                                                  roughness 1.000000
+                                                  metalness 0
+                                                  emissiveColor 0.000000 0.000000 0.000000
+                                                }
+                                              }
+                                            ]
+                                            # Bounding object uses geometry from touch_shape
+                                            boundingObject DEF touch_box Transform {
+                                              translation 0.0 0.0 0.0
+                                              rotation 0.0 0.0 1.0 1.571
+                                              children [
+                                                Capsule {
+                                                  bottom      TRUE   # {TRUE, FALSE}
+                                                  height      0.001  # [0, inf)
+                                                  radius      0.009  # [0, inf)
+                                                  side        TRUE   # {TRUE, FALSE}
+                                                  top         FALSE  # {TRUE, FALSE}
+                                                  subdivision 12     # [3, inf)
+                                                }
+                                              ]
+                                            }
+                                            # Define physics for all touch sensors
+                                            physics DEF touch_physics Physics{
+                                              density -1
+                                              mass 0.02
+                                              centerOfMass 0.0 0.0 0.0
+                                            }
                                             type "bumper"
                                           }
                                           # Back left touch sensor on left foot
                                           TouchSensor {
-                                            translation 0.057 0.025 -0.061
+                                            translation 0.0379995 0.0767345 -0.0867505
                                             name "left_touch_sensor_bl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Front left touch sensor on left foot
                                           TouchSensor {
-                                            translation 0.057 -0.154 -0.061
+                                            translation 0.0379995 0.0767345 0.129071
                                             name "left_touch_sensor_fl"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                           # Front right touch sensor on left foot
                                           TouchSensor {
-                                            translation -0.041 -0.154 -0.061
+                                            translation 0.0379995 -0.0548465 0.129071
                                             name "left_touch_sensor_fr"
+                                            boundingObject USE touch_box
+                                            physics USE touch_physics
                                             type "bumper"
                                           }
                                         ]
