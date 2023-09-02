@@ -994,7 +994,7 @@ PROTO nugus
               jointParameters HingeJointParameters {
                     dampingConstant IS MX106-damping
                     staticFriction IS MX106-friction
-                axis -0.000004 -1.000000 0.000000
+                axis -0.000004 1.000000 0.000000
                 anchor -0.000245 -0.000255 0.048100
               }
               device [
@@ -1012,7 +1012,7 @@ PROTO nugus
               ]
               endPoint Solid {
                 translation -0.000245 -0.000255 0.048100
-                rotation 0.577350 0.577350 -0.577352 2.094399
+                rotation -0.577350 0.577350 0.577352 2.094399
                 children [
                   Shape {
                     appearance DEF head_material PBRAppearance {
@@ -1025,8 +1025,8 @@ PROTO nugus
                     }
                   }
                   Solid {
-                    translation -0.064880 -0.069952 0.033795
-                    rotation 0.590785 -0.570515 -0.570513 2.074363
+                    translation -0.064880 0.069952 -0.033795
+                    rotation -0.590785 -0.570515 0.570513 2.074363
                     children [
                       Shape {
                         appearance DEF left_camera_material PBRAppearance {
@@ -1061,8 +1061,8 @@ PROTO nugus
                     
                   }
                   Solid {
-                    translation -0.064880 -0.069952 -0.034205
-                    rotation 0.590785 -0.570515 -0.570513 2.074363
+                    translation -0.064880 0.069952 0.034205
+                    rotation -0.590785 -0.570515 0.570513 2.074363
                     children [
                       Shape {
                         appearance DEF right_camera_material PBRAppearance {
@@ -1096,7 +1096,7 @@ PROTO nugus
                 ]
                 name "head"
                 boundingObject Transform {
-                  translation -0.065929 -0.004332 -0.000205
+                  translation -0.065929 0.004332 0.000205
                   children [
                     Box {
                        size 0.162238 0.155643 0.157797
@@ -1106,10 +1106,10 @@ PROTO nugus
                 physics Physics {
                   density -1
                   mass 0.473503
-                  centerOfMass [ -0.066556 -0.010322 -0.000101 ]
+                  centerOfMass [ -0.066556 0.010322 0.000101 ]
                   inertiaMatrix [
-                    1.968500e-03 1.453300e-03 1.074450e-03
-                    6.689870e-06 8.029900e-06 -1.730550e-07
+                    1.968500e-03 1.453310e-03 1.074450e-03
+                    -6.700550e-06 7.819480e-06 -5.394190e-07
                   ]
                 }
               }
