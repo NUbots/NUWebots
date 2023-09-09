@@ -30,6 +30,12 @@ message Vector3 {
     double Z = 3;
 }
 
+message fvec3 {
+    float x = 1;
+    float y = 2;
+    float z = 3;
+}
+
 message PositionSensorMeasurement {
     string name  = 1;
     double value = 2;
@@ -83,6 +89,36 @@ message Message {
     string      text         = 2;
 }
 
+/// NUbots specific data sent from our own controllers rather than the official RoboCup Webots controller
+message OdometryGroundTruth {
+    /// Indicates if this message exists
+    bool exists = 1;
+    /// Affine3d transform from odometry (world) space to the robot (torso) space.
+    /// It measures the world in robot space
+    mat4 Htw = 2;
+}
+
+message VisionGroundTruth {
+    /// Indicates if this message exists
+    bool exists = 1;
+    /// Vector from the world to the ball in world space.
+    fvec3 rBWw = 2;
+}
+
+message mat4 {
+    vec4 x = 1;
+    vec4 y = 2;
+    vec4 z = 3;
+    vec4 t = 4;
+}
+
+message vec4 {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+    double t = 4;
+}
+
 message SensorMeasurements {
     // simulation time stamp at which the measurements were performed expressed in [ms] from the start of the connection
     uint32 time = 1;
@@ -97,6 +133,9 @@ message SensorMeasurements {
     repeated Force6DMeasurement        force6ds         = 9;
     repeated GyroMeasurement           gyros            = 10;
     repeated PositionSensorMeasurement position_sensors = 11;
+    // NUbots-specific data. Set to 100 in case other data is added in by the RoboCup TC
+    OdometryGroundTruth odometry_ground_truth = 100;
+    VisionGroundTruth   vision_ground_truth   = 101;
 }
 
 message MotorPosition {

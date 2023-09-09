@@ -1,4 +1,4 @@
-#VRML_SIM R2021b utf8
+#VRML_SIM R2022b utf8
 # license: Copyright Cyberbotics Ltd. Licensed for use only with Webots.
 # license url: https://cyberbotics.com/webots_assets_license
 # documentation url: https://www.cyberbotics.com/doc/guide/robotis-op2
@@ -11,31 +11,35 @@
 # - camera
 # - realistic physics
 
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/joints/protos/Hinge2JointWithBacklash.proto"
+EXTERNPROTO "NUgus/NUgus_mesh/HingeJointWithBacklash.proto"
+
 PROTO Darwin-opHinge2Seg [
-  field SFVec3f    translation      0 0 0                      # Is `Transform.translation`.
-  field SFRotation rotation         0 0 1 0                    # Is `Transform.rotation`.
-  field SFString   name             "DARwIn-OP Hinge2"         # Is `Solid.name`.
-  field SFString   controller       "motion_player"            # Is `Robot.controller`.
-  field MFString   controllerArgs   []                         # Is `Robot.controllerArgs`.
-  field SFString   customData       ""                         # Is `Robot.customData`.
-  field SFBool     supervisor       FALSE                      # Is `Robot.supervisor`.
-  field SFBool     synchronization  TRUE                       # Is `Robot.synchronization`.
-  field MFFloat    battery          []                         # Is `Robot.battery`.
-  field SFBool     selfCollision    FALSE                      # Is `Robot.selfCollision`.
-  field SFColor    plasticColor     0.301961 0.301961 0.301961 # Is `Material.plasticColor`.
-  field SFInt32    cameraWidth      160                        # Is `Camera.width`.
-  field SFInt32    cameraHeight     120                        # Is `Camera.height`.
-  field SFNode     jersey           NULL                       # Extends the robot with a jersey: typically RobotisJersey.proto.
-  field SFInt32    channel          0                          # Defines the channel for the `Emitter` and `Receiver` devices.
-  field SFBool     showWindow       FALSE                      # Is `Robot.showWindow`.
-  field SFBool     backlash         FALSE                      # Enables backlash on all joints.
-  field MFNode     bodySlot         []                         # Extends the robot with new nodes in the body slot.
-  field MFNode     headSlot         []                         # Extends the robot with new nodes in the head slot.
-  field MFNode     leftFootSlot     []                         # Extends the robot with new nodes in the left foot slot.
-  field MFNode     rightFootSlot    []                         # Extends the robot with new nodes in the right foot slot.
-  field MFNode     leftHandSlot     []                         # Extends the robot with new nodes in the left hand slot.
-  field MFNode     rightHandSlot    []                         # Extends the robot with new nodes in the right hand slot.
-  field MFColor    recognitionColors [0 0 1]                   # Robot is blue
+  field SFVec3f    translation       0 0 0                      # Is `Transform.translation`.
+  field SFRotation rotation          0 0 1 0                    # Is `Transform.rotation`.
+  field SFString   name              "DARwIn-OP Hinge2"         # Is `Solid.name`.
+  field SFString   controller        "motion_player"            # Is `Robot.controller`.
+  field MFString   controllerArgs    []                         # Is `Robot.controllerArgs`.
+  field SFString   customData        ""                         # Is `Robot.customData`.
+  field SFBool     supervisor        FALSE                      # Is `Robot.supervisor`.
+  field SFBool     synchronization   TRUE                       # Is `Robot.synchronization`.
+  field MFFloat    battery           []                         # Is `Robot.battery`.
+  field SFBool     selfCollision     FALSE                      # Is `Robot.selfCollision`.
+  field SFColor    plasticColor      0.301961 0.301961 0.301961 # Is `Material.plasticColor`.
+  field SFInt32    cameraWidth       160                        # Is `Camera.width`.
+  field SFInt32    cameraHeight      120                        # Is `Camera.height`.
+  field SFNode     jersey            NULL                       # Extends the robot with a jersey: typically RobotisJersey.proto.
+  field SFInt32    channel           0                          # Defines the channel for the `Emitter` and `Receiver` devices.
+  field SFBool     backlash          FALSE                      # Enables backlash on all joints.
+  field MFNode     bodySlot          []                         # Extends the robot with new nodes in the body slot.
+  field MFNode     headSlot          []                         # Extends the robot with new nodes in the head slot.
+  field MFNode     leftFootSlot      []                         # Extends the robot with new nodes in the left foot slot.
+  field MFNode     rightFootSlot     []                         # Extends the robot with new nodes in the right foot slot.
+  field MFNode     leftHandSlot      []                         # Extends the robot with new nodes in the left hand slot.
+  field MFNode     rightHandSlot     []                         # Extends the robot with new nodes in the right hand slot.
+  field MFColor    recognitionColors [0 0 1]                    # Robot is blue
+  field SFFloat    height            0.24                       # Height of the robot from ground to center                           
+
   #protected
   hiddenField SFString _model       "DARwIn-OP Hinge2"
   hiddenField SFString _description "Robotis' DARwIn-OP modeled by Fabien Rohrer, upgraded to use hinge2 joints."
@@ -2075,6 +2079,5 @@ PROTO Darwin-opHinge2Seg [
     supervisor IS supervisor
     synchronization IS synchronization
     selfCollision IS selfCollision
-    showWindow IS showWindow
   }
 }
