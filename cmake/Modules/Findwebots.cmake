@@ -1,7 +1,9 @@
 if(NOT webots_FOUND)
   # If WEBOTS_HOME is not already set, set it to the value of the WEBOTS_HOME environment variable. If the environment
-  # variable is not defined, then choose some sort of sane default
-  if(NOT DEFINED WEBOTS_HOME)
+  # variable is not defined, then choose some sort of sane default. We also re-set WEBOTS_HOME if it's the default value,
+  # we assign it in the case that it wasn't set previously which avoids a loop which happens if people run `./b
+  # configure` before `source ~/.bashrc` during setup
+  if(NOT DEFINED WEBOTS_HOME OR WEBOTS_HOME STREQUAL "${PROJECT_SOURCE_DIR}/../webots")
     if(DEFINED ENV{WEBOTS_HOME})
       set(WEBOTS_HOME
           $ENV{WEBOTS_HOME}
@@ -10,12 +12,12 @@ if(NOT webots_FOUND)
     else()
       if(NOT WIN32)
         set(WEBOTS_HOME
-            "/usr/local/webots"
+            "${PROJECT_SOURCE_DIR}/../webots"
             CACHE PATH "The path to the webots folder."
         )
-      endif(NOT WIN32)
-    endif(DEFINED ENV{WEBOTS_HOME})
-  endif(NOT DEFINED WEBOTS_HOME)
+      endif()
+    endif()
+  endif()
 
   # Clear our required_vars variable
   unset(required_vars)
@@ -72,4 +74,4 @@ if(NOT webots_FOUND)
     REQUIRED_VARS ${required_vars}
     VERSION_VAR webots_VERSION
   )
-endif(NOT webots_FOUND)
+endif()

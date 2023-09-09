@@ -96,9 +96,9 @@ if(NOT DEFINED WEBOTS_HOME)
           "/usr/local/webots"
           CACHE PATH "The path to the webots folder."
       )
-    endif(NOT WIN32)
-  endif(DEFINED ENV{WEBOTS_HOME})
-endif(NOT DEFINED WEBOTS_HOME)
+    endif()
+  endif()
+endif()
 
 # RPath variables use, i.e. don't skip the full RPATH for the build tree
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
