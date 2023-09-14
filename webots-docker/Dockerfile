@@ -2,7 +2,7 @@ ARG BASE_IMAGE=nvidia/cuda:11.8.0-base-ubuntu22.04
 FROM ${BASE_IMAGE} AS downloader
 
 # Determine Webots version to be used and set default argument
-ARG WEBOTS_VERSION=R2022b
+ARG WEBOTS_VERSION=R2023b
 ARG WEBOTS_PACKAGE_PREFIX=
 
 # Disable dpkg/gdebi interactive dialogs
@@ -23,15 +23,13 @@ FROM ${BASE_IMAGE}
 # Disable dpkg/gdebi interactive dialogs
 ENV DEBIAN_FRONTEND=noninteractive
 
-
 # Install Webots runtime dependencies
 RUN apt-get update
 RUN apt-get install --yes \
   wget \
   xvfb \
-  git \
-  python3-pip 
-  
+  locales \
+
 RUN rm -rf /var/lib/apt/lists/
 RUN wget https://raw.githubusercontent.com/cyberbotics/webots/master/scripts/install/linux_runtime_dependencies.sh 
 RUN chmod +x linux_runtime_dependencies.sh
@@ -53,17 +51,17 @@ ENV WEBOTS_HOME /usr/local/webots
 ENV PATH /usr/local/webots:${PATH}
 
 # Enable OpenGL capabilities
-ENV NVIDIA_DRIVER_CAPABILITIES=graphics
+ENV NVIDIA_DRIVER_CAPABILITIES=graphics,compute,utility
 
-# RUN useradd -ms /bin/bash webots && usermod -aG sudo webots && echo "webots ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-# ENV HOME=/home/webots
-# USER webots
-
-# WORKDIR $HOME
+# Install dependencies for setting up GameController and NUbots code
+RUN apt-get install --yes \
+  git \
+  python3-pip 
 
 # Build the latest version of the RoboCup Humanoid TC fork of GameController
 RUN git clone https://github.com/RoboCup-Humanoid-TC/GameController ./GameController 
-RUN cd GameController && ant
+RUN cd GameController 
+RUN ant
 
 # Build the robocup controllers
 RUN git clone https://github.com/RoboCup-Humanoid-TC/hlvs_webots.git ./hlvs_webots
