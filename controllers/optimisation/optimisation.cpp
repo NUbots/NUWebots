@@ -635,7 +635,7 @@ public:
             std::cout << "Recieved optimisation command: " << actuatorRequests.optimisation_command().command()
                       << std::endl;
             switch (actuatorRequests.optimisation_command().command()) {
-                case OptimisationCommand::RESET_WORLD:
+                case OptimisationCommand::RESET_ROBOT:
                     std::cout << "Resetting World and controller time " << reset_counter << std::endl;
                     reset_counter++;
                     robot->simulationReset();
