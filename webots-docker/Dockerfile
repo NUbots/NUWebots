@@ -28,9 +28,8 @@ RUN apt-get update
 RUN apt-get install --yes \
   wget \
   xvfb \
-  locales \
+  locales 
 
-RUN rm -rf /var/lib/apt/lists/
 RUN wget https://raw.githubusercontent.com/cyberbotics/webots/master/scripts/install/linux_runtime_dependencies.sh 
 RUN chmod +x linux_runtime_dependencies.sh
 RUN ./linux_runtime_dependencies.sh
@@ -41,7 +40,6 @@ RUN wget https://raw.githubusercontent.com/NUbots/NUWebots/williamson/webots-doc
 RUN chmod +x dependencies.sh
 RUN ./dependencies.sh 
 RUN rm ./dependencies.sh
-RUN rm -rf /var/lib/apt/lists/
 
 # Install Webots
 WORKDIR /usr/local
@@ -54,14 +52,15 @@ ENV PATH /usr/local/webots:${PATH}
 ENV NVIDIA_DRIVER_CAPABILITIES=graphics,compute,utility
 
 # Install dependencies for setting up GameController and NUbots code
+RUN apt-get update
 RUN apt-get install --yes \
   git \
   python3-pip 
+RUN rm -rf /var/lib/apt/lists/
 
 # Build the latest version of the RoboCup Humanoid TC fork of GameController
-RUN git clone https://github.com/RoboCup-Humanoid-TC/GameController ./GameController 
-RUN cd GameController 
-RUN ant
+RUN git clone https://github.com/RoboCup-Humanoid-TC/GameController /GameController 
+RUN ant -buildfile /GameController/build.xml
 
 # Build the robocup controllers
 RUN git clone https://github.com/RoboCup-Humanoid-TC/hlvs_webots.git ./hlvs_webots
