@@ -1,5 +1,7 @@
 This contains the URDF and proto file description and all the mesh files for the NUgus robot model generated automatically via the [onshape-to-robot](https://onshape-to-robot.readthedocs.io/en/latest/) tool. The onshape CAD model of the NUgus robot can be viewed [here](https://cad.onshape.com/documents/7a93aa6f68a144f3337682ca/w/21ea40de0160dd9b6d40225b/e/beac31a00af2912b29fa71ac?renderMode=0&uiState=646d68c25eec491896d25b02).
 
+<img src="https://github.com/NUbots/NUWebots/assets/41043317/76f20d51-dbcf-4dce-8e47-8aba1965e9d1"  width="300" height="600">
+
 ## Instructions
 
 ### Pre-requisites
