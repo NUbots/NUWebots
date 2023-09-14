@@ -42,7 +42,6 @@ RUN ./dependencies.sh
 RUN rm ./dependencies.sh
 
 # Install Webots
-WORKDIR /usr/local
 COPY --from=downloader /webots /usr/local/webots/
 ENV QTWEBENGINE_DISABLE_SANDBOX=1
 ENV WEBOTS_HOME /usr/local/webots
@@ -63,9 +62,9 @@ RUN git clone https://github.com/RoboCup-Humanoid-TC/GameController /GameControl
 RUN ant -buildfile /GameController/build.xml
 
 # Build the robocup controllers
-RUN git clone https://github.com/RoboCup-Humanoid-TC/hlvs_webots.git ./hlvs_webots
-RUN pip3 install -r ./hlvs_webots/controllers/referee/requirements.txt
-RUN make -j$(nproc) -C ./hlvs_webots
+RUN git clone https://github.com/RoboCup-Humanoid-TC/hlvs_webots.git /hlvs_webots
+RUN pip3 install -r /hlvs_webots/controllers/referee/requirements.txt
+RUN make -j$(nproc) -C /hlvs_webots
 
 # Set environment variables for GameController
 ENV GAME_CONTROLLER_HOME=/GameController JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
