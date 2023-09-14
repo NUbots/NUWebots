@@ -1,5 +1,4 @@
 #!/bin/bash
-python3 docker-config.py ${HOME}/hlvs_webots/controllers/referee/game.json
-rm docker-config.py
+python3 webots-config.py /hlvs_webots/controllers/referee/game.json
 # Run the command given by CMD or docker run parameter, replacing current process
 exec "$@"
