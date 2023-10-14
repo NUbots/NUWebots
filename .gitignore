@@ -17,5 +17,16 @@ controllers/nugus_controller/nugus_controller
 controllers/vision_teleport_controller/vision_teleport_controller
 controllers/optimisation/optimisation
 
+# Binaries
+controllers/nugus_controller/nugus_controller
+controllers/vision_teleport_controller/vision_teleport_controller
+>>>>>>> main
+=======
+
+# Binaries
+controllers/nugus_controller/nugus_controller
+controllers/vision_teleport_controller/vision_teleport_controller
+>>>>>>> main
+
 # Logs
 *.log
