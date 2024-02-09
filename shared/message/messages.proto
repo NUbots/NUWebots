@@ -103,6 +103,11 @@ message OdometryGroundTruth {
     mat4 Htw = 2;
 }
 
+message LocalisationGroundTruth {
+    bool exists = 1;
+    mat4 Hfw = 2;
+}
+
 message VisionGroundTruth {
     /// Indicates if this message exists
     bool exists = 1;
@@ -140,10 +145,11 @@ message SensorMeasurements {
     repeated PositionSensorMeasurement position_sensors = 11;
     // NUbots-specific data. Set to 100 in case other data is added in by the RoboCup TC
     OdometryGroundTruth odometry_ground_truth = 100;
-    VisionGroundTruth   vision_ground_truth   = 101;
+    LocalisationGroundTruth localisation_ground_truth = 101;
+    VisionGroundTruth   vision_ground_truth   = 102;
     // Optimisation
-    OptimisationRobotPosition robot_position = 102;
-    bool                      reset_done     = 103;
+    OptimisationRobotPosition robot_position = 103;
+    bool                      reset_done     = 104;
 }
 
 message MotorPosition {

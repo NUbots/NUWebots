@@ -627,6 +627,22 @@ public:
         }
     }
 
+    mat4* convertEigen3dToMat4(const Eigen::Affine3d& EigenMatrix) {
+        vec4* r0 = new vec4();
+        r0->set_x((0, 0)); r0->set_y(EigenMatrix(1, 0)); r0->set_z(EigenMatrix(2, 0)); r0->set_t(EigenMatrix(3, 0));
+        vec4* r1 = new vec4();
+        r1->set_x(EigenMatrix(0, 1)); r1->set_y(EigenMatrix(1, 1)); r1->set_z(EigenMatrix(2, 1)); r1->set_t(EigenMatrix(3, 1));
+        vec4* r2 = new vec4();
+        r2->set_x(EigenMatrix(0, 2)); r2->set_y(EigenMatrix(1, 2)); r2->set_z(EigenMatrix(2, 2)); r2->set_t(EigenMatrix(3, 2));
+        vec4* r3 = new vec4();
+        r3->set_x(EigenMatrix(0, 3)); r3->set_y(EigenMatrix(1, 3)); r3->set_z(EigenMatrix(2, 3)); r3->set_t(EigenMatrix(3, 3));
+
+        mat4* mat4Matrix = new mat4();
+        mat4Matrix->set_allocated_x(r0); mat4Matrix->set_allocated_y(r1); mat4Matrix->set_allocated_z(r2); mat4Matrix->set_allocated_t(r3);
+
+        return mat4Matrix;
+    }
+
     void prepareSensorMessage() {
         sensor_measurements.set_time(controller_time);
         struct timeval tp;
@@ -754,8 +770,25 @@ public:
         OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
         odometry_ground_truth->set_exists(true);
 
+        // Get localisation ground truth data to send
+        LocalisationGroundTruth* localisation_ground_truth = new LocalisationGroundTruth();
+        localisation_ground_truth->set_exists(true);
+
         // Torso to Webots absolute reference [x]
         Eigen::Affine3d Hxt;
+
+        // Field to Webots absolute reference [x]
+        Eigen::Affine3d Hfx;
+
+        // World to field
+        Eigen::Affine3d Hfw;
+
+        // Field is at 0,0,0 and rotated 90 degrees about z axis
+        Hfx.setIdentity();
+        Hfx.rotate(Eigen::AngleAxisd(M_PI / 2, Eigen::Vector3d::UnitZ()));
+        
+        Hfw = Hxw * Hfx;
+
 
         // Get values from the robot model
         const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
@@ -764,26 +797,34 @@ public:
         // Set values - need to convert angle axis to a rotation matrix
         Hxt.linear() = Eigen::AngleAxisd(Rxt[3], Eigen::Vector3d(Rxt[0], Rxt[1], Rxt[2])).toRotationMatrix();
         Hxt.translation() = Eigen::Vector3d(rTXx[0], rTXx[1], rTXx[2]);
-
+        // torso to global
         // Get world to torso using the transformations relative to Webots absolute reference
         Eigen::Affine3d Htw = Hxt.inverse() * Hxw;
 
-        // clang-format off
-        vec4* r0 = new vec4();
-        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
-        vec4* r1 = new vec4();
-        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
-        vec4* r2 = new vec4();
-        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
-        vec4* r3 = new vec4();
-        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
+        // // clang-format off
+        // vec4* r0 = new vec4();
+        // r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
+        // vec4* r1 = new vec4();
+        // r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
+        // vec4* r2 = new vec4();
+        // r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
+        // vec4* r3 = new vec4();
+        // r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
         
-        mat4* htw = new mat4();
-        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
-        // clang-format on
+        // mat4* htw = new mat4();
+        // htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
+        // // clang-format on
+
+
+        mat4* htw = convertEigen3dToMat4(Htw);
+        mat4* hfw = convertEigen3dToMat4(Hfw);
+        
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
+
+        localisation_ground_truth->set_allocated_hwf(hwf);
+        sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
 
         // Start Vision Ground truth
         VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
@@ -952,7 +993,7 @@ int main(int argc, char* argv[]) {
     PlayerServer server(allowed_hosts, port, player_id, player_team, robot);
 
     while (robot->step(basic_time_step) != -1)
-        server.step();
+        server.step(); // Here
 
     delete robot;
     return 0;
