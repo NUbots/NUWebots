@@ -627,27 +627,27 @@ public:
         }
     }
 
-    mat4* convertEigen3dToMat4(const Eigen::Affine3d& EigenMatrix) {
+    mat4* convertAffine3dToMat4(const Eigen::Affine3d& inputMatrix) {
         vec4* r0 = new vec4();
         r0->set_x((0, 0));
-        r0->set_y(EigenMatrix(1, 0));
-        r0->set_z(EigenMatrix(2, 0));
-        r0->set_t(EigenMatrix(3, 0));
+        r0->set_y(inputMatrix(1, 0));
+        r0->set_z(inputMatrix(2, 0));
+        r0->set_t(inputMatrix(3, 0));
         vec4* r1 = new vec4();
-        r1->set_x(EigenMatrix(0, 1));
-        r1->set_y(EigenMatrix(1, 1));
-        r1->set_z(EigenMatrix(2, 1));
-        r1->set_t(EigenMatrix(3, 1));
+        r1->set_x(inputMatrix(0, 1));
+        r1->set_y(inputMatrix(1, 1));
+        r1->set_z(inputMatrix(2, 1));
+        r1->set_t(inputMatrix(3, 1));
         vec4* r2 = new vec4();
-        r2->set_x(EigenMatrix(0, 2));
-        r2->set_y(EigenMatrix(1, 2));
-        r2->set_z(EigenMatrix(2, 2));
-        r2->set_t(EigenMatrix(3, 2));
+        r2->set_x(inputMatrix(0, 2));
+        r2->set_y(inputMatrix(1, 2));
+        r2->set_z(inputMatrix(2, 2));
+        r2->set_t(inputMatrix(3, 2));
         vec4* r3 = new vec4();
-        r3->set_x(EigenMatrix(0, 3));
-        r3->set_y(EigenMatrix(1, 3));
-        r3->set_z(EigenMatrix(2, 3));
-        r3->set_t(EigenMatrix(3, 3));
+        r3->set_x(inputMatrix(0, 3));
+        r3->set_y(inputMatrix(1, 3));
+        r3->set_z(inputMatrix(2, 3));
+        r3->set_t(inputMatrix(3, 3));
 
         mat4* mat4Matrix = new mat4();
         mat4Matrix->set_allocated_x(r0);
@@ -818,8 +818,8 @@ public:
         // Get world to torso using the transformations relative to Webots absolute reference
         Eigen::Affine3d Htw = Hxt.inverse() * Hxw;
 
-        mat4* htw = convertEigen3dToMat4(Htw);
-        mat4* hfw = convertEigen3dToMat4(Hfw);
+        mat4* htw = convertAffine3dToMat4(Htw);
+        mat4* hfw = convertAffine3dToMat4(Hfw);
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
