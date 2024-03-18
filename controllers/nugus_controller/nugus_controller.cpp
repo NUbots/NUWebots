@@ -934,7 +934,7 @@ private:
     /// The rendering bandwidth allowed for a team [MB/s] (per simulated second)
     static double team_rendering_quota;
 
-    /// World (starting position of robot) [w] to webots environment reference point [x]
+    /// World (starting position of robot) {w} to field {f} space
     Eigen::Affine3d Hfw;
     const std::string robot_def;
 
