@@ -267,14 +267,21 @@ public:
         set_blocking(server_fd, false);
 
         // SET UP GROUND TRUTH DATA FOR TESTING
-        // Get position data from the robot
-        const double* rWXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rxw  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        // Get robot torso {t} position and orientation from the simulator
+        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
 
-        // Rotation is an angle axis so convert it to a rotation matrix
-        Hxw.linear() = Eigen::AngleAxisd(Rxw[3], Eigen::Vector3d(Rxw[0], Rxw[1], Rxw[2])).toRotationMatrix();
-        // Set z to 0.0 since world is on the ground, not in the torso
-        Hxw.translation() = Eigen::Vector3d(rWXx[0], rWXx[1], 0.0);
+        // Convert angle-axis to rotation matrix
+        Eigen::Matrix3d Rft_mat = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+
+        // Compute just the yaw from the rotation matrix
+        double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
+
+        // Rotate the world frame by the yaw of the robot torso (world frame is aligned with the field plane)
+        Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+
+        // Translate world frame to by robot torso x and y (world frame is on field plane)
+        Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
     }
 
     int accept_client(int server_fd) {
@@ -627,37 +634,6 @@ public:
         }
     }
 
-    mat4* convertAffine3dToMat4(const Eigen::Affine3d& inputMatrix) {
-        vec4* r0 = new vec4();
-        r0->set_x((0, 0));
-        r0->set_y(inputMatrix(1, 0));
-        r0->set_z(inputMatrix(2, 0));
-        r0->set_t(inputMatrix(3, 0));
-        vec4* r1 = new vec4();
-        r1->set_x(inputMatrix(0, 1));
-        r1->set_y(inputMatrix(1, 1));
-        r1->set_z(inputMatrix(2, 1));
-        r1->set_t(inputMatrix(3, 1));
-        vec4* r2 = new vec4();
-        r2->set_x(inputMatrix(0, 2));
-        r2->set_y(inputMatrix(1, 2));
-        r2->set_z(inputMatrix(2, 2));
-        r2->set_t(inputMatrix(3, 2));
-        vec4* r3 = new vec4();
-        r3->set_x(inputMatrix(0, 3));
-        r3->set_y(inputMatrix(1, 3));
-        r3->set_z(inputMatrix(2, 3));
-        r3->set_t(inputMatrix(3, 3));
-
-        mat4* mat4Matrix = new mat4();
-        mat4Matrix->set_allocated_x(r0);
-        mat4Matrix->set_allocated_y(r1);
-        mat4Matrix->set_allocated_z(r2);
-        mat4Matrix->set_allocated_t(r3);
-
-        return mat4Matrix;
-    }
-
     void prepareSensorMessage() {
         sensor_measurements.set_time(controller_time);
         struct timeval tp;
@@ -781,59 +757,60 @@ public:
                       << "ms" << std::endl;
         }
 
-        // Get odometry ground truth data to send
         OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
         odometry_ground_truth->set_exists(true);
 
-        // Get localisation ground truth data to send
         LocalisationGroundTruth* localisation_ground_truth = new LocalisationGroundTruth();
         localisation_ground_truth->set_exists(true);
 
-        // Torso to Webots absolute reference [x]
-        Eigen::Affine3d Hxt;
+        // Get torso {t} to field {f} transform from simulator
+        Eigen::Affine3d Hft;
+        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+        Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
-        // Field to Webots absolute reference [x]
-        Eigen::Affine3d Hxf;
+        // Compute world {w} to torso {t}
+        Eigen::Affine3d Htw = Hft.inverse() * Hfw;
 
-        // Get field position
-        const double* rFXx = robot->getFromDef("FIELD")->getField("translation")->getSFVec3f();
-        const double* Rxf  = robot->getFromDef("FIELD")->getField("rotation")->getSFRotation();
-
-        // Set values - need to convert angle axis to a rotation matrix
-        Hxf.linear() = Eigen::AngleAxisd(Rxf[3], Eigen::Vector3d(Rxf[0], Rxf[1], Rxf[2])).toRotationMatrix();
-        Hxf.translation() = Eigen::Vector3d(rFXx[0], rFXx[1], rFXx[2]);
-
-        // Field to world using the transformations relative to Webots absolute reference
-        Eigen::Affine3d Hfw = Hxw * Hxf.inverse();
-
-        // Get values from the robot model
-        const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rxt  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-
-        // Set values - need to convert angle axis to a rotation matrix
-        Hxt.linear()      = Eigen::AngleAxisd(Rxt[3], Eigen::Vector3d(Rxt[0], Rxt[1], Rxt[2])).toRotationMatrix();
-        Hxt.translation() = Eigen::Vector3d(rTXx[0], rTXx[1], rTXx[2]);
-
-        // Get world to torso using the transformations relative to Webots absolute reference
-        Eigen::Affine3d Htw = Hxt.inverse() * Hxw;
-
-        mat4* htw = convertAffine3dToMat4(Htw);
-        mat4* hfw = convertAffine3dToMat4(Hfw);
+        // clang-format off
+        vec4* r0 = new vec4();
+        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
+        vec4* r1 = new vec4();
+        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
+        vec4* r2 = new vec4();
+        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
+        vec4* r3 = new vec4();
+        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
+        mat4* htw = new mat4();
+        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
 
+        vec4* a0 = new vec4();
+        a0->set_x(Hfw(0, 0)); a0->set_y(Hfw(1, 0)); a0->set_z(Hfw(2, 0)); a0->set_t(Hfw(3, 0));
+        vec4* a1 = new vec4();
+        a1->set_x(Hfw(0, 1)); a1->set_y(Hfw(1, 1)); a1->set_z(Hfw(2, 1)); a1->set_t(Hfw(3, 1));
+        vec4* a2 = new vec4();
+        a2->set_x(Hfw(0, 2)); a2->set_y(Hfw(1, 2)); a2->set_z(Hfw(2, 2)); a2->set_t(Hfw(3, 2));
+        vec4* a3 = new vec4();
+        a3->set_x(Hfw(0, 3)); a3->set_y(Hfw(1, 3)); a3->set_z(Hfw(2, 3)); a3->set_t(Hfw(3, 3));
+        mat4* hfw = new mat4();
+        hfw->set_allocated_x(a0); hfw->set_allocated_y(a1); hfw->set_allocated_z(a2); hfw->set_allocated_t(a3);
+
         localisation_ground_truth->set_allocated_hfw(hfw);
         sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
+        // clang-format on
 
-        // Start Vision Ground truth
+        // Start vision ground truth
         VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
         vision_ground_truth->set_exists(true);
 
-        // Get ball position in world space
+        // Get ball {b} position in world {w} space
         const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        Eigen::Vector3d rBXx           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
-        Eigen::Vector3d rBWw           = Hxw.inverse() * rBXx;
+        Eigen::Vector3d rBFf           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
+        Eigen::Vector3d rBWw           = Hfw.inverse() * rBFf;
 
         fvec3* rbww = new fvec3();
         rbww->set_x(rBWw(0, 0));
@@ -958,7 +935,7 @@ private:
     static double team_rendering_quota;
 
     /// World (starting position of robot) [w] to webots environment reference point [x]
-    Eigen::Affine3d Hxw;
+    Eigen::Affine3d Hfw;
     const std::string robot_def;
 
 public:
