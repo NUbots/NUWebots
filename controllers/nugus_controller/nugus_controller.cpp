@@ -795,17 +795,14 @@ public:
         // Field to Webots absolute reference [x]
         Eigen::Affine3d Hxf;
 
-        // World to field
-        Eigen::Affine3d Hfw;
-
         // Get field position
         const double* rFXx = robot->getFromDef("FIELD")->getField("translation")->getSFVec3f();
-        const double* Rtx  = robot->getFromDef("FIELD")->getField("rotation")->getSFRotation();
+        const double* Rxf  = robot->getFromDef("FIELD")->getField("rotation")->getSFRotation();
 
-        Hxf.linear() = Eigen::AngleAxisd(Rtx[3], Eigen::Vector3d(Rtx[0], Rtx[1], Rtx[2])).toRotationMatrix();
+        Hxf.linear() = Eigen::AngleAxisd(Rxf[3], Eigen::Vector3d(Rxf[0], Rxf[1], Rxf[2])).toRotationMatrix();
         Hxf.translation() = Eigen::Vector3d(rFXx[0], rFXx[1], rFXx[2]);
 
-        Hfw = Hxw * Hxf.inverse();
+        Eigen::Affine3d Hfw = Hxw * Hxf.inverse();
 
         // Get values from the robot model
         const double* rTXx = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
