@@ -799,9 +799,11 @@ public:
         const double* rFXx = robot->getFromDef("FIELD")->getField("translation")->getSFVec3f();
         const double* Rxf  = robot->getFromDef("FIELD")->getField("rotation")->getSFRotation();
 
+        // Set values - need to convert angle axis to a rotation matrix
         Hxf.linear() = Eigen::AngleAxisd(Rxf[3], Eigen::Vector3d(Rxf[0], Rxf[1], Rxf[2])).toRotationMatrix();
         Hxf.translation() = Eigen::Vector3d(rFXx[0], rFXx[1], rFXx[2]);
 
+        // Field to world using the transformations relative to Webots absolute reference
         Eigen::Affine3d Hfw = Hxw * Hxf.inverse();
 
         // Get values from the robot model
