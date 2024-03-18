@@ -265,23 +265,6 @@ public:
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
-
-        // SET UP GROUND TRUTH DATA FOR TESTING
-        // Get robot torso {t} position and orientation from the simulator
-        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-
-        // Convert angle-axis to rotation matrix
-        Eigen::Matrix3d Rft_mat = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-
-        // Compute just the yaw from the rotation matrix
-        double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
-
-        // Rotate the world frame by the yaw of the robot torso (world frame is aligned with the field plane)
-        Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
-
-        // Translate world frame to by robot torso x and y (world frame is on field plane)
-        Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
     }
 
     int accept_client(int server_fd) {
@@ -300,6 +283,23 @@ public:
             }
             if (allowed) {
                 printMessage("Accepted connection from " + std::string(client_info->h_name));
+                // SET UP GROUND TRUTH DATA FOR TESTING
+                // Get robot torso {t} position and orientation from the simulator
+                const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
+                const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+
+                // Convert angle-axis to rotation matrix
+                Eigen::Matrix3d Rft_mat =
+                    Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+
+                // Compute just the yaw from the rotation matrix
+                double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
+
+                // Rotate the world frame by the yaw of the robot torso (world frame is aligned with the field plane)
+                Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
+
+                // Translate world frame to by robot torso x and y (world frame is on field plane)
+                Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
                 send_all(cfd, "Welcome", 8);
             }
             else {
