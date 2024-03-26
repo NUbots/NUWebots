@@ -101,6 +101,8 @@ message OdometryGroundTruth {
     /// Affine3d transform from odometry (world) space to the robot (torso) space.
     /// It measures the world in robot space
     mat4 Htw = 2;
+    /// Velocity of the robot torso in the world space
+    vec3 vTw = 3;
 }
 
 message LocalisationGroundTruth {
@@ -127,6 +129,12 @@ message vec4 {
     double y = 2;
     double z = 3;
     double t = 4;
+}
+
+message vec3 {
+    double x = 1;
+    double y = 2;
+    double z = 3;
 }
 
 message SensorMeasurements {
