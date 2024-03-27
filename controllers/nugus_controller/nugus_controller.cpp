@@ -774,8 +774,6 @@ public:
 
         // Get velocity in world frame TODO: check if this is valid... rotations and velocity is funky
         Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
-        std::cout << "vTw: " << vTw[0] << " " << vTw[1] << " " << vTw[2] << std::endl;
-
 
         // Compute world {w} to torso {t}
         Eigen::Affine3d Htw = Hft.inverse() * Hfw;
