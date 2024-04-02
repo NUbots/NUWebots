@@ -772,7 +772,7 @@ public:
         Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
 
-        // Get velocity in world frame TODO: check if this is valid... rotations and velocity is funky
+        // Get velocity in world frame
         Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
 
         // Compute world {w} to torso {t}
