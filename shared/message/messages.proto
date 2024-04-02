@@ -110,11 +110,6 @@ message LocalisationGroundTruth {
     mat4 Hfw    = 2;
 }
 
-message LocalisationGroundTruth {
-    bool exists = 1;
-    mat4 Hfw    = 2;
-}
-
 message VisionGroundTruth {
     /// Indicates if this message exists
     bool exists = 1;
