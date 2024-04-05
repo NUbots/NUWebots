@@ -771,12 +771,8 @@ public:
         Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
         Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
-
         // Get velocity in world frame
         Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
-
-        Hft.linear()      = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-        Hft.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
         // Compute world {w} to torso {t}
         Eigen::Affine3d Htw = Hft.inverse() * Hfw;
