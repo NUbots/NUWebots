@@ -767,8 +767,12 @@ public:
         Eigen::Affine3d Hft;
         const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
         const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+        const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
         Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
         Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
+
+        // Get velocity in world frame
+        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
 
         // Compute world {w} to torso {t}
         Eigen::Affine3d Htw = Hft.inverse() * Hfw;
@@ -787,6 +791,12 @@ public:
 
         odometry_ground_truth->set_allocated_htw(htw);
         sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
+
+        vec3* vtw = new vec3();
+        vtw->set_x(vTw.x());
+        vtw->set_y(vTw.y());
+        vtw->set_z(vTw.z());
+        odometry_ground_truth->set_allocated_vtw(vtw);
 
         vec4* a0 = new vec4();
         a0->set_x(Hfw(0, 0)); a0->set_y(Hfw(1, 0)); a0->set_z(Hfw(2, 0)); a0->set_t(Hfw(3, 0));
