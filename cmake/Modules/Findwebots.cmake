@@ -42,14 +42,34 @@ if(NOT webots_FOUND)
     mark_as_advanced(webots_${lib}_LIBRARY)
   endforeach(lib ${webots_libraries})
 
-  # Link all of our imported targets to our imported library
+  # Find the webots robotis libraries
+  set(robotis_libraries "robotis-op2;managers")
+  foreach(lib ${robotis_libraries})
+    find_library(
+      "webots_robotis_${lib}_LIBRARY"
+      NAMES ${lib}
+      PATHS ${WEBOTS_HOME}/projects/robots/robotis/darwin-op/libraries
+      PATH_SUFFIXES robotis-op2 managers 
+      DOC "The Webots Robotis (${lib}) library"
+    )
+
+    # Setup an imported target for this library
+    add_library(webots::robotis::${lib} UNKNOWN IMPORTED)
+    set_target_properties(webots::robotis::${lib} PROPERTIES IMPORTED_LOCATION ${webots_robotis_${lib}_LIBRARY})
+
+    # Setup and export our variables
+    set(required_vars ${required_vars} "webots_robotis_${lib}_LIBRARY")
+    list(APPEND webots_LIBRARIES webots::robotis::${lib})
+    mark_as_advanced(webots_robotis_${lib}_LIBRARY)
+  endforeach(lib ${webots_libraries})
+
   add_library(webots::webots INTERFACE IMPORTED)
   target_link_libraries(webots::webots INTERFACE ${webots_LIBRARIES})
 
   # Make sure the libraries exist in the parent scope
   set(webots_LIBRARIES ${webots_LIBRARIES})
 
-  # Find our include path
+  # Find our webots include path
   find_path(
     "webots_INCLUDE_DIR"
     NAMES "webots/Robot.hpp"
