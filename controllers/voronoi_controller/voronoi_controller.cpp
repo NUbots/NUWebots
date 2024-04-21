@@ -814,6 +814,7 @@ public:
             rrff->set_z(rTXx[2]);
             // std::cout << "added robot node position" << rTXx[0] << ", " << rTXx[1] << std::endl;
         }
+        sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
     }
 
     void updateDevices() {
@@ -960,7 +961,7 @@ int main(int argc, char* argv[]) {
     for(int i =0; i < argc; i++){
         std::cout << "Argv " << i << " = " << argv[i] << std::endl;
     }
-    std::cout << "Allowd Hosts = " << n_allowed_hosts << std::endl;
+    std::cout << "Allowed Hosts = " << n_allowed_hosts << std::endl;
     std::cout << "Number of Robots = " << PlayerServer::nb_robots_in_team << std::endl;
 
     for (int i = 0; i < n_allowed_hosts; i++) {
