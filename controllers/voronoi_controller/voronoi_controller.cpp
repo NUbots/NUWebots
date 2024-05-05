@@ -803,6 +803,7 @@ public:
 
         sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
 
+        // Start Localisation Ground truth
         LocalisationGroundTruth* localisation_ground_truth = new LocalisationGroundTruth();
         localisation_ground_truth->set_exists(true);
 
@@ -812,7 +813,6 @@ public:
             rrff->set_x(rTXx[0]);
             rrff->set_y(rTXx[1]);
             rrff->set_z(rTXx[2]);
-            // std::cout << "added robot node position" << rTXx[0] << ", " << rTXx[1] << std::endl;
         }
         sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
     }
