@@ -265,6 +265,12 @@ public:
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
+
+        // Optimisation
+        should_terminate_sim    = false;
+        resetting_world         = false;  // the world is resetting or not
+        resetting_world_counter = 0;
+        initial_position        = {robot->getSelf()->getPosition()[0], robot->getSelf()->getPosition()[1]};
     }
 
     int accept_client(int server_fd) {
@@ -283,23 +289,6 @@ public:
             }
             if (allowed) {
                 printMessage("Accepted connection from " + std::string(client_info->h_name));
-                // SET UP GROUND TRUTH DATA FOR TESTING
-                // Get robot torso {t} position and orientation from the simulator
-                const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-                const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-
-                // Convert angle-axis to rotation matrix
-                Eigen::Matrix3d Rft_mat =
-                    Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-
-                // Compute just the yaw from the rotation matrix
-                double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
-
-                // Rotate the world frame by the yaw of the robot torso (world frame is aligned with the field plane)
-                Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
-
-                // Translate world frame to by robot torso x and y (world frame is on field plane)
-                Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
                 send_all(cfd, "Welcome", 8);
             }
             else {
@@ -314,6 +303,12 @@ public:
 
     void step() {
         controller_time += basic_time_step;
+
+        // Optimisation
+        if (resetting_world) {
+            robot->getSelf()->resetPhysics();
+        }
+
         if (client_fd == -1) {
             client_fd = accept_client(server_fd);
             if (client_fd != -1) {
@@ -632,7 +627,43 @@ public:
                 warn(sensor_measurements,
                      "Device \"" + sensorTimeStep.name() + "\" not found, time step command, ignored.");
         }
+
+
+        // Respond to optimisation commands:
+        static int reset_counter = 0;
+        if (actuatorRequests.has_optimisation_command() && actuatorRequests.optimisation_command().command() != 0) {
+            std::cout << "Recieved optimisation command: " << actuatorRequests.optimisation_command().command()
+                      << std::endl;
+            switch (actuatorRequests.optimisation_command().command()) {
+                case OptimisationCommand::RESET_ROBOT:
+                    std::cout << "Resetting World and controller time " << reset_counter << std::endl;
+                    reset_counter++;
+                    robot->simulationReset();
+                    robot->getSelf()->resetPhysics();
+                    resetting_world = true;
+                    controller_time = 0;
+                    break;
+                case OptimisationCommand::RESET_TIME:
+                    std::cout << "Resetting controller time" << std::endl;
+                    controller_time = 0;
+                    break;
+                case OptimisationCommand::TERMINATE:
+                    std::cout << "Terminating " << std::endl;
+                    should_terminate_sim = true;
+                    break;
+                default: break;
+            }
+        }
     }
+
+    bool approximatelyEqual(double a, double b) {
+        return approximatelyEqual(a, b, 0.015);  // std::numeric_limits<double>::epsilon());
+    }
+
+    bool approximatelyEqual(double a, double b, double epsilon) {
+        return std::fabs(a - b) <= (std::fabs(std::max(a, b)) * epsilon);
+    }
+
 
     void prepareSensorMessage() {
         sensor_measurements.set_time(controller_time);
@@ -640,6 +671,21 @@ public:
         gettimeofday(&tp, NULL);
         uint64_t real_time = tp.tv_sec * 1000 + tp.tv_usec / 1000;
         sensor_measurements.set_real_time(real_time);
+
+
+        // Add robot location - OPTIMISATION
+        const double* robot_position = robot->getSelf()->getPosition();
+        sensor_measurements.mutable_robot_position()->mutable_value()->set_x(robot_position[0]);
+        sensor_measurements.mutable_robot_position()->mutable_value()->set_y(robot_position[1]);
+        sensor_measurements.mutable_robot_position()->mutable_value()->set_z(robot_position[2]);
+
+        if (resetting_world && approximatelyEqual(robot_position[0], initial_position[0])
+            && approximatelyEqual(robot_position[1], initial_position[1])) {
+            std::cout << "Finished Reset" << std::endl;
+            resetting_world = false;
+            sensor_measurements.set_reset_done(true);
+        }
+
         if (!devices_enabled)  // if devices are disabled (because robot got a red card), no sensor data is sent to the
                                // controller
             return;
@@ -677,19 +723,16 @@ public:
                 measurement->set_width(width);
                 measurement->set_height(height);
                 measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
-                const unsigned char* bgra_image = camera->getImage();
-                const int rgba_image_size       = width * height * 4;  // RGBA has 4 channels
-                unsigned char* rgba_image       = new unsigned char[rgba_image_size];
-
+                const unsigned char* rgba_image = camera->getImage();
+                const int rgb_image_size        = width * height * 3;
+                unsigned char* rgb_image        = new unsigned char[rgb_image_size];
                 for (int i = 0; i < width * height; i++) {
-                    rgba_image[4 * i + 0] = bgra_image[4 * i + 2];  // R
-                    rgba_image[4 * i + 1] = bgra_image[4 * i + 1];  // G
-                    rgba_image[4 * i + 2] = bgra_image[4 * i + 0];  // B
-                    rgba_image[4 * i + 3] = bgra_image[4 * i + 3];  // A
+                    rgb_image[3 * i]     = rgba_image[4 * i];
+                    rgb_image[3 * i + 1] = rgba_image[4 * i + 1];
+                    rgb_image[3 * i + 2] = rgba_image[4 * i + 2];
                 }
-
-                measurement->set_image(rgba_image, rgba_image_size);
-                delete[] rgba_image;
+                measurement->set_image(rgb_image, rgb_image_size);
+                delete[] rgb_image;
 
 #ifdef JPEG_COMPRESSION
                 // testing JPEG compression (impacts the performance)
@@ -759,79 +802,6 @@ public:
             std::cout << "\t\t" << active_sensor << " update time " << duration(sc::now() - sensor_start).count()
                       << "ms" << std::endl;
         }
-
-        OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
-        odometry_ground_truth->set_exists(true);
-
-        LocalisationGroundTruth* localisation_ground_truth = new LocalisationGroundTruth();
-        localisation_ground_truth->set_exists(true);
-
-        // Get torso {t} to field {f} transform from simulator
-        Eigen::Affine3d Hft;
-        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
-        Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-        Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
-
-        // Get velocity in world frame
-        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
-
-        // Compute world {w} to torso {t}
-        Eigen::Affine3d Htw = Hft.inverse() * Hfw;
-
-        // clang-format off
-        vec4* r0 = new vec4();
-        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
-        vec4* r1 = new vec4();
-        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
-        vec4* r2 = new vec4();
-        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
-        vec4* r3 = new vec4();
-        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
-        mat4* htw = new mat4();
-        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
-
-        odometry_ground_truth->set_allocated_htw(htw);
-        sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
-
-        vec3* vtw = new vec3();
-        vtw->set_x(vTw.x());
-        vtw->set_y(vTw.y());
-        vtw->set_z(vTw.z());
-        odometry_ground_truth->set_allocated_vtw(vtw);
-
-        vec4* a0 = new vec4();
-        a0->set_x(Hfw(0, 0)); a0->set_y(Hfw(1, 0)); a0->set_z(Hfw(2, 0)); a0->set_t(Hfw(3, 0));
-        vec4* a1 = new vec4();
-        a1->set_x(Hfw(0, 1)); a1->set_y(Hfw(1, 1)); a1->set_z(Hfw(2, 1)); a1->set_t(Hfw(3, 1));
-        vec4* a2 = new vec4();
-        a2->set_x(Hfw(0, 2)); a2->set_y(Hfw(1, 2)); a2->set_z(Hfw(2, 2)); a2->set_t(Hfw(3, 2));
-        vec4* a3 = new vec4();
-        a3->set_x(Hfw(0, 3)); a3->set_y(Hfw(1, 3)); a3->set_z(Hfw(2, 3)); a3->set_t(Hfw(3, 3));
-        mat4* hfw = new mat4();
-        hfw->set_allocated_x(a0); hfw->set_allocated_y(a1); hfw->set_allocated_z(a2); hfw->set_allocated_t(a3);
-
-        localisation_ground_truth->set_allocated_hfw(hfw);
-        sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
-        // clang-format on
-
-        // Start vision ground truth
-        VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
-        vision_ground_truth->set_exists(true);
-
-        // Get ball {b} position in world {w} space
-        const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        Eigen::Vector3d rBFf           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
-        Eigen::Vector3d rBWw           = Hfw.inverse() * rBFf;
-
-        fvec3* rbww = new fvec3();
-        rbww->set_x(rBWw(0, 0));
-        rbww->set_y(rBWw(1, 0));
-        rbww->set_z(rBWw(2, 0));
-        vision_ground_truth->set_allocated_rbww(rbww);
-
-        sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
     }
 
     void updateDevices() {
@@ -947,11 +917,17 @@ private:
     /// The rendering bandwidth allowed for a team [MB/s] (per simulated second)
     static double team_rendering_quota;
 
-    /// World (starting position of robot) {w} to field {f} space
-    Eigen::Affine3d Hfw;
+    /// World (starting position of robot) [w] to webots environment reference point [x]
+    Eigen::Affine3d Hxw;
     const std::string robot_def;
 
+    // Optimisation
+    bool resetting_world;
+    int resetting_world_counter;
+    std::vector<double> initial_position;
+
 public:
+    bool should_terminate_sim;  // optimisation
     static int nb_robots_in_team;
 };
 
@@ -971,8 +947,10 @@ int main(int argc, char* argv[]) {
     const int port                  = atoi(argv[1]);
     PlayerServer::nb_robots_in_team = atoi(argv[2]);
     n_allowed_hosts                 = argc - 3;
-    for (int i = 0; i < n_allowed_hosts; i++)
+
+    for (int i = 0; i < n_allowed_hosts; i++) {
         allowed_hosts.push_back(argv[i + 3]);
+    }
 
     webots::Supervisor* robot = new webots::Supervisor();
     const int basic_time_step = robot->getBasicTimeStep();
@@ -982,8 +960,9 @@ int main(int argc, char* argv[]) {
 
     PlayerServer server(allowed_hosts, port, player_id, player_team, robot);
 
-    while (robot->step(basic_time_step) != -1)
+    while (!server.should_terminate_sim && robot->step(basic_time_step) != -1) {
         server.step();
+    }
 
     delete robot;
     return 0;
