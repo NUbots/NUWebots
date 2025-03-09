@@ -677,16 +677,19 @@ public:
                 measurement->set_width(width);
                 measurement->set_height(height);
                 measurement->set_quality(-1);  // raw image (JPEG compression not yet supported)
-                const unsigned char* rgba_image = camera->getImage();
-                const int rgb_image_size        = width * height * 3;
-                unsigned char* rgb_image        = new unsigned char[rgb_image_size];
+                const unsigned char* bgra_image = camera->getImage();
+                const int rgba_image_size       = width * height * 4;  // RGBA has 4 channels
+                unsigned char* rgba_image       = new unsigned char[rgba_image_size];
+
                 for (int i = 0; i < width * height; i++) {
-                    rgb_image[3 * i]     = rgba_image[4 * i];
-                    rgb_image[3 * i + 1] = rgba_image[4 * i + 1];
-                    rgb_image[3 * i + 2] = rgba_image[4 * i + 2];
+                    rgba_image[4 * i + 0] = bgra_image[4 * i + 2];  // R
+                    rgba_image[4 * i + 1] = bgra_image[4 * i + 1];  // G
+                    rgba_image[4 * i + 2] = bgra_image[4 * i + 0];  // B
+                    rgba_image[4 * i + 3] = bgra_image[4 * i + 3];  // A
                 }
-                measurement->set_image(rgb_image, rgb_image_size);
-                delete[] rgb_image;
+
+                measurement->set_image(rgba_image, rgba_image_size);
+                delete[] rgba_image;
 
 #ifdef JPEG_COMPRESSION
                 // testing JPEG compression (impacts the performance)
