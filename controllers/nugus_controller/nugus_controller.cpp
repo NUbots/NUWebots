@@ -760,61 +760,41 @@ public:
                       << "ms" << std::endl;
         }
 
-        OdometryGroundTruth* odometry_ground_truth = new OdometryGroundTruth();
-        odometry_ground_truth->set_exists(true);
-
-        LocalisationGroundTruth* localisation_ground_truth = new LocalisationGroundTruth();
-        localisation_ground_truth->set_exists(true);
+        RobotPoseGroundTruth* robot_pose_ground_truth = new RobotPoseGroundTruth();
+        robot_pose_ground_truth->set_exists(true);
 
         // Get torso {t} to field {f} transform from simulator
-        Eigen::Affine3d Hft;
         const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
         const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
         const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
-        Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-        Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
-        // Get velocity in world frame
-        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
+        // Create Hft transform matrix
+        Eigen::Matrix4d Hft_mat = Eigen::Matrix4d::Identity();
+        Hft_mat.block<3,3>(0,0) = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+        Hft_mat.block<3,1>(0,3) = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
-        // Compute world {w} to torso {t}
-        Eigen::Affine3d Htw = Hft.inverse() * Hfw;
-
-        // clang-format off
+        // Create mat4 message for Hft
         vec4* r0 = new vec4();
-        r0->set_x(Htw(0, 0)); r0->set_y(Htw(1, 0)); r0->set_z(Htw(2, 0)); r0->set_t(Htw(3, 0));
+        r0->set_x(Hft_mat(0, 0)); r0->set_y(Hft_mat(1, 0)); r0->set_z(Hft_mat(2, 0)); r0->set_t(Hft_mat(3, 0));
         vec4* r1 = new vec4();
-        r1->set_x(Htw(0, 1)); r1->set_y(Htw(1, 1)); r1->set_z(Htw(2, 1)); r1->set_t(Htw(3, 1));
+        r1->set_x(Hft_mat(0, 1)); r1->set_y(Hft_mat(1, 1)); r1->set_z(Hft_mat(2, 1)); r1->set_t(Hft_mat(3, 1));
         vec4* r2 = new vec4();
-        r2->set_x(Htw(0, 2)); r2->set_y(Htw(1, 2)); r2->set_z(Htw(2, 2)); r2->set_t(Htw(3, 2));
+        r2->set_x(Hft_mat(0, 2)); r2->set_y(Hft_mat(1, 2)); r2->set_z(Hft_mat(2, 2)); r2->set_t(Hft_mat(3, 2));
         vec4* r3 = new vec4();
-        r3->set_x(Htw(0, 3)); r3->set_y(Htw(1, 3)); r3->set_z(Htw(2, 3)); r3->set_t(Htw(3, 3));
-        mat4* htw = new mat4();
-        htw->set_allocated_x(r0); htw->set_allocated_y(r1); htw->set_allocated_z(r2); htw->set_allocated_t(r3);
+        r3->set_x(Hft_mat(0, 3)); r3->set_y(Hft_mat(1, 3)); r3->set_z(Hft_mat(2, 3)); r3->set_t(Hft_mat(3, 3));
+        mat4* hft = new mat4();
+        hft->set_allocated_x(r0); hft->set_allocated_y(r1); hft->set_allocated_z(r2); hft->set_allocated_t(r3);
 
-        odometry_ground_truth->set_allocated_htw(htw);
-        sensor_measurements.set_allocated_odometry_ground_truth(odometry_ground_truth);
+        robot_pose_ground_truth->set_allocated_hft(hft);
 
-        vec3* vtw = new vec3();
-        vtw->set_x(vTw.x());
-        vtw->set_y(vTw.y());
-        vtw->set_z(vTw.z());
-        odometry_ground_truth->set_allocated_vtw(vtw);
+        // Set velocity in field space
+        vec3* vtf = new vec3();
+        vtf->set_x(vTf[0]);
+        vtf->set_y(vTf[1]);
+        vtf->set_z(vTf[2]);
+        robot_pose_ground_truth->set_allocated_vtf(vtf);
 
-        vec4* a0 = new vec4();
-        a0->set_x(Hfw(0, 0)); a0->set_y(Hfw(1, 0)); a0->set_z(Hfw(2, 0)); a0->set_t(Hfw(3, 0));
-        vec4* a1 = new vec4();
-        a1->set_x(Hfw(0, 1)); a1->set_y(Hfw(1, 1)); a1->set_z(Hfw(2, 1)); a1->set_t(Hfw(3, 1));
-        vec4* a2 = new vec4();
-        a2->set_x(Hfw(0, 2)); a2->set_y(Hfw(1, 2)); a2->set_z(Hfw(2, 2)); a2->set_t(Hfw(3, 2));
-        vec4* a3 = new vec4();
-        a3->set_x(Hfw(0, 3)); a3->set_y(Hfw(1, 3)); a3->set_z(Hfw(2, 3)); a3->set_t(Hfw(3, 3));
-        mat4* hfw = new mat4();
-        hfw->set_allocated_x(a0); hfw->set_allocated_y(a1); hfw->set_allocated_z(a2); hfw->set_allocated_t(a3);
-
-        localisation_ground_truth->set_allocated_hfw(hfw);
-        sensor_measurements.set_allocated_localisation_ground_truth(localisation_ground_truth);
-        // clang-format on
+        sensor_measurements.set_allocated_robot_pose_ground_truth(robot_pose_ground_truth);
 
         // Start vision ground truth
         VisionGroundTruth* vision_ground_truth = new VisionGroundTruth();
