@@ -247,7 +247,8 @@ public:
                  int port,
                  int player_id,
                  int team,
-                 webots::Supervisor* robot)
+                 webots::Supervisor* robot, 
+                 std::string name)
         : allowed_hosts(allowed_hosts)
         , port(port)
         , player_id(player_id)
@@ -258,7 +259,8 @@ public:
         , recv_index(0)
         , recv_size(0)
         , content_size(0)
-        , robot(robot) {
+        , robot(robot)
+        , name(name) {
         actuators_enabled = TRUE;
         devices_enabled   = TRUE;
         basic_time_step   = robot->getBasicTimeStep();
@@ -285,8 +287,8 @@ public:
                 printMessage("Accepted connection from " + std::string(client_info->h_name));
                 // SET UP GROUND TRUTH DATA FOR TESTING
                 // Get robot torso {t} position and orientation from the simulator
-                const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-                const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+                const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+                const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
 
                 // Convert angle-axis to rotation matrix
                 Eigen::Matrix3d Rft_mat =
@@ -768,9 +770,9 @@ public:
 
         // Get torso {t} to field {f} transform from simulator
         Eigen::Affine3d Hft;
-        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
+        const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+        const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
+        const double* vTf  = robot->getFromDef(name)->getVelocity();
         Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
         Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
 
@@ -908,6 +910,8 @@ private:
     int client_fd;
     bool actuators_enabled;
     bool devices_enabled;
+    // Name of the robot as defined in the world file, e.g. name
+    std::string name = "";
 
     /// Keys are adresses of the devices and values are timestep
     std::map<webots::Device*, int> sensors;
@@ -979,8 +983,9 @@ int main(int argc, char* argv[]) {
     const std::string name    = robot->getName();
     const int player_id       = std::stoi(name.substr(name.find_last_of(' ') + 1));
     const int player_team     = name[0] == 'r' ? RED : BLUE;
+    std::string player_name = std::string(name[0] == 'r' ? "RED" : "BLUE") + "_" + std::to_string(player_id);
 
-    PlayerServer server(allowed_hosts, port, player_id, player_team, robot);
+    PlayerServer server(allowed_hosts, port, player_id, player_team, robot, player_name);
 
     while (robot->step(basic_time_step) != -1)
         server.step();
