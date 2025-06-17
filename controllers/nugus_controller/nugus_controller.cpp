@@ -1000,7 +1000,7 @@ int main(int argc, char* argv[]) {
     const std::string name    = robot->getName();
     const int player_id       = std::stoi(name.substr(name.find_last_of(' ') + 1));
     const int player_team     = name[0] == 'r' ? RED : BLUE;
-    std::string player_name = std::string(name[0] == 'r' ? "RED" : "BLUE") + "_" + std::to_string(player_id);
+    std::string player_name = std::string(player_team) + "_" + std::to_string(player_id);
 
     PlayerServer server(allowed_hosts, port, player_id, player_team, robot, player_name);
 
