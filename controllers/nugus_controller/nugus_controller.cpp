@@ -247,7 +247,8 @@ public:
                  int port,
                  int player_id,
                  int team,
-                 webots::Supervisor* robot)
+                 webots::Supervisor* robot, 
+                 std::string name)
         : allowed_hosts(allowed_hosts)
         , port(port)
         , player_id(player_id)
@@ -258,13 +259,19 @@ public:
         , recv_index(0)
         , recv_size(0)
         , content_size(0)
-        , robot(robot) {
+        , robot(robot)
+        , name(name) {
         actuators_enabled = TRUE;
         devices_enabled   = TRUE;
         basic_time_step   = robot->getBasicTimeStep();
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
+
+        // Set the side of the field
+        const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+        // If x is postive, the robot is on the positive side of the field, otherwise the robot is on the negative side
+        x_side = rTFf[0] > 0 ? 1 : -1;
     }
 
     int accept_client(int server_fd) {
@@ -285,12 +292,16 @@ public:
                 printMessage("Accepted connection from " + std::string(client_info->h_name));
                 // SET UP GROUND TRUTH DATA FOR TESTING
                 // Get robot torso {t} position and orientation from the simulator
-                const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-                const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+                const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+                const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
 
                 // Convert angle-axis to rotation matrix
                 Eigen::Matrix3d Rft_mat =
                     Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+                // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the field
+                if (x_side < 0) {
+                    Rft_mat = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix() * Rft_mat;
+                }
 
                 // Compute just the yaw from the rotation matrix
                 double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
@@ -299,7 +310,7 @@ public:
                 Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
 
                 // Translate world frame to by robot torso x and y (world frame is on field plane)
-                Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
+                Hfw.translation() = Eigen::Vector3d(x_side * rTFf[0], x_side * rTFf[1], 0.0);
                 send_all(cfd, "Welcome", 8);
             }
             else {
@@ -768,14 +779,19 @@ public:
 
         // Get torso {t} to field {f} transform from simulator
         Eigen::Affine3d Hft;
-        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
+        const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+        const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
+        const double* vTf  = robot->getFromDef(name)->getVelocity();
         Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-        Hft.translation()  = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
+        // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the field
+        if (x_side < 0) {
+           Hft.linear() = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix() * Hft.linear();
+        }
+
+        Hft.translation()  = Eigen::Vector3d(x_side * rTFf[0], x_side * rTFf[1], rTFf[2]);
 
         // Get velocity in world frame
-        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(vTf[0], vTf[1], vTf[2]);
+        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(x_side * vTf[0], x_side * vTf[1], vTf[2]);
 
         // Compute world {w} to torso {t}
         Eigen::Affine3d Htw = Hft.inverse() * Hfw;
@@ -822,7 +838,7 @@ public:
 
         // Get ball {b} position in world {w} space
         const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        Eigen::Vector3d rBFf           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
+        Eigen::Vector3d rBFf           = Eigen::Vector3d(x_side * ball_translation[0], x_side * ball_translation[1], ball_translation[2]);
         Eigen::Vector3d rBWw           = Hfw.inverse() * rBFf;
 
         fvec3* rbww = new fvec3();
@@ -908,6 +924,11 @@ private:
     int client_fd;
     bool actuators_enabled;
     bool devices_enabled;
+    // Name of the robot as defined in the world file, e.g. name
+    std::string name = "";
+    // Side of the field the robot starts on, as webots will give +ve or -ve while
+    // the robot itself assumes it starts on the +ve side
+    int x_side = 0;
 
     /// Keys are adresses of the devices and values are timestep
     std::map<webots::Device*, int> sensors;
@@ -979,8 +1000,9 @@ int main(int argc, char* argv[]) {
     const std::string name    = robot->getName();
     const int player_id       = std::stoi(name.substr(name.find_last_of(' ') + 1));
     const int player_team     = name[0] == 'r' ? RED : BLUE;
+    std::string player_name = std::string(player_team) + "_" + std::to_string(player_id);
 
-    PlayerServer server(allowed_hosts, port, player_id, player_team, robot);
+    PlayerServer server(allowed_hosts, port, player_id, player_team, robot, player_name);
 
     while (robot->step(basic_time_step) != -1)
         server.step();
