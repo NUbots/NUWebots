@@ -792,7 +792,7 @@ public:
         Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(x_side * vTf[0], x_side * vTf[1], vTf[2]);
 
         // Create mat4 message for Hft
-        Eigen::Matrix4d Hft_mat = Eigen::Matrix4d::Identity();
+        Eigen::Matrix4d Hft_mat = Hft.matrix();
         vec4* r0                = new vec4();
         r0->set_x(Hft_mat(0, 0));
         r0->set_y(Hft_mat(1, 0));
