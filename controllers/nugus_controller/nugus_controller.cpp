@@ -940,7 +940,7 @@ double PlayerServer::budget_ms            = 1.0;
 double PlayerServer::team_network_quota   = 350.0;
 double PlayerServer::window_duration      = 1.0;
 int PlayerServer::nb_robots_in_team       = 4;
-int PlayerServer::camera_min_time_step    = 16;
+int PlayerServer::camera_min_time_step    = 40;
 double PlayerServer::team_rendering_quota = 350.0;
 
 int main(int argc, char* argv[]) {
