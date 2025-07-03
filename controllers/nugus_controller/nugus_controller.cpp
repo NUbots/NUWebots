@@ -247,7 +247,8 @@ public:
                  int port,
                  int player_id,
                  int team,
-                 webots::Supervisor* robot)
+                 webots::Supervisor* robot,
+                 std::string name)
         : allowed_hosts(allowed_hosts)
         , port(port)
         , player_id(player_id)
@@ -258,13 +259,19 @@ public:
         , recv_index(0)
         , recv_size(0)
         , content_size(0)
-        , robot(robot) {
+        , robot(robot)
+        , name(name) {
         actuators_enabled = TRUE;
         devices_enabled   = TRUE;
         basic_time_step   = robot->getBasicTimeStep();
         printMessage("server started on port " + std::to_string(port));
         server_fd = create_socket_server(port);
         set_blocking(server_fd, false);
+
+        // Set the side of the field
+        const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+        // If x is postive, the robot is on the positive side of the field, otherwise the robot is on the negative side
+        x_side = rTFf[0] > 0 ? 1 : -1;
     }
 
     int accept_client(int server_fd) {
@@ -285,12 +292,17 @@ public:
                 printMessage("Accepted connection from " + std::string(client_info->h_name));
                 // SET UP GROUND TRUTH DATA FOR TESTING
                 // Get robot torso {t} position and orientation from the simulator
-                const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-                const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
+                const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+                const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
 
                 // Convert angle-axis to rotation matrix
                 Eigen::Matrix3d Rft_mat =
                     Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+                // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the
+                // field
+                if (x_side < 0) {
+                    Rft_mat = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix() * Rft_mat;
+                }
 
                 // Compute just the yaw from the rotation matrix
                 double Rft_yaw = std::atan2(Rft_mat(1, 0), Rft_mat(0, 0));
@@ -299,7 +311,7 @@ public:
                 Hfw.linear() = Eigen::AngleAxisd(Rft_yaw, Eigen::Vector3d::UnitZ()).toRotationMatrix();
 
                 // Translate world frame to by robot torso x and y (world frame is on field plane)
-                Hfw.translation() = Eigen::Vector3d(rTFf[0], rTFf[1], 0.0);
+                Hfw.translation() = Eigen::Vector3d(x_side * rTFf[0], x_side * rTFf[1], 0.0);
                 send_all(cfd, "Welcome", 8);
             }
             else {
@@ -764,26 +776,48 @@ public:
         robot_pose_ground_truth->set_exists(true);
 
         // Get torso {t} to field {f} transform from simulator
-        const double* rTFf = robot->getFromDef("BLUE_1")->getField("translation")->getSFVec3f();
-        const double* Rft  = robot->getFromDef("BLUE_1")->getField("rotation")->getSFRotation();
-        const double* vTf  = robot->getFromDef("BLUE_1")->getVelocity();
+        Eigen::Affine3d Hft;
+        const double* rTFf = robot->getFromDef(name)->getField("translation")->getSFVec3f();
+        const double* Rft  = robot->getFromDef(name)->getField("rotation")->getSFRotation();
+        const double* vTf  = robot->getFromDef(name)->getVelocity();
+        Hft.linear()       = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
+        // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the field
+        if (x_side < 0) {
+            Hft.linear() = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix() * Hft.linear();
+        }
 
-        // Create Hft transform matrix
-        Eigen::Matrix4d Hft_mat = Eigen::Matrix4d::Identity();
-        Hft_mat.block<3,3>(0,0) = Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-        Hft_mat.block<3,1>(0,3) = Eigen::Vector3d(rTFf[0], rTFf[1], rTFf[2]);
+        Hft.translation() = Eigen::Vector3d(x_side * rTFf[0], x_side * rTFf[1], rTFf[2]);
+
+        // Get velocity in world frame
+        Eigen::Vector3d vTw = Hfw.linear().transpose() * Eigen::Vector3d(x_side * vTf[0], x_side * vTf[1], vTf[2]);
 
         // Create mat4 message for Hft
-        vec4* r0 = new vec4();
-        r0->set_x(Hft_mat(0, 0)); r0->set_y(Hft_mat(1, 0)); r0->set_z(Hft_mat(2, 0)); r0->set_t(Hft_mat(3, 0));
+        Eigen::Matrix4d Hft_mat = Eigen::Matrix4d::Identity();
+        vec4* r0                = new vec4();
+        r0->set_x(Hft_mat(0, 0));
+        r0->set_y(Hft_mat(1, 0));
+        r0->set_z(Hft_mat(2, 0));
+        r0->set_t(Hft_mat(3, 0));
         vec4* r1 = new vec4();
-        r1->set_x(Hft_mat(0, 1)); r1->set_y(Hft_mat(1, 1)); r1->set_z(Hft_mat(2, 1)); r1->set_t(Hft_mat(3, 1));
+        r1->set_x(Hft_mat(0, 1));
+        r1->set_y(Hft_mat(1, 1));
+        r1->set_z(Hft_mat(2, 1));
+        r1->set_t(Hft_mat(3, 1));
         vec4* r2 = new vec4();
-        r2->set_x(Hft_mat(0, 2)); r2->set_y(Hft_mat(1, 2)); r2->set_z(Hft_mat(2, 2)); r2->set_t(Hft_mat(3, 2));
+        r2->set_x(Hft_mat(0, 2));
+        r2->set_y(Hft_mat(1, 2));
+        r2->set_z(Hft_mat(2, 2));
+        r2->set_t(Hft_mat(3, 2));
         vec4* r3 = new vec4();
-        r3->set_x(Hft_mat(0, 3)); r3->set_y(Hft_mat(1, 3)); r3->set_z(Hft_mat(2, 3)); r3->set_t(Hft_mat(3, 3));
+        r3->set_x(Hft_mat(0, 3));
+        r3->set_y(Hft_mat(1, 3));
+        r3->set_z(Hft_mat(2, 3));
+        r3->set_t(Hft_mat(3, 3));
         mat4* hft = new mat4();
-        hft->set_allocated_x(r0); hft->set_allocated_y(r1); hft->set_allocated_z(r2); hft->set_allocated_t(r3);
+        hft->set_allocated_x(r0);
+        hft->set_allocated_y(r1);
+        hft->set_allocated_z(r2);
+        hft->set_allocated_t(r3);
 
         robot_pose_ground_truth->set_allocated_hft(hft);
 
@@ -802,8 +836,9 @@ public:
 
         // Get ball {b} position in world {w} space
         const double* ball_translation = robot->getFromDef("BALL")->getField("translation")->getSFVec3f();
-        Eigen::Vector3d rBFf           = Eigen::Vector3d(ball_translation[0], ball_translation[1], ball_translation[2]);
-        Eigen::Vector3d rBWw           = Hfw.inverse() * rBFf;
+        Eigen::Vector3d rBFf =
+            Eigen::Vector3d(x_side * ball_translation[0], x_side * ball_translation[1], ball_translation[2]);
+        Eigen::Vector3d rBWw = Hfw.inverse() * rBFf;
 
         fvec3* rbww = new fvec3();
         rbww->set_x(rBWw(0, 0));
@@ -888,6 +923,11 @@ private:
     int client_fd;
     bool actuators_enabled;
     bool devices_enabled;
+    // Name of the robot as defined in the world file, e.g. name
+    std::string name = "";
+    // Side of the field the robot starts on, as webots will give +ve or -ve while
+    // the robot itself assumes it starts on the +ve side
+    int x_side = 0;
 
     /// Keys are adresses of the devices and values are timestep
     std::map<webots::Device*, int> sensors;
@@ -959,8 +999,9 @@ int main(int argc, char* argv[]) {
     const std::string name    = robot->getName();
     const int player_id       = std::stoi(name.substr(name.find_last_of(' ') + 1));
     const int player_team     = name[0] == 'r' ? RED : BLUE;
+    std::string player_name   = std::string(player_team == RED ? "RED" : "BLUE") + "_" + std::to_string(player_id);
 
-    PlayerServer server(allowed_hosts, port, player_id, player_team, robot);
+    PlayerServer server(allowed_hosts, port, player_id, player_team, robot, player_name);
 
     while (robot->step(basic_time_step) != -1)
         server.step();
