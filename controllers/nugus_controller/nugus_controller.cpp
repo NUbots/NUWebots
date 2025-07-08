@@ -298,8 +298,7 @@ public:
                 // Convert angle-axis to rotation matrix
                 Eigen::Matrix3d Rft_mat =
                     Eigen::AngleAxisd(Rft[3], Eigen::Vector3d(Rft[0], Rft[1], Rft[2])).toRotationMatrix();
-                // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the
-                // field
+                // Multiply by a rotation about the z axis by PI radians if the robot is on the negative side of the field
                 if (x_side < 0) {
                     Rft_mat = Eigen::AngleAxisd(M_PI, Eigen::Vector3d::UnitZ()).toRotationMatrix() * Rft_mat;
                 }
@@ -846,57 +845,57 @@ public:
         rbww->set_z(rBWw(2, 0));
         vision_ground_truth->set_allocated_rbww(rbww);
 
-        // Get opponent robot ground truth data (RED team for BLUE players, BLUE team for RED players)
-        std::string opponent_team = (team == RED) ? "BLUE" : "RED";
-        for (int i = 1; i <= 4; i++) {
-            std::string opponent_name = opponent_team + "_" + std::to_string(i);
-            webots::Node* opponent_node = robot->getFromDef(opponent_name);
-            
-            if (opponent_node != nullptr) {
-                RobotGroundTruth* robot_ground_truth = vision_ground_truth->add_robots();
-                robot_ground_truth->set_id(opponent_name);
-                robot_ground_truth->set_team(opponent_team);
-                robot_ground_truth->set_player_number(i);
+        // Export all robot's ground truth position
+        RobotsGroundTruth* robots_ground_truth = new RobotsGroundTruth();
+        robots_ground_truth->set_exists(true);
+        // Loop over both teams
+        for (const char* team_name : {"RED", "BLUE"}) {
+            for (int i = 1; i <= 4; i++) {
+                std::string robot_name = std::string(team_name) + "_" + std::to_string(i);
+                webots::Node* node = robot->getFromDef(robot_name);
+                if (node != nullptr) {
+                    RobotGroundTruth* robot_ground_truth = robots_ground_truth->add_robots();
+                    robot_ground_truth->set_id(robot_name);
+                    robot_ground_truth->set_team(team_name);
+                    robot_ground_truth->set_player_number(i);
 
-                // Get opponent position in field space
-                const double* opponent_translation = opponent_node->getField("translation")->getSFVec3f();
-                const double* opponent_rotation = opponent_node->getField("rotation")->getSFRotation();
-                const double* opponent_velocity = opponent_node->getVelocity();
+                    // Get position in field space
+                    const double* translation = node->getField("translation")->getSFVec3f();
+                    const double* rotation = node->getField("rotation")->getSFRotation();
+                    const double* velocity = node->getVelocity();
 
-                // Convert position from field space to world space
-                Eigen::Vector3d rOFf = Eigen::Vector3d(x_side * opponent_translation[0], x_side * opponent_translation[1], opponent_translation[2]);
-                Eigen::Vector3d rOWw = Hfw.inverse() * rOFf;
+                    // Convert position from field space to world space
+                    Eigen::Vector3d rRFf = Eigen::Vector3d(x_side * translation[0], x_side * translation[1], translation[2]);
+                    Eigen::Vector3d rRWw = Hfw.inverse() * rRFf;
 
-                fvec3* position = new fvec3();
-                position->set_x(rOWw.x());
-                position->set_y(rOWw.y());
-                position->set_z(rOWw.z());
-                robot_ground_truth->set_allocated_rrww(position);
+                    fvec3* position = new fvec3();
+                    position->set_x(rRWw.x());
+                    position->set_y(rRWw.y());
+                    position->set_z(rRWw.z());
+                    robot_ground_truth->set_allocated_rrww(position);
 
-                // Convert velocity from field space to world space
-                Eigen::Vector3d vOFf = Eigen::Vector3d(x_side * opponent_velocity[0], x_side * opponent_velocity[1], opponent_velocity[2]);
-                Eigen::Vector3d vOWw = Hfw.linear().transpose() * vOFf;
+                    // Convert velocity from field space to world space
+                    Eigen::Vector3d vRf = Eigen::Vector3d(x_side * velocity[0], x_side * velocity[1], velocity[2]);
+                    Eigen::Vector3d vRw = Hfw.linear().transpose() * vRf;
 
-                fvec3* velocity = new fvec3();
-                velocity->set_x(vOWw.x());
-                velocity->set_y(vOWw.y());
-                velocity->set_z(vOWw.z());
-                robot_ground_truth->set_allocated_vrw(velocity);
+                    fvec3* v = new fvec3();
+                    v->set_x(vRw.x());
+                    v->set_y(vRw.y());
+                    v->set_z(vRw.z());
+                    robot_ground_truth->set_allocated_vrw(v);
 
-                // Extract yaw angle from rotation
-                Eigen::AngleAxisd opponent_rotation_aa(opponent_rotation[3], Eigen::Vector3d(opponent_rotation[0], opponent_rotation[1], opponent_rotation[2]));
-                Eigen::Matrix3d opponent_rotation_matrix = opponent_rotation_aa.toRotationMatrix();
-                
-                // Apply field-to-world transformation to rotation
-                Eigen::Matrix3d world_rotation_matrix = Hfw.linear().transpose() * opponent_rotation_matrix;
-                
-                // Extract yaw angle (rotation around Z-axis)
-                float yaw = atan2(world_rotation_matrix(1, 0), world_rotation_matrix(0, 0));
-                robot_ground_truth->set_yaw(yaw);
+                    // Extract yaw angle from rotation
+                    Eigen::AngleAxisd rot_aa(rotation[3], Eigen::Vector3d(rotation[0], rotation[1], rotation[2]));
+                    Eigen::Matrix3d rot_matrix = rot_aa.toRotationMatrix();
+                    Eigen::Matrix3d world_rot_matrix = Hfw.linear().transpose() * rot_matrix;
+                    float yaw = atan2(world_rot_matrix(1, 0), world_rot_matrix(0, 0));
+                    robot_ground_truth->set_yaw(yaw);
+                }
             }
         }
 
         sensor_measurements.set_allocated_vision_ground_truth(vision_ground_truth);
+        sensor_measurements.set_allocated_robots_ground_truth(robots_ground_truth);
     }
 
     void updateDevices() {

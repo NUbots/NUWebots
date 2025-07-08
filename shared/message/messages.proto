@@ -109,10 +109,9 @@ message VisionGroundTruth {
     bool exists = 1;
     /// Vector from the world to the ball in world space.
     fvec3 rBWw = 2;
-    /// Robot ground truth data
-    repeated RobotGroundTruth robots = 3;
 }
 
+/// Ground truth for a single robot
 message RobotGroundTruth {
     /// Robot identifier (e.g., "RED_1", "BLUE_2")
     string id = 1;
@@ -127,6 +126,15 @@ message RobotGroundTruth {
     /// Rotation of robot (yaw angle in radians)
     float yaw = 6;
 }
+
+/// Message containing ground truth data for all robots (opponents and teammates)
+message RobotsGroundTruth {
+    /// Indicates if this message exists
+    bool exists = 1;
+    /// Robot ground truth data
+    repeated RobotGroundTruth robots = 2;
+}
+
 
 message mat4 {
     vec4 x = 1;
@@ -165,9 +173,10 @@ message SensorMeasurements {
     // NUbots-specific data. Set to 100 in case other data is added in by the RoboCup TC
     RobotPoseGroundTruth    robot_pose_ground_truth = 100;
     VisionGroundTruth       vision_ground_truth       = 101;
+    RobotsGroundTruth       robots_ground_truth         = 102;
     // Optimisation
-    OptimisationRobotPosition robot_position = 102;
-    bool                      reset_done     = 103;
+    OptimisationRobotPosition robot_position = 103;
+    bool                      reset_done     = 104;
 }
 
 message MotorPosition {
