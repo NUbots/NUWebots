@@ -868,7 +868,7 @@ public:
                     Eigen::Vector3d rRFf = Eigen::Vector3d(x_side * translation[0], x_side * translation[1], translation[2]);
                     Eigen::Vector3d rRWw = Hfw.inverse() * rRFf;
 
-                    fvec3* position = new fvec3();
+                    vec3* position = new vec3();
                     position->set_x(rRWw.x());
                     position->set_y(rRWw.y());
                     position->set_z(rRWw.z());
@@ -878,7 +878,7 @@ public:
                     Eigen::Vector3d vRf = Eigen::Vector3d(x_side * velocity[0], x_side * velocity[1], velocity[2]);
                     Eigen::Vector3d vRw = Hfw.linear().transpose() * vRf;
 
-                    fvec3* v = new fvec3();
+                    vec3* v = new vec3();
                     v->set_x(vRw.x());
                     v->set_y(vRw.y());
                     v->set_z(vRw.z());
