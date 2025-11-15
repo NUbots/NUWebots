@@ -19,7 +19,7 @@ target_include_directories(optimisation SYSTEM PRIVATE "${PROJECT_BINARY_DIR}/sh
 target_link_libraries(optimisation PRIVATE webots::webots)
 target_link_libraries(optimisation PRIVATE Eigen3::Eigen)
 # Link against the protobuf-lite target (this will also add any necessary include directories to our target)
-target_link_libraries(optimisation PRIVATE protobuf::libprotobuf-lite)
+target_link_libraries(optimisation PRIVATE protobuf::libprotobuf)
 
 # Generate binary in controller source directory
 set_target_properties(
