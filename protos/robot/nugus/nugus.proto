@@ -1474,7 +1474,7 @@ PROTO nugus
       translation -0.002001 -0.000010 0.108568
       children [
         Box {
-           size 0.139509 0.189983 0.261804
+           size 1.0 1.0 1.0
         }
       ]
     }
