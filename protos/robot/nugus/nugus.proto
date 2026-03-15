@@ -1468,13 +1468,16 @@ PROTO nugus
           }
         }
       }
-      # Invisible selection helper - large box for easy click-to-select/drag, no physics impact
+      # Invisible selection helper - body-shaped box for easy click-to-select/drag, no physics impact
       Transform {
-        translation -0.002001 -0.000010 0.108568
+        translation -0.002 0.0 0.14
         children [
           Shape {
+            appearance PBRAppearance {
+              transparency 0.99
+            }
             geometry Box {
-              size 0.5 0.5 0.6
+              size 0.5 0.5 0.8
             }
           }
         ]
