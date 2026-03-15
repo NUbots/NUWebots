@@ -1468,6 +1468,20 @@ PROTO nugus
           }
         }
       }
+      # Invisible selection helper - body-shaped box for easy click-to-select/drag, no physics impact
+      Transform {
+        translation 0.0 0.0 0.0
+        children [
+          Shape {
+            appearance PBRAppearance {
+              transparency 0.99
+            }
+            geometry Box {
+              size 0.8 0.8 0.8
+            }
+          }
+        ]
+      }
     ]
     name IS name
     boundingObject Transform {
