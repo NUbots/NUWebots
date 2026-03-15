@@ -1,0 +1,65 @@
+libdashel (1.3.3) xenial; urgency=medium
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Sun, 07 Jan 2018 08:42:02 +0100
+
+libdashel (1.3.0) xenial; urgency=medium
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Fri, 10 Mar 2017 16:31:46 +0100
+
+libdashel (1.1.0) trusty; urgency=medium
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Thu, 19 Nov 2015 16:29:50 +0100
+
+libdashel (1.0.9) trusty; urgency=medium
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Tue, 17 Nov 2015 09:06:40 +0100
+
+libdashel (1.0.8) trusty; urgency=medium
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Wed, 18 Jun 2014 15:12:58 +0200
+
+libdashel (1.0.7) precise; urgency=low
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Tue, 02 Jul 2013 09:45:31 +0200
+
+libdashel (1.0.6) precise; urgency=low
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Mon, 22 Apr 2013 14:38:21 +0200
+
+libdashel (1.0.5) precise; urgency=low
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Fri, 05 Apr 2013 12:00:28 +0200
+
+libdashel (1.0.4-1) natty; urgency=low
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Wed, 04 May 2011 11:19:58 +0200
+
+libdashel (1.0.3-1) lucid; urgency=low
+
+  * new upstream release
+
+ -- Stéphane Magnenat <stephane@nospam.magnenat.net>  Mon, 11 Oct 2010 17:24:56 +0200
+
+libdashel (0.1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Stéphane Magnenat <stephane@nospam.magnenant.net>  Fri, 30 Nov 2007 14:24:28 +0100

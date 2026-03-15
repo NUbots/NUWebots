@@ -1,0 +1,28 @@
+find_package(Git QUIET)
+if (NOT GIT_FOUND)
+  find_program(GIT_EXECUTABLE git NO_CMAKE_FIND_ROOT_PATH)
+  if (GIT_EXECUTABLE)
+    set(GIT_FOUND TRUE)
+  endif (GIT_EXECUTABLE)
+endif (NOT GIT_FOUND)
+
+set(GIT_REVISION "")
+
+if (GIT_FOUND)
+	message(STATUS "Git executable found")
+	execute_process(COMMAND ${GIT_EXECUTABLE} rev-parse --short --verify HEAD
+		OUTPUT_VARIABLE GIT_REVISION
+		ERROR_VARIABLE git_rev_error
+		RESULT_VARIABLE git_rev_result
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+else (GIT_FOUND)
+	message(STATUS "Git executable NOT found")
+endif (GIT_FOUND)
+
+file(READ "${PROJECT_SOURCE_DIR}/VERSION.txt" VERSION_FILE)
+string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)" ASEBA_VERSION ${VERSION_FILE})
+set(ASEBA_VERSION_MAJOR ${CMAKE_MATCH_1})
+set(ASEBA_VERSION_MINOR ${CMAKE_MATCH_2})
+set(ASEBA_VERSION_PATCH ${CMAKE_MATCH_3})
+

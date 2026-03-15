@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/reconnect.dir/reconnect.cpp.o -o reconnect  -Wl,-rpath,/home/runner/work/webots/webots/projects/robots/mobsya/thymio/libraries/dashel ../libdashel.so.1.3.3 

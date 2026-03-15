@@ -1,0 +1,161 @@
+Aseba - an event-based framework for distributed robot control.
+Copyright (C) 2007--2017 the authors, a complete list can be fetched from the git history.
+
+# Authors
+
+The following people have created significant portions of Aseba:
+
+*	[Stéphane Magnenat](http://stephane.magnenat.net) <stephane at magnenat dot net> [1] 10.2006–5.2010, 8.2015–7.2016; [2] 7.2010–6.2014; [3] 6.2010, 8.2016; [4] 9.2016–12.2017; independant: 7.2014–7.2015, 1.2018-
+	project leader, original idea, architecture, core programmer all areas
+	contributed to: all
+
+*	Florian Vaussard <florian dot vaussard at bluewin dot ch> [1]
+	core software engineer, Windows maintainer until 2015
+	contributed to: core, studio, packaging
+
+*	[David James Sherman](http://www.labri.fr/perso/david/Site/David_James_Sherman.html) <david dot sherman at inria dot fr> [5]
+	core software engineer, asebahttp, Zeroconf, Scratch integration
+	contributed to: core, simulator
+
+*	Jiwon Shin <jiwon at shin dot ch> [2]
+	software engineer for VPL
+	contributed to: vpl
+
+*	Thibault Laine <thibault dot laine at inria dot fr> [5]
+	software engineer for Playground
+	contributed to: simulator
+
+*	Philippe Rétornaz <philippe dot retornaz at a3 dot epfl dot ch> [1]
+	software engineer for embedded integration
+	contributed to: core
+
+*	Fabian Hahn <fabian at hahn dot graphics> [1]
+	software engineer for Blockly integration
+	contributed to: blockly
+
+
+# Contributors
+
+The following people have provided additional contributions:
+
+*	Maria María Beltrán <mari_tran at yahoo dot com> [1]
+	VPL re-design - funded by Gebert Rüf Stiftung
+	contributed to: vpl
+
+*	Fanny Riedo <fanny dot riedo at mobsya dot org> [1] 09.2010-12.2014; [3] 02.2015-
+	macOS packaging, translation, quality insurance, bug reporting
+	contributed to: packaging, translation, vpl, studio
+
+*	Michael Bonani <michael dot bonani at mobsya dot org> [1] 10.2006-01.2011; [3] 02.2011-
+	French translation, packaging, quality insurance, bug reporting
+	contributed to: packaging, translation, vpl, studio, blockly
+
+*	Dean Brettle <dean at brettle dot com>
+	RPM packaging
+	contributed to: packaging
+
+*	Martin Voelkle <martin dot voelkle at sampla dot ch> [1]
+	bug reporting and fixing
+	contributed to: vpl
+
+*	Yves Piguet <yves dot piguet at epfl dot ch> [1]
+	bug reporting and fixing
+	contributed to: core, studio
+
+*	Corentin Jabot <corentin dot jabot at gmail dot com> [3]
+	bug fixing and coding contributions
+	contributed to: core
+
+*	Valentin Longchamp <valentin dot longchamp at gmail dot com> [1]
+	inputs on framework architecture, additional coding
+	contributed to: core
+
+*	Severin Klingler <severin dot klinger at ethz dot ch>
+	VPL logging
+	contributed to: vpl
+
+*	Vincent Becker <vincent dot becker at mobsya dot org> [3]
+	Textures for Thymio 3D model
+	contributed to: simulator
+
+*	[Francesco Mondada](https://people.epfl.ch/francesco.mondada) <francesco dot mondada at epfl dot ch> [1]
+	bug reporting and dissemination
+	contributed to: studio, vpl, blockly
+
+*	Stefan Witwicki [1]
+	Examples
+	contributed to: example
+
+*	Basilio Noris <basilio dot noris at gmail dot com>
+	inputs on challenge, graphics design on challenge
+	contributed to: simulator
+
+*	Sandra Moser [2]
+	German translation
+	contributed to: translation
+
+*	Francisco Javier Botero Herrera <fboteroh at gmail dot com>
+	Spanish translation
+	contributed to: translation
+
+*	Ezio Somá <ezio dot soma at gmail dot com>
+	Italian translation
+	contributed to: translation
+
+*	Detlef Rick <detlef dot rick at gymnasium-hittfeld dot de>
+	German translation
+	contributed to: translation
+
+*	Shiling Wang <shilingwang0621 at gmail dot com>
+	Chinese translation
+	contributed to: translation
+
+*	Mamoru Oichi <moichi at exseed-inc dot jp>
+	Japanese translation
+	contributed to: translation
+
+*	Ioanna Theodoropoulou <ioannatheodoropou at hotmail dot com>
+	Greek translation
+	contributed to: translation
+
+*	Vassilis Komis <komis at upatras dot gr>
+	Greek translation
+	contributed to: translation
+
+*	Basil Stotz <basil dot stotz at gmail dot com>
+	Italian translation
+	contributed to: translation
+
+*	Paolo Rossetti <paolo dot rossetti at mobsya dot org> [3]
+	Italian translation
+	contributed to: translation
+
+*	Paraskevas Leivadaros <paraskevasleivadaros at gmail dot com>
+	Greek translation
+	contributed to: translation
+
+# Institutions
+
+Many of the authors and contributors have spent their free time on Aseba.
+In addition, the following institutions have supported the development:
+
+[1]: Mobots group, EPFL (http://mobots.epfl.ch)
+
+[2]: Autonomous Systems Lab, ETH Zurich (http://www.asl.ethz.ch)
+
+[3]: Mobsya Association (http://www.mobsya.org)
+
+[4]: Game Technology Center, ETH Zurich (http://www.gtc.inf.ethz.ch/)
+
+[5]: Inria, France (https://www.inria.fr/en/)
+
+[6]: Enlightware LLC (http://enlightware.ch)
+
+# Other contributions
+
+The user manual is fetched from the Wiki at http://aseba.wikidot.com,
+see there for the list of contributors. The license is
+Creative Commons Attribution-ShareAlike 3.0 License
+
+The icons used in studio are from http://www.everaldo.com/crystal/
+They can be found here: http://websvn.kde.org/branches/KDE/3.5/kdelibs/pics/crystalsvg/

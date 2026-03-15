@@ -1,0 +1,28 @@
+#VRML_SIM R2022b utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/k-team/khepera1/protos/Khepera1.proto"
+
+WorldInfo {
+  info [
+    "A simple park in which a Khepera robot move and avoid bumping into the walls."
+  ]
+  title "Khepera example"
+}
+Viewpoint {
+  orientation 0.30190743385195257 -0.15161605987139684 -0.941203735529137 4.024669054177393
+  position 0.41860658460638994 -0.540755267944258 0.5085980418297132
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+RectangleArena {
+  floorSize 2 2
+}
+Khepera1 {
+  name "khepera"
+  controller "pipe"
+}

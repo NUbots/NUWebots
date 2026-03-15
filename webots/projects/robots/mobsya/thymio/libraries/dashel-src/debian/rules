@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+
+build:
+	mkdir -p debian/build
+	cd debian/build && cmake -D CMAKE_BUILD_TYPE=Release -D BUILD_SHARED_LIBS=false -D CMAKE_INSTALL_PREFIX=../tmp/usr ../..
+	cd debian/build && $(MAKE)
+
+clean:
+	rm -rf debian/files debian/substvars debian/tmp debian/build
+
+binary: binary-arch binary-indep
+
+binary-indep:
+
+binary-arch: build
+	install -d debian/tmp/DEBIAN
+	install -d debian/tmp/usr/share/doc/libdashel
+	install -d debian/tmp/usr/share/doc/libdashel/html
+	cd debian/build && $(MAKE) install
+	strip --strip-unneeded -R .note -R .comment debian/tmp/usr/lib/*.a
+	cp changelog debian/tmp/usr/share/doc/libdashel/changelog
+	cp debian/changelog debian/tmp/usr/share/doc/libdashel/changelog.debian
+	cp debian/copyright debian/tmp/usr/share/doc/libdashel
+	cp -r docs/* debian/tmp/usr/share/doc/libdashel/html
+	rm debian/tmp/usr/share/doc/libdashel/html/jquery.js
+	ln -s ../../../javascript/jquery/jquery.js debian/tmp/usr/share/doc/libdashel/html/jquery.js
+	gzip -n9 debian/tmp/usr/share/doc/libdashel/changelog.debian
+	gzip -n9 debian/tmp/usr/share/doc/libdashel/changelog
+	chown -R root.root debian/tmp
+	chmod -R o-s,go=u,go-ws debian/tmp
+	dpkg-gencontrol
+	dpkg --build debian/tmp ..
