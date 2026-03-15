@@ -1468,13 +1468,24 @@ PROTO nugus
           }
         }
       }
+      # Invisible selection helper - large box for easy click-to-select/drag, no physics impact
+      Transform {
+        translation -0.002001 -0.000010 0.108568
+        children [
+          Shape {
+            geometry Box {
+              size 0.5 0.5 0.6
+            }
+          }
+        ]
+      }
     ]
     name IS name
     boundingObject Transform {
       translation -0.002001 -0.000010 0.108568
       children [
         Box {
-           size 1.0 1.0 1.0
+           size 0.139509 0.189983 0.261804
         }
       ]
     }
