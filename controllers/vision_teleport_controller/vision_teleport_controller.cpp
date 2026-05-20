@@ -314,7 +314,7 @@ int main(int argc, char** argv) {
 
             // Save mono images
             left_camera->saveImage("./data/data_mono/image" + count_padded + ".jpg", image_quality);
-            left_camera->saveRecognitionSegmentationImage("./data/data_mono/image" + count_padded + "_mask.png",
+            left_camera->saveRecognitionSegmentationImage("./data/data_mono/mask" + count_padded + ".png",
                                                           image_quality);
             // Save stereo images
             left_camera->saveImage("./data/data_stereo/image" + count_padded + "_L.jpg", image_quality);
@@ -339,6 +339,29 @@ int main(int argc, char** argv) {
             mono_lens << YAML::Flow << std::vector({Hwc_l(2, 0), Hwc_l(2, 1), Hwc_l(2, 2), Hwc_l(2, 3)});
             mono_lens << YAML::Flow << std::vector({Hwc_l(3, 0), Hwc_l(3, 1), Hwc_l(3, 2), Hwc_l(3, 3)});
             mono_lens << YAML::EndSeq;
+
+            // Add ball position data
+            webots::Node* ball_node = supervisor.getFromDef("ball");
+            if (ball_node != nullptr) {
+                const double* ball_world_pos = ball_node->getField("translation")->getSFVec3f();
+                Eigen::Vector4d ball_world_homogeneous(ball_world_pos[0], ball_world_pos[1], ball_world_pos[2], 1.0);
+                
+                // Transform to camera space
+                Eigen::Affine3d Hcw_l = Hwc_l.inverse();
+                Eigen::Vector4d ball_camera = Hcw_l.matrix() * ball_world_homogeneous;
+                
+                mono_lens << YAML::Key << "seeker";
+                mono_lens << YAML::BeginMap;
+                mono_lens << YAML::Key << "targets";
+                mono_lens << YAML::BeginSeq;
+                mono_lens << YAML::Flow << std::vector({ball_camera.x(), ball_camera.y(), ball_camera.z()});
+                mono_lens << YAML::EndSeq;
+                mono_lens << YAML::EndMap;
+            }
+            else {
+                std::cout << "Warning: Ball node not found!" << std::endl;
+            }
+            
             mono_lens << YAML::EndMap;
 
             // Write the mono lens data
@@ -381,6 +404,37 @@ int main(int argc, char** argv) {
             stereo_lens << YAML::Flow << std::vector({Hwc_r(3, 0), Hwc_r(3, 1), Hwc_r(3, 2), Hwc_r(3, 3)});
             stereo_lens << YAML::EndSeq;
             stereo_lens << YAML::EndMap;
+
+            // Add ball position data for stereo
+            webots::Node* ball_node_stereo = supervisor.getFromDef("ball");
+            if (ball_node_stereo != nullptr) {
+                const double* ball_world_pos = ball_node_stereo->getField("translation")->getSFVec3f();
+                Eigen::Vector4d ball_world_homogeneous(ball_world_pos[0], ball_world_pos[1], ball_world_pos[2], 1.0);
+                
+                // Transform to left camera space
+                Eigen::Affine3d Hcw_l = Hwc_l.inverse();
+                Eigen::Vector4d ball_left_camera = Hcw_l.matrix() * ball_world_homogeneous;
+                
+                // Transform to right camera space
+                Eigen::Affine3d Hcw_r = Hwc_r.inverse();
+                Eigen::Vector4d ball_right_camera = Hcw_r.matrix() * ball_world_homogeneous;
+                
+                stereo_lens << YAML::Key << "seeker";
+                stereo_lens << YAML::BeginMap;
+                stereo_lens << YAML::Key << "left_targets";
+                stereo_lens << YAML::BeginSeq;
+                stereo_lens << YAML::Flow << std::vector({ball_left_camera.x(), ball_left_camera.y(), ball_left_camera.z()});
+                stereo_lens << YAML::EndSeq;
+                stereo_lens << YAML::Key << "right_targets";
+                stereo_lens << YAML::BeginSeq;
+                stereo_lens << YAML::Flow << std::vector({ball_right_camera.x(), ball_right_camera.y(), ball_right_camera.z()});
+                stereo_lens << YAML::EndSeq;
+                stereo_lens << YAML::EndMap;
+            }
+            else {
+                std::cout << "Warning: Ball node not found for stereo!" << std::endl;
+            }
+            
             stereo_lens << YAML::EndMap;
 
             // Write the stereo lens data
