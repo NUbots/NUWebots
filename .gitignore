@@ -19,3 +19,5 @@ controllers/optimisation/optimisation
 
 # Logs
 *.log
+
+.venv/

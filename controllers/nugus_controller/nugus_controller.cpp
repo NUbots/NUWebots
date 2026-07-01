@@ -484,6 +484,10 @@ public:
             case webots::Node::POSITION_SENSOR: {
                 webots::PositionSensor* positionSensor = static_cast<webots::PositionSensor*>(device);
                 positionSensor->enable(time_step);
+                // Also enable torque feedback on the associated motor so we can report servo load
+                if (webots::Motor* motor = positionSensor->getMotor()) {
+                    motor->enableTorqueFeedback(time_step);
+                }
                 break;
             }
             case webots::Node::TOUCH_SENSOR: {
@@ -734,6 +738,13 @@ public:
                 PositionSensorMeasurement* measurement = sensor_measurements.add_position_sensors();
                 measurement->set_name(position_sensor->getName());
                 measurement->set_value(position_sensor->getValue());
+                // Report the associated motor's internal torque feedback as a proxy for servo load.
+                // Keyed by the position sensor name so it maps to the same servo on the NUbots side.
+                if (webots::Motor* motor = position_sensor->getMotor()) {
+                    MotorTorqueMeasurement* torque = sensor_measurements.add_motor_torques();
+                    torque->set_name(position_sensor->getName());
+                    torque->set_value(motor->getTorqueFeedback());
+                }
                 continue;
             }
             webots::TouchSensor* touch_sensor = dynamic_cast<webots::TouchSensor*>(dev);
