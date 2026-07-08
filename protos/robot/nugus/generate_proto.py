@@ -121,6 +121,14 @@ convertUrdfFile(input=urdf_file_path, output=proto_file_path,
 with open(proto_file_path, 'r') as file:
     filedata = file.read()
 
+# Target Webots R2025a and use the JavaScript templating engine (Lua templating was removed in R2025a)
+filedata = re.sub(
+    r"^#VRML_SIM R\d{4}[ab] utf8",
+    "#VRML_SIM R2025a utf8\n# template language: javascript",
+    filedata,
+    count=1,
+)
+
 # Replace constants block
 filedata = filedata.replace('''PROTO nugus [
   field  SFVec3f     translation     0 0 0
@@ -191,39 +199,38 @@ filedata = filedata.replace(
 filedata = filedata.replace('''recognitionColors IS recognitionColors
     children [''', '''recognitionColors IS recognitionColors
     children [
-                            %{
-                              if fields.name.value ~= '' then
-                                -- name is supposed to be something like "red player 2" or "blue player 1"
-                                local words = {}
-                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                local color = words[1]
-                                local number = words[3]
-                            }%
-                            Transform {
+                            %<
+                              if (fields.name.value !== '') {
+                                // name is supposed to be something like "red player 2" or "blue player 1"
+                                const words = fields.name.value.match(/\\w+/g);
+                                var color = words[0];
+                                var number = words[2];
+                            >%
+                            Pose {
                               translation 0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyFront {
                                   jerseyFrontTexture [
-                                  %{='"./NUgus_textures/NUgus_front_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  %<= '"./NUgus_textures/NUgus_front_' + color + '_' + number + '.jpg"' >%
                                   ]
                                 }
                               ]
                             }
 
-                            Transform {
+                            Pose {
                               translation -0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyBack {
                                   jerseyBackTexture [
-                                  %{='"./NUgus_textures/NUgus_back_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
-                                  %{ end }%
+                                  %<= '"./NUgus_textures/NUgus_back_' + color + '_' + number + '.jpg"' >%
+                                  %< } >%
                                   ]
                                 }
                               ]
                             }
-                            Transform {
+                            Pose {
                                 # Accelerometer and Gyro are positioned 0.2m above torso base
                                 translation 0.000000 0.000000 0.2
                                 children [
@@ -282,8 +289,8 @@ filedata = filedata.replace(
                         height IS cameraHeight
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        # We are using a rectilinear lens because there is no true spherical lens
-                        spherical FALSE
+                        # We are using a rectilinear (planar) projection because there is no true spherical lens
+                        projection "planar"
                         # Set the recognition parameters from the left camera
                         recognition USE recognition
                       }
@@ -302,8 +309,8 @@ filedata = filedata.replace(
                         height IS cameraHeight
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        # We are using a rectilinear lens because there is no true spherical lens
-                        spherical FALSE
+                        # We are using a rectilinear (planar) projection because there is no true spherical lens
+                        projection "planar"
                         # Allows the robot to detect objects in the world
                         recognition DEF recognition Recognition {
                           frameThickness 0       # Remove bounding boxes
@@ -406,7 +413,7 @@ filedata = filedata.replace(''']
                                               }
                                             ]
                                             # Bounding object uses geometry from touch_shape
-                                            boundingObject DEF touch_box Transform {
+                                            boundingObject DEF touch_box Pose {
                                               translation 0.0 0.0 0.0
                                               rotation 0.0 0.0 1.0 1.571
                                               children [
@@ -464,8 +471,6 @@ filedata = filedata.replace(
 filedata = filedata.replace(
     '''name "left_hip_roll"''', '''name "left_hip_roll [hip]"''')
 
-# Fix naming issue of bounding object caused by urdf2webots tool
-filedata = filedata.replace("boundingObject Pose", "boundingObject Transform")
 
 # Fix issue with mass of bounding object
 filedata = filedata.replace("mass 0.000000", "mass 1e-8")

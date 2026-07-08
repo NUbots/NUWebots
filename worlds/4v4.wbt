@@ -1,4 +1,4 @@
-#VRML_SIM R2022b utf8
+#VRML_SIM R2025a utf8
 
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RoboCupBackground.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupSoccerField.proto"

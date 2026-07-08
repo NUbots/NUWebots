@@ -1,6 +1,6 @@
-#VRML_SIM R2022b utf8
+#VRML_SIM R2025a utf8
 
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2022b/projects/robots/robotis/darwin-op/protos/RobotisJersey.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/robotis/darwin-op/protos/RobotisJersey.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupSoccerField.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/RobocupTexturedSoccerBall.proto"
 IMPORTABLE EXTERNPROTO "../protos/robocup_field/lighting/RoboCupMainLight.proto"

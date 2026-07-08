@@ -1,4 +1,4 @@
-#VRML_SIM R2022b utf8
+#VRML_SIM R2025a utf8
 # license: Copyright Cyberbotics Ltd. Licensed for use only with Webots.
 # license url: https://cyberbotics.com/webots_assets_license
 # A textured soccer ball with customizable radius and mass.
@@ -20,13 +20,11 @@ PROTO RobocupTexturedSoccerBall [
     const mass_array = {1: 0.205, 2: 0.250, 3: 0.310, 4: 0.370, 5: 0.430};
     const radius = radius_array[size];
     const mass = mass_array[size];
-    const scale = radius * 10.4;
   >%
   Solid {
     translation IS translation
     rotation IS rotation
     recognitionColors IS recognitionColors
-    scale %<= scale >% %<= scale >% %<= scale >%
     children [
       DEF BALL_SHAPE Shape {
         appearance PBRAppearance {
@@ -38,7 +36,7 @@ PROTO RobocupTexturedSoccerBall [
           }
         }
         geometry Sphere {
-          radius %<= radius / scale >%
+          radius %<= radius >%
           subdivision 3
         }
       }
@@ -47,7 +45,7 @@ PROTO RobocupTexturedSoccerBall [
     model "soccer ball"
     contactMaterial "robocup soccer ball"
     boundingObject Sphere {
-      radius %<= radius / scale >%
+      radius %<= radius >%
       subdivision 3
     }
     physics Physics {

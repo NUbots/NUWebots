@@ -19,7 +19,7 @@ target_include_directories(nugus_controller SYSTEM PRIVATE "${PROJECT_BINARY_DIR
 target_link_libraries(nugus_controller PRIVATE webots::webots)
 target_link_libraries(nugus_controller PRIVATE Eigen3::Eigen)
 # Link against the protobuf-lite target (this will also add any necessary include directories to our target)
-target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf-lite)
+target_link_libraries(nugus_controller PRIVATE protobuf::libprotobuf)
 
 # Generate binary in controller source directory
 set_target_properties(

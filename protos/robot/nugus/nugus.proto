@@ -1,6 +1,7 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
+# template language: javascript
 # This is a proto file for Webots for the nugus
 # Extracted from: /home/tom/NUbots/NUWebots/protos/robot/nugus/robot.urdf
 
@@ -57,39 +58,38 @@ PROTO nugus
     selfCollision IS selfCollision
     recognitionColors IS recognitionColors
     children [
-                            %{
-                              if fields.name.value ~= '' then
-                                -- name is supposed to be something like "red player 2" or "blue player 1"
-                                local words = {}
-                                for word in fields.name.value:gmatch("%w+") do table.insert(words, word) end
-                                local color = words[1]
-                                local number = words[3]
-                            }%
-                            Transform {
+                            %<
+                              if (fields.name.value !== '') {
+                                // name is supposed to be something like "red player 2" or "blue player 1"
+                                const words = fields.name.value.match(/\w+/g);
+                                var color = words[0];
+                                var number = words[2];
+                            >%
+                            Pose {
                               translation 0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyFront {
                                   jerseyFrontTexture [
-                                  %{='"./NUgus_textures/NUgus_front_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
+                                  %<= '"./NUgus_textures/NUgus_front_' + color + '_' + number + '.jpg"' >%
                                   ]
                                 }
                               ]
                             }
 
-                            Transform {
+                            Pose {
                               translation -0.00250000 0.000000 -0.0010000
                               rotation 0.000000 0.000000 1.000000 1.570790
                               children [
                                 JerseyBack {
                                   jerseyBackTexture [
-                                  %{='"./NUgus_textures/NUgus_back_' .. tostring(color)  .. '_' .. tostring(number) .. '.jpg"'}%
-                                  %{ end }%
+                                  %<= '"./NUgus_textures/NUgus_back_' + color + '_' + number + '.jpg"' >%
+                                  %< } >%
                                   ]
                                 }
                               ]
                             }
-                            Transform {
+                            Pose {
                                 # Accelerometer and Gyro are positioned 0.2m above torso base
                                 translation 0.000000 0.000000 0.2
                                 children [
@@ -361,7 +361,7 @@ PROTO nugus
                                               }
                                             ]
                                             name "left_foot_base"
-                                            boundingObject Transform {
+                                            boundingObject Pose {
                                               translation 0.000000 0.000000 0.000005
                                               children [
                                                 Box {
@@ -394,7 +394,7 @@ PROTO nugus
                                               }
                                             ]
                                             # Bounding object uses geometry from touch_shape
-                                            boundingObject DEF touch_box Transform {
+                                            boundingObject DEF touch_box Pose {
                                               translation 0.0 0.0 0.0
                                               rotation 0.0 0.0 1.0 1.571
                                               children [
@@ -442,7 +442,7 @@ PROTO nugus
                                           }
                                         ]
                                         name "left_foot [foot]"
-                                        boundingObject Transform {
+                                        boundingObject Pose {
                                           translation 0.009503 0.010944 0.021160
                                           children [
                                             Box {
@@ -463,7 +463,7 @@ PROTO nugus
                                     }
                                   ]
                                   name "left_ankle"
-                                  boundingObject Transform {
+                                  boundingObject Pose {
                                     translation -0.017756 0.027094 -0.001668
                                     children [
                                       Box {
@@ -484,7 +484,7 @@ PROTO nugus
                               }
                             ]
                             name "left_lower_leg"
-                            boundingObject Transform {
+                            boundingObject Pose {
                               translation 0.100101 0.001000 0.000000
                               children [
                                 Box {
@@ -505,7 +505,7 @@ PROTO nugus
                         }
                       ]
                       name "left_upper_leg"
-                      boundingObject Transform {
+                      boundingObject Pose {
                         translation 0.103064 0.030367 0.000000
                         children [
                           Box {
@@ -526,7 +526,7 @@ PROTO nugus
                   }
                 ]
                 name "left_hip_roll [hip]"
-                boundingObject Transform {
+                boundingObject Pose {
                   translation 0.021138 0.001350 -0.026825
                   children [
                     Box {
@@ -547,7 +547,7 @@ PROTO nugus
             }
           ]
           name "left_hip_yaw"
-          boundingObject Transform {
+          boundingObject Pose {
             translation 0.000000 -0.007237 -0.036750
             children [
               Box {
@@ -783,7 +783,7 @@ PROTO nugus
                                               }
                                             ]
                                             name "right_foot_base"
-                                            boundingObject Transform {
+                                            boundingObject Pose {
                                               translation 0.000000 0.000000 0.000005
                                               children [
                                                 Box {
@@ -835,7 +835,7 @@ PROTO nugus
                                           }
                                         ]
                                         name "right_foot [foot]"
-                                        boundingObject Transform {
+                                        boundingObject Pose {
                                           translation 0.009507 -0.010945 0.021160
                                           children [
                                             Box {
@@ -856,7 +856,7 @@ PROTO nugus
                                     }
                                   ]
                                   name "right_ankle"
-                                  boundingObject Transform {
+                                  boundingObject Pose {
                                     translation -0.017756 0.026944 -0.001668
                                     children [
                                       Box {
@@ -877,7 +877,7 @@ PROTO nugus
                               }
                             ]
                             name "right_lower_leg"
-                            boundingObject Transform {
+                            boundingObject Pose {
                               translation 0.100101 0.001000 0.000000
                               children [
                                 Box {
@@ -898,7 +898,7 @@ PROTO nugus
                         }
                       ]
                       name "right_upper_leg"
-                      boundingObject Transform {
+                      boundingObject Pose {
                         translation 0.103064 0.030367 -0.000000
                         children [
                           Box {
@@ -919,7 +919,7 @@ PROTO nugus
                   }
                 ]
                 name "right_hip_roll [hip]"
-                boundingObject Transform {
+                boundingObject Pose {
                   translation 0.018050 -0.003150 -0.026950
                   children [
                     Box {
@@ -940,7 +940,7 @@ PROTO nugus
             }
           ]
           name "right_hip_yaw"
-          boundingObject Transform {
+          boundingObject Pose {
             translation 0.000000 0.007237 -0.036750
             children [
               Box {
@@ -1052,8 +1052,8 @@ PROTO nugus
                         height IS cameraHeight
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        # We are using a rectilinear lens because there is no true spherical lens
-                        spherical FALSE
+                        # We are using a rectilinear (planar) projection because there is no true spherical lens
+                        projection "planar"
                         # Allows the robot to detect objects in the world
                         recognition DEF recognition Recognition {
                           frameThickness 0       # Remove bounding boxes
@@ -1088,8 +1088,8 @@ PROTO nugus
                         height IS cameraHeight
                         noise IS cameraNoise
                         motionBlur IS cameraMotionBlur
-                        # We are using a rectilinear lens because there is no true spherical lens
-                        spherical FALSE
+                        # We are using a rectilinear (planar) projection because there is no true spherical lens
+                        projection "planar"
                         # Set the recognition parameters from the left camera
                         recognition USE recognition
                       }
@@ -1098,7 +1098,7 @@ PROTO nugus
                   }
                 ]
                 name "head"
-                boundingObject Transform {
+                boundingObject Pose {
                   translation -0.065929 -0.004332 -0.000205
                   children [
                     Box {
@@ -1119,7 +1119,7 @@ PROTO nugus
             }
           ]
           name "neck"
-          boundingObject Transform {
+          boundingObject Pose {
             translation -0.000245 -0.002755 0.030682
             children [
               Box {
@@ -1242,7 +1242,7 @@ PROTO nugus
                         }
                       ]
                       name "left_lower_arm"
-                      boundingObject Transform {
+                      boundingObject Pose {
                         translation -0.002479 -0.095649 -0.002522
                         children [
                           Box {
@@ -1263,7 +1263,7 @@ PROTO nugus
                   }
                 ]
                 name "left_upper_arm"
-                boundingObject Transform {
+                boundingObject Pose {
                   translation 0.073032 -0.000014 0.010696
                   children [
                     Box {
@@ -1284,7 +1284,7 @@ PROTO nugus
             }
           ]
           name "left_shoulder"
-          boundingObject Transform {
+          boundingObject Pose {
             translation 0.000000 -0.000721 0.039687
             children [
               Box {
@@ -1407,7 +1407,7 @@ PROTO nugus
                         }
                       ]
                       name "right_lower_arm"
-                      boundingObject Transform {
+                      boundingObject Pose {
                         translation -0.002479 -0.095659 0.002539
                         children [
                           Box {
@@ -1428,7 +1428,7 @@ PROTO nugus
                   }
                 ]
                 name "right_upper_arm"
-                boundingObject Transform {
+                boundingObject Pose {
                   translation 0.073028 0.000014 0.010696
                   children [
                     Box {
@@ -1449,7 +1449,7 @@ PROTO nugus
             }
           ]
           name "right_shoulder"
-          boundingObject Transform {
+          boundingObject Pose {
             translation 0.000000 -0.000734 -0.039681
             children [
               Box {
@@ -1469,7 +1469,7 @@ PROTO nugus
         }
       }
       # Invisible selection helper - body-shaped box for easy click-to-select/drag, no physics impact
-      Transform {
+      Pose {
         translation 0.0 0.0 0.0
         children [
           Shape {
@@ -1484,7 +1484,7 @@ PROTO nugus
       }
     ]
     name IS name
-    boundingObject Transform {
+    boundingObject Pose {
       translation -0.002001 -0.000010 0.108568
       children [
         Box {
