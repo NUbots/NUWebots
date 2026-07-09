@@ -1,8 +1,8 @@
-#VRML_SIM R2023b utf8
+#VRML_SIM R2025a utf8
 # license: Apache License 2.0
 # license url: http://www.apache.org/licenses/LICENSE-2.0
 # This is a proto file for Webots for the nugus
-# Extracted from: /home/tom/NUbots/NUWebots/protos/robot/nugus/robot.urdf
+# Extracted from: /home/theri/NUWebots/protos/robot/nugus/robot.urdf
 
 
 EXTERNPROTO "JerseyBack.proto"
@@ -24,11 +24,58 @@ PROTO nugus
     field  SFBool      synchronization      TRUE
     # Is `Robot.selfCollision`.
     field  SFBool      selfCollision        FALSE
-    # MOTOR PARAMETER: See section 2. of docs/Robot_Model_RoboCup_2021 for more information
-    field  SFFloat     MX106-torque         10.00
-    field  SFFloat     MX106-vel            10.00
-    field  SFFloat     MX106-damping        1.23
-    field  SFFloat     MX106-friction       2.55
+    # MOTOR PARAMETERS
+    # Each Dynamixel model is described by its electrical constants at a 14.8 V bus.
+    #
+    # useVoltageModel (default FALSE) selects how each motor's actuator limits are set:
+    #   FALSE -> fixed nominal limits (the literals injected below); voltage/current/K are
+    #            inert documentation. This is the plain, backwards-compatible behaviour.
+    #   TRUE  -> limits are DERIVED from the electrical fields, so voltage and current
+    #            actually drive the model and can be overridden per robot instance:
+    #                maxTorque   [N.m]   = K * current    (stall torque = K * stall current)
+    #                maxVelocity [rad/s] = voltage / K    (no-load speed = V / back-EMF const)
+    # Both paths yield the same nominal numbers (the electrical fields are calibrated to
+    # reproduce the fixed limits); the toggle only changes whether they are live or fixed.
+    # NB: the nominal maxVelocity values (see NOMINAL below) must match the nubots
+    # controller's max_velocity_* config (module/platform/Webots/data/config/Webots.yaml),
+    # which caps commanded servo speed -- otherwise the walk fights the actuator limit.
+    #
+    # K is the joint-side torque/back-EMF constant [N.m/A] (gearbox lumped in) and current
+    # is the stall current V/R, both from system identification (servo_id_results.json)
+    # unless noted.
+    field  SFBool      useVoltageModel      FALSE
+    # MX64: shoulder pitch/roll, elbow, neck yaw, head pitch (8 total)
+    #   K/current reproduce the 2021 doc's datasheet torque (7.30 N.m) and no-load speed
+    #   (8.17 rad/s, docs/Robot_Model_RoboCup_2021) -- the sys-id fit for these joints was
+    #   either poor (shoulder roll, elbow, head pan/tilt) or, for shoulder pitch, implied an
+    #   implausible no-load speed (~3x datasheet) off only 2 well-fit joints, too thin a
+    #   sample to trust over the bench-derived datasheet numbers.
+    # Field names use underscores, not hyphens: the template engine looks them up in the
+    # Lua `fields` table (fields.MX64_voltage.value etc.) and hyphenated names are not
+    # exposed there (they resolve for `IS` but come back nil in the template).
+    field  SFFloat     MX64_voltage         14.8
+    field  SFFloat     MX64_current         4.03             # stall current: datasheet torque/speed => I = torque * vel / voltage
+    field  SFFloat     MX64_K               1.8115           # = voltage / datasheet no-load speed (8.17 rad/s)
+    field  SFFloat     MX64_damping         0.65
+    field  SFFloat     MX64_friction        1.73
+    # MX106: hip yaw only (2 total)
+    #   K and current (= V/R) from the MX106 group electrical fit (fit quality: moderate,
+    #   elec R^2 ~0.67). => maxTorque ~21.8 N.m, maxVelocity ~4.87 rad/s.
+    field  SFFloat     MX106_voltage        14.8
+    field  SFFloat     MX106_current        7.18             # = voltage / group R (2.0625 ohm)
+    field  SFFloat     MX106_K              3.0404           # group back-EMF constant
+    field  SFFloat     MX106_damping        1.23             # bench value, unchanged
+    field  SFFloat     MX106_friction       2.55             # bench value, unchanged
+    # XH540: hip roll/pitch, knee, ankle pitch/roll (10 total)
+    #   K and current (= V/R) from the XH540 group electrical fit (good fit, elec R^2 ~0.97).
+    #   => maxTorque ~20.3 N.m, maxVelocity ~5.40 rad/s. The group K_simultaneous is a
+    #   load-biased diagnostic (see servo_system_id.py) and is deliberately not used.
+    #   damping/friction have no bench measurement for XH540 yet; MX106 values used as a stand-in.
+    field  SFFloat     XH540_voltage        14.8
+    field  SFFloat     XH540_current        7.40             # = voltage / group R (1.9991 ohm)
+    field  SFFloat     XH540_K              2.7391           # group back-EMF constant
+    field  SFFloat     XH540_damping        1.23             # MX106 bench value used as stand-in, pending XH540 bench data
+    field  SFFloat     XH540_friction       2.55             # MX106 bench value used as stand-in, pending XH540 bench data
     field  SFFloat     DYNAMIXEL-RESOLUTION 0.0015
     # CAMERA PARAMETERS: See docs for more information
     # Approximates PI/2 radians (90 degrees)
@@ -145,18 +192,18 @@ PROTO nugus
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX106_damping
+                    staticFriction IS MX106_friction
           axis 0.000000 0.000000 1.000000
           anchor 0.000000 0.055000 0.000000
         }
         device [
           RotationalMotor {
             name "left_hip_yaw"
-            maxVelocity IS MX106-vel
+            maxVelocity %{= fields.useVoltageModel.value and (fields.MX106_voltage.value / fields.MX106_K.value) or 4.87 }%
             minPosition -3.14159
             maxPosition 3.14159
-            maxTorque IS MX106-torque
+            maxTorque %{= fields.useVoltageModel.value and (fields.MX106_K.value * fields.MX106_current.value) or 21.83 }%
           }
           PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -178,18 +225,18 @@ PROTO nugus
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                 axis 1.000000 -0.000000 -0.000004
                 anchor 0.022133 0.000000 -0.054500
               }
               device [
                 RotationalMotor {
                   name "left_hip_roll [hip]"
-                  maxVelocity IS MX106-vel
+                  maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                   minPosition -3.14159
                   maxPosition 3.14159
-                  maxTorque IS MX106-torque
+                  maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -212,18 +259,18 @@ PROTO nugus
                   }
                   HingeJoint {
                     jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                       axis -0.000000 1.000000 -0.000004
                       anchor 0.000000 0.000000 -0.000000
                     }
                     device [
                       RotationalMotor {
                         name "left_hip_pitch"
-                        maxVelocity IS MX106-vel
+                        maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                         minPosition -3.14159
                         maxPosition 3.14159
-                        maxTorque IS MX106-torque
+                        maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                       }
                       PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -246,18 +293,18 @@ PROTO nugus
                         }
                         HingeJoint {
                           jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                             axis -0.000000 0.000000 1.000000
                             anchor 0.206046 0.056950 -0.000000
                           }
                           device [
                             RotationalMotor {
                               name "left_knee_pitch"
-                              maxVelocity IS MX106-vel
+                              maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                               minPosition -3.14159
                               maxPosition 3.14159
-                              maxTorque IS MX106-torque
+                              maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                             }
                             PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -280,18 +327,18 @@ PROTO nugus
                               }
                               HingeJoint {
                                 jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                                   axis 0.000000 0.000000 1.000000
                                   anchor 0.200203 -0.000000 0.000000
                                 }
                                 device [
                                   RotationalMotor {
                                     name "left_ankle_pitch"
-                                    maxVelocity IS MX106-vel
+                                    maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                                     minPosition -3.14159
                                     maxPosition 3.14159
-                                    maxTorque IS MX106-torque
+                                    maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                                   }
                                   PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -313,18 +360,18 @@ PROTO nugus
                                     }
                                     HingeJoint {
                                       jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                                         axis -0.000000 -1.000000 -0.000004
                                         anchor 0.000000 -0.000000 -0.000000
                                       }
                                       device [
                                         RotationalMotor {
                                           name "left_ankle_roll"
-                                          maxVelocity IS MX106-vel
+                                          maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                                           minPosition -3.14159
                                           maxPosition 3.14159
-                                          maxTorque IS MX106-torque
+                                          maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                                         }
                                         PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -568,18 +615,18 @@ PROTO nugus
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX106_damping
+                    staticFriction IS MX106_friction
           axis 0.000000 0.000000 1.000000
           anchor -0.000000 -0.055000 -0.000000
         }
         device [
           RotationalMotor {
             name "right_hip_yaw"
-            maxVelocity IS MX106-vel
+            maxVelocity %{= fields.useVoltageModel.value and (fields.MX106_voltage.value / fields.MX106_K.value) or 4.87 }%
             minPosition -3.14159
             maxPosition 3.14159
-            maxTorque IS MX106-torque
+            maxTorque %{= fields.useVoltageModel.value and (fields.MX106_K.value * fields.MX106_current.value) or 21.83 }%
           }
           PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -601,18 +648,18 @@ PROTO nugus
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                 axis 1.000000 -0.000000 -0.000004
                 anchor 0.022133 0.000000 -0.054500
               }
               device [
                 RotationalMotor {
                   name "right_hip_roll [hip]"
-                  maxVelocity IS MX106-vel
+                  maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                   minPosition -3.14159
                   maxPosition 3.14159
-                  maxTorque IS MX106-torque
+                  maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -635,18 +682,18 @@ PROTO nugus
                   }
                   HingeJoint {
                     jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                       axis 0.000000 1.000000 -0.000004
                       anchor -0.000000 0.000000 0.000000
                     }
                     device [
                       RotationalMotor {
                         name "right_hip_pitch"
-                        maxVelocity IS MX106-vel
+                        maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                         minPosition -3.14159
                         maxPosition 3.14159
-                        maxTorque IS MX106-torque
+                        maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                       }
                       PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -669,18 +716,18 @@ PROTO nugus
                         }
                         HingeJoint {
                           jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                             axis 0.000000 0.000000 1.000000
                             anchor 0.206046 0.056950 -0.000000
                           }
                           device [
                             RotationalMotor {
                               name "right_knee_pitch"
-                              maxVelocity IS MX106-vel
+                              maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                               minPosition -3.14159
                               maxPosition 3.14159
-                              maxTorque IS MX106-torque
+                              maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                             }
                             PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -702,18 +749,18 @@ PROTO nugus
                               }
                               HingeJoint {
                                 jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                                   axis 0.000000 0.000000 1.000000
                                   anchor 0.200203 0.000000 -0.000000
                                 }
                                 device [
                                   RotationalMotor {
                                     name "right_ankle_pitch"
-                                    maxVelocity IS MX106-vel
+                                    maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                                     minPosition -3.14159
                                     maxPosition 3.14159
-                                    maxTorque IS MX106-torque
+                                    maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                                   }
                                   PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -735,18 +782,18 @@ PROTO nugus
                                     }
                                     HingeJoint {
                                       jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS XH540_damping
+                    staticFriction IS XH540_friction
                                         axis 0.000000 -1.000000 -0.000004
                                         anchor 0.000000 0.000000 -0.000000
                                       }
                                       device [
                                         RotationalMotor {
                                           name "right_ankle_roll"
-                                          maxVelocity IS MX106-vel
+                                          maxVelocity %{= fields.useVoltageModel.value and (fields.XH540_voltage.value / fields.XH540_K.value) or 5.4 }%
                                           minPosition -3.14159
                                           maxPosition 3.14159
-                                          maxTorque IS MX106-torque
+                                          maxTorque %{= fields.useVoltageModel.value and (fields.XH540_K.value * fields.XH540_current.value) or 20.27 }%
                                         }
                                         PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -961,18 +1008,18 @@ PROTO nugus
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
           axis -0.000000 -0.000000 1.000000
           anchor -0.008000 0.000000 0.208250
         }
         device [
           RotationalMotor {
             name "neck_yaw"
-            maxVelocity IS MX106-vel
+            maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
             minPosition -3.14159
             maxPosition 3.14159
-            maxTorque IS MX106-torque
+            maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
           }
           PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -995,18 +1042,18 @@ PROTO nugus
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
                 axis -0.000004 -1.000000 0.000000
                 anchor -0.000245 -0.000255 0.048100
               }
               device [
                 RotationalMotor {
                   name "head_pitch"
-                  maxVelocity IS MX106-vel
+                  maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
                   minPosition -3.14159
                   maxPosition 3.14159
-                  maxTorque IS MX106-torque
+                  maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1140,18 +1187,18 @@ PROTO nugus
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
           axis -0.000004 1.000000 0.000000
           anchor -0.000000 0.077000 0.177250
         }
         device [
           RotationalMotor {
             name "left_shoulder_pitch [shoulder]"
-            maxVelocity IS MX106-vel
+            maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
             minPosition -3.14159
             maxPosition 3.14159
-            maxTorque IS MX106-torque
+            maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
           }
           PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1174,18 +1221,18 @@ PROTO nugus
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
                 axis -1.000000 0.000004 -0.000004
                 anchor 0.000000 -0.010001 0.047912
               }
               device [
                 RotationalMotor {
                   name "left_shoulder_roll"
-                  maxVelocity IS MX106-vel
+                  maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
                   minPosition -3.14159
                   maxPosition 3.14159
-                  maxTorque IS MX106-torque
+                  maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1208,18 +1255,18 @@ PROTO nugus
                   }
                   HingeJoint {
                     jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
                       axis -0.000004 1.000000 0.000000
                       anchor 0.157500 -0.000056 0.026950
                     }
                     device [
                       RotationalMotor {
                         name "left_elbow_pitch"
-                        maxVelocity IS MX106-vel
+                        maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
                         minPosition -3.14159
                         maxPosition 3.14159
-                        maxTorque IS MX106-torque
+                        maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
                       }
                       PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1305,18 +1352,18 @@ PROTO nugus
       }
       HingeJoint {
         jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
           axis -0.000004 1.000000 0.000000
           anchor -0.000000 -0.077000 0.177250
         }
         device [
           RotationalMotor {
             name "right_shoulder_pitch [shoulder]"
-            maxVelocity IS MX106-vel
+            maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
             minPosition -3.14159
             maxPosition 3.14159
-            maxTorque IS MX106-torque
+            maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
           }
           PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1339,18 +1386,18 @@ PROTO nugus
             }
             HingeJoint {
               jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
                 axis -1.000000 0.000004 -0.000004
                 anchor 0.000000 -0.010001 -0.047912
               }
               device [
                 RotationalMotor {
                   name "right_shoulder_roll"
-                  maxVelocity IS MX106-vel
+                  maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
                   minPosition -3.14159
                   maxPosition 3.14159
-                  maxTorque IS MX106-torque
+                  maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
                 }
                 PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1373,18 +1420,18 @@ PROTO nugus
                   }
                   HingeJoint {
                     jointParameters HingeJointParameters {
-                    dampingConstant IS MX106-damping
-                    staticFriction IS MX106-friction
+                    dampingConstant IS MX64_damping
+                    staticFriction IS MX64_friction
                       axis -0.000004 1.000000 0.000000
                       anchor 0.157500 0.000056 0.026950
                     }
                     device [
                       RotationalMotor {
                         name "right_elbow_pitch"
-                        maxVelocity IS MX106-vel
+                        maxVelocity %{= fields.useVoltageModel.value and (fields.MX64_voltage.value / fields.MX64_K.value) or 8.17 }%
                         minPosition -3.14159
                         maxPosition 3.14159
-                        maxTorque IS MX106-torque
+                        maxTorque %{= fields.useVoltageModel.value and (fields.MX64_K.value * fields.MX64_current.value) or 7.3 }%
                       }
                       PositionSensor {
                  resolution IS DYNAMIXEL-RESOLUTION
@@ -1467,20 +1514,6 @@ PROTO nugus
             ]
           }
         }
-      }
-      # Invisible selection helper - body-shaped box for easy click-to-select/drag, no physics impact
-      Transform {
-        translation 0.0 0.0 0.0
-        children [
-          Shape {
-            appearance PBRAppearance {
-              transparency 0.99
-            }
-            geometry Box {
-              size 0.8 0.8 0.8
-            }
-          }
-        ]
       }
     ]
     name IS name
