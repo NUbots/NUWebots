@@ -745,6 +745,28 @@ public:
                     torque->set_name(position_sensor->getName());
                     torque->set_value(motor->getTorqueFeedback());
                 }
+                // Joint velocity: Webots has no measured-velocity API, so finite-difference the
+                // position sensor. The position is deliberately quantised to the Dynamixel encoder
+                // resolution, so the raw difference is stepped; a light exponential low-pass takes
+                // the edge off without adding meaningful lag. Keyed by device so joints are
+                // independent, and by sensor name downstream so it maps to the same servo.
+                {
+                    const double position = position_sensor->getValue();
+                    auto prev             = previous_position.find(dev);
+                    if (prev != previous_position.end()) {
+                        const double dt    = position_sensor->getSamplingPeriod() / 1000.0;  // ms -> s
+                        const double v_raw = (position - prev->second) / dt;
+                        // alpha = fraction of the new sample kept; ~1.0 is effectively no filtering
+                        constexpr double velocity_filter_alpha = 0.7;
+                        double& v_filt = filtered_velocity[dev];
+                        v_filt = velocity_filter_alpha * v_raw + (1.0 - velocity_filter_alpha) * v_filt;
+
+                        MotorVelocityMeasurement* velocity = sensor_measurements.add_motor_velocities();
+                        velocity->set_name(position_sensor->getName());
+                        velocity->set_value(v_filt);
+                    }
+                    previous_position[dev] = position;
+                }
                 continue;
             }
             webots::TouchSensor* touch_sensor = dynamic_cast<webots::TouchSensor*>(dev);
@@ -948,6 +970,9 @@ private:
     std::vector<MotorCommand*> motor_commands;
     uint32_t controller_time;
     std::map<webots::Device*, uint32_t> start_sensoring_time;
+    // Per-joint state for finite-differenced joint velocity (see position sensor handling)
+    std::map<webots::Device*, double> previous_position;   // last position sample [rad]
+    std::map<webots::Device*, double> filtered_velocity;   // low-pass filtered velocity [rad/s]
     char* recv_buffer;
     int recv_index;
     int recv_size;

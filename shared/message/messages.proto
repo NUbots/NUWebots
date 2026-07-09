@@ -47,6 +47,13 @@ message MotorTorqueMeasurement {
     double value = 2;  // internal motor torque feedback [N.m]
 }
 
+// NUbots-specific: joint velocity, computed by finite-differencing the (quantised) position sensor.
+// Mirrors the real Dynamixel Present Velocity register, which the position feedback also feeds.
+message MotorVelocityMeasurement {
+    string name  = 1;
+    double value = 2;  // joint angular velocity [rad/s]
+}
+
 message AccelerometerMeasurement {
     string  name  = 1;
     Vector3 value = 2;  // [m/sˆ2], x-axis, y-axis, z-axis
@@ -159,6 +166,8 @@ message SensorMeasurements {
     bool                      reset_done     = 103;
     // Internal motor torque feedback per servo, used as a proxy for servo load/present current
     repeated MotorTorqueMeasurement motor_torques = 104;
+    // Joint velocity per servo, finite-differenced from the position sensor
+    repeated MotorVelocityMeasurement motor_velocities = 105;
 }
 
 message MotorPosition {
