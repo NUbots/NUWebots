@@ -54,6 +54,16 @@ message MotorVelocityMeasurement {
     double value = 2;  // joint angular velocity [rad/s]
 }
 
+// NUbots-specific: present supply (bus) voltage at this servo, from the shared-battery sag
+// model (see nugus_controller.cpp). This is NOT the fixed per-motor-type nominal voltage used
+// to size actuator limits in nugus.proto -- it is the live, load-dependent bus voltage, which
+// sags when several servos draw current simultaneously. Mirrors the real Dynamixel Present
+// Voltage register.
+message MotorVoltageMeasurement {
+    string name  = 1;
+    double value = 2;  // present supply voltage at this servo [V]
+}
+
 message AccelerometerMeasurement {
     string  name  = 1;
     Vector3 value = 2;  // [m/sˆ2], x-axis, y-axis, z-axis
@@ -168,6 +178,8 @@ message SensorMeasurements {
     repeated MotorTorqueMeasurement motor_torques = 104;
     // Joint velocity per servo, finite-differenced from the position sensor
     repeated MotorVelocityMeasurement motor_velocities = 105;
+    // Present supply (bus) voltage per servo, from the shared-battery sag model
+    repeated MotorVoltageMeasurement motor_voltages = 106;
 }
 
 message MotorPosition {

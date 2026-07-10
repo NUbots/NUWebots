@@ -227,6 +227,68 @@ static void warn(SensorMeasurements& sensor_measurements, std::string text) {
     message->set_text(text);
 }
 
+// --- Shared-bus voltage sag model ------------------------------------------------------
+// Real NUgus servos share one LiPo bus. The per-motor-type "voltage" fields in nugus.proto
+// (MX64_voltage etc.) are each motor's NOMINAL rating -- a fixed constant used only to size
+// unloaded maxTorque/maxVelocity -- and are NOT a model of what the bus actually does. The
+// real supply voltage sags dynamically as servos draw current, and it is a SHARED sag: many
+// servos loading up at once (e.g. a deep squat) costs every servo on the bus voltage
+// headroom simultaneously, not just the loaded ones. Daisy-chained servos further from the
+// battery also see an additional local drop.
+//
+// Measured on hardware (docs/plans/sim2real-training-regime/17-servo-sysid.md "power"
+// section, fit from servo_id_results.json): open-circuit voltage ~15.1 V, discharging
+// ~65 mV/min over a match; shared source resistance ~0.069 Ohm (the "several servos load up
+// simultaneously" term, R_src * sum(I)); daisy-chain-position drop rising from ~0 Ohm near
+// the battery to ~0.4-0.5 Ohm at chain ends (ankles chronically 0.5-0.8 V below the arms at
+// typical walking currents -- no per-servo chain resistance was individually measured, so the
+// values below are an ordered approximation of that qualitative finding, not a bench fit).
+//
+// This is computed once per control step from live torque feedback (necessarily dynamic,
+// unlike the static nominal ratings in nugus.proto) and used to (a) report each servo's
+// present supply voltage (MotorVoltageMeasurement, mirrors the hardware's Present Voltage
+// register) and (b) scale down the actuator's available torque to match -- real servos can't
+// produce their nominal stall torque once the bus has sagged.
+namespace bus_voltage {
+constexpr double V_OC_INITIAL        = 15.1;   // [V] open-circuit voltage, full charge
+constexpr double V_DISCHARGE_PER_MIN = 0.065;  // [V/min] slow drain over a match
+constexpr double R_SRC                = 0.069; // [Ohm] shared battery/harness resistance
+constexpr double V_NOMINAL            = 14.8;  // [V] bus voltage the nominal ratings assume
+
+// Back-EMF constants [N.m/A], matching nugus.proto's MX64_K/MX106_K/XH540_K (system
+// identification, servo_id_results.json / doc 17). Duplicated here because the C++
+// controller has no runtime access to PROTO template fields; keep in sync with nugus.proto.
+constexpr double K_MX64  = 1.8115;
+constexpr double K_MX106 = 3.0404;
+constexpr double K_XH540 = 2.7391;
+
+inline double backEmfConstant(const std::string& joint) {
+    if (joint.find("hip_yaw") != std::string::npos)
+        return K_MX106;
+    if (joint.find("hip_roll") != std::string::npos || joint.find("hip_pitch") != std::string::npos
+        || joint.find("knee") != std::string::npos || joint.find("ankle") != std::string::npos)
+        return K_XH540;
+    return K_MX64;  // shoulder pitch/roll, elbow, neck yaw, head pitch
+}
+
+// Approximate per-servo daisy-chain resistance [Ohm], see file-level comment above.
+inline double localResistance(const std::string& joint) {
+    static const std::vector<std::pair<std::string, double>> R_LOCAL = {
+        {"ankle_roll", 0.45},
+        {"ankle_pitch", 0.40},
+        {"knee", 0.30},
+        {"hip_pitch", 0.20},
+        {"hip_roll", 0.15},
+        {"hip_yaw", 0.10},
+    };
+    for (const auto& entry : R_LOCAL) {
+        if (joint.find(entry.first) != std::string::npos)
+            return entry.second;
+    }
+    return 0.05;  // arms/head/neck: short chain, close to the battery
+}
+}  // namespace bus_voltage
+
 class MotorCommand {
 public:
     explicit MotorCommand(webots::Motor* m) {
@@ -650,6 +712,45 @@ public:
         }
     }
 
+    // Updates the shared-bus voltage sag model for one control step (see the bus_voltage
+    // namespace comment above). Pass 1 sums the instantaneous current draw (from the
+    // previous physics step's torque feedback) across every active servo; pass 2 turns that
+    // into each servo's present supply voltage and scales its available torque to match.
+    // getMaxTorque() returns the immutable PROTO rating (not the mutable "available torque"
+    // setAvailableTorque() controls), so re-deriving the scaled limit from it every step is
+    // safe and cannot ratchet down over time.
+    void updateBusVoltage() {
+        double i_total = 0.0;
+        std::map<webots::Device*, double> current;
+        for (const auto& entry : sensors) {
+            webots::PositionSensor* position_sensor = dynamic_cast<webots::PositionSensor*>(entry.first);
+            if (!position_sensor)
+                continue;
+            webots::Motor* motor = position_sensor->getMotor();
+            if (!motor)
+                continue;
+            const double k = bus_voltage::backEmfConstant(position_sensor->getName());
+            const double i = std::fabs(motor->getTorqueFeedback()) / k;
+            current[entry.first] = i;
+            i_total += i;
+        }
+
+        const double v_oc =
+            bus_voltage::V_OC_INITIAL - bus_voltage::V_DISCHARGE_PER_MIN * (controller_time / 60000.0);
+
+        for (const auto& entry : current) {
+            webots::PositionSensor* position_sensor = static_cast<webots::PositionSensor*>(entry.first);
+            webots::Motor* motor                    = position_sensor->getMotor();
+            const double r_local = bus_voltage::localResistance(position_sensor->getName());
+            const double v       = v_oc - bus_voltage::R_SRC * i_total - r_local * entry.second;
+            servo_bus_voltage[entry.first] = v;
+
+            double scale = v / bus_voltage::V_NOMINAL;
+            scale        = std::min(1.15, std::max(0.3, scale));
+            motor->setAvailableTorque(scale * motor->getMaxTorque());
+        }
+    }
+
     void prepareSensorMessage() {
         sensor_measurements.set_time(controller_time);
         struct timeval tp;
@@ -659,6 +760,7 @@ public:
         if (!devices_enabled)  // if devices are disabled (because robot got a red card), no sensor data is sent to the
                                // controller
             return;
+        updateBusVoltage();
         std::string active_sensor;
         std::chrono::time_point<sc> sensor_start;
         for (const auto& entry : sensors) {
@@ -744,6 +846,16 @@ public:
                     MotorTorqueMeasurement* torque = sensor_measurements.add_motor_torques();
                     torque->set_name(position_sensor->getName());
                     torque->set_value(motor->getTorqueFeedback());
+                }
+                // Present supply (bus) voltage at this servo, from updateBusVoltage()'s
+                // shared-battery sag model -- mirrors the hardware Present Voltage register.
+                {
+                    auto voltage = servo_bus_voltage.find(dev);
+                    if (voltage != servo_bus_voltage.end()) {
+                        MotorVoltageMeasurement* measurement = sensor_measurements.add_motor_voltages();
+                        measurement->set_name(position_sensor->getName());
+                        measurement->set_value(voltage->second);
+                    }
                 }
                 // Joint velocity: Webots has no measured-velocity API, so finite-difference the
                 // position sensor. The position is deliberately quantised to the Dynamixel encoder
@@ -973,6 +1085,8 @@ private:
     // Per-joint state for finite-differenced joint velocity (see position sensor handling)
     std::map<webots::Device*, double> previous_position;   // last position sample [rad]
     std::map<webots::Device*, double> filtered_velocity;   // low-pass filtered velocity [rad/s]
+    // Present per-servo supply voltage from the shared-bus sag model (see updateBusVoltage)
+    std::map<webots::Device*, double> servo_bus_voltage;
     char* recv_buffer;
     int recv_index;
     int recv_size;

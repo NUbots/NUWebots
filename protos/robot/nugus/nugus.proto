@@ -43,6 +43,15 @@ PROTO nugus
     # K is the joint-side torque/back-EMF constant [N.m/A] (gearbox lumped in) and current
     # is the stall current V/R, both from system identification (servo_id_results.json)
     # unless noted.
+    #
+    # IMPORTANT: the "voltage" fields below are each motor's NOMINAL rated bus voltage
+    # (14.8 V), used only to size these fixed/no-load actuator limits. They are NOT the
+    # live supply voltage a policy would observe on hardware (Dynamixel Present Voltage).
+    # The real bus sags dynamically under combined servo current draw -- several servos
+    # loading up at once costs everyone voltage headroom simultaneously -- which this
+    # static, per-instance field cannot represent. That dynamic shared-bus sag model lives
+    # in nugus_controller.cpp (see the bus_voltage namespace and MotorVoltageMeasurement)
+    # and is computed per control step, not here.
     field  SFBool      useVoltageModel      FALSE
     # MX64: shoulder pitch/roll, elbow, neck yaw, head pitch (8 total)
     #   K/current reproduce the 2021 doc's datasheet torque (7.30 N.m) and no-load speed
