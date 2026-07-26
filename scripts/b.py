@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import argparse
+import importlib
+import importlib.util
 import os
 import pkgutil
 import re
@@ -81,7 +83,10 @@ if __name__ == "__main__":
                 if sys.argv[1 : len(components) + 1] == components:
 
                     # Load the module
-                    module = pkgutil.find_loader(".".join(components)).load_module()
+                    module_name = ".".join(components)
+                    spec = importlib.util.spec_from_file_location(module_name, os.path.join(dirpath, f))
+                    module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(module)
                     if hasattr(module, "register") and hasattr(module, "run"):
 
                         # Build up the base subcommands to this point
@@ -109,7 +114,9 @@ if __name__ == "__main__":
             # Load the modules and check it's a tool
             components = modname.split(".")
             try:
-                module = pkgutil.find_loader(modname).load_module()
+                spec = importlib.util.find_spec(modname)
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
                 if hasattr(module, "register") and hasattr(module, "run"):
 
                     subcommand = subcommands
