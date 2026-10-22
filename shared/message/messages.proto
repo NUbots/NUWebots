@@ -41,6 +41,13 @@ message PositionSensorMeasurement {
     double value = 2;
 }
 
+// NUbots-specific: joint velocity, computed by finite-differencing the (quantised) position sensor.
+// Mirrors the real Dynamixel Present Velocity register, which the position feedback also feeds.
+message MotorVelocityMeasurement {
+    string name  = 1;
+    double value = 2;  // joint angular velocity [rad/s]
+}
+
 message AccelerometerMeasurement {
     string  name  = 1;
     Vector3 value = 2;  // [m/sˆ2], x-axis, y-axis, z-axis
@@ -151,6 +158,8 @@ message SensorMeasurements {
     // Optimisation
     OptimisationRobotPosition robot_position = 102;
     bool                      reset_done     = 103;
+    // Joint velocity per servo, finite-differenced from the position sensor
+    repeated MotorVelocityMeasurement motor_velocities = 105;
 }
 
 message MotorPosition {
